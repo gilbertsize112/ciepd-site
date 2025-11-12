@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIEPD Watch Center - Admin</title>
+
+<style>
+  :root {
+    --primary: #0077b6;
+    --secondary: #00b4d8;
+    --accent: #90e0ef;
+    --light: #caf0f8;
+    --danger: #ff4d4d;
+    --success: #28a745;
+    --warning: #f0ad4e;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #222;
+    min-height: 100vh;
+    background-attachment: fixed;
+  }
+
+  /* HEADER */
+  .header {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 26px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  }
+
+  #logoutBtn {
+    padding: 8px 18px;
+    background-color: var(--danger);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  #logoutBtn:hover {
+    background-color: #cc0000;
+    transform: scale(1.05);
+  }
+
+  /* NAV BAR */
+  .nav-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+  }
+  .nav-bar a {
+    text-decoration: none;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    padding: 10px 18px;
+    border-radius: 25px;
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+  .nav-bar a:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+  }
+
+  .container {
+    width: 95%;
+    max-width: 1100px;
+    margin: 25px auto;
+  }
+
+  /* CARD SECTIONS */
+  .section {
+    background: rgba(255,255,255,0.85);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  .section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+
+  h2 {
+    color: var(--primary);
+    margin-top: 0;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 5px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    background-color: var(--primary);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .tab:hover {
+    background-color: var(--secondary);
+    transform: scale(1.05);
+  }
+
+  /* REPORT STYLES */
+  .report {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+  }
+  .report:hover {
+    transform: translateY(-3px);
+  }
+
+  .meta {
+    font-size: 0.85rem;
+    color: #555;
+  }
+  .content {
+    margin-top: 5px;
+  }
+
+  .verify-btn, .approve-btn {
+    margin-top: 10px;
+    margin-right: 10px;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .verify-btn { background-color: var(--warning); color: white; }
+  .verify-btn.verified { background-color: var(--success); }
+  .approve-btn { background-color: var(--secondary); color: white; }
+  .approve-btn.approved { background-color: var(--success); }
+
+  .view-all {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  .view-all:hover { color: var(--secondary); }
+
+  .reports-container {
+    overflow: hidden;
+    transition: max-height 0.6s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span>CIEPD Watch Center Admin</span>
+  <button id="logoutBtn">Logout</button>
+</div>
+
+<div class="nav-bar">
+  <a href="index.html">Dashboard</a>
+  <a href="report.html">Reports</a>
+  <a href="message.html">Messages</a>
+  <a href="#">Stats</a>
+  <a href="#">Addons</a>
+  <a href="/admin-map.html">Admin Map</a>
+  <a href="/settings.html">Settings</a>
+  <a href="#">Manage Users</a>
+  <a href="submit.html">Submit Report</a>
+</div>
+
+<div class="status-bar">
+  <div>Admin Panel</div>
+  <div>
+    <span>Users (120)</span> |
+    <span>Reports (250)</span> |
+    <span>Verified (180)</span> |
+    <span>Approved (150)</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    <h2>Dashboard Overview</h2>
+    <div class="tabs">
+      <div class="tab">Timeline</div>
+      <div class="tab">Today</div>
+      <div class="tab">Past Month</div>
+      <div class="tab">Past Year</div>
+      <div class="tab">All</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Recent Reports</h2>
+    <div class="reports-container">
+      <!-- Sample Reports -->
+      <div class="report">
+        <div class="meta">| SOURCE: info@ciepd.org | 10:30 AM</div>
+        <div class="content"><strong>System Update</strong><br>New version of the monitoring dashboard deployed successfully.</div>
+        <button class="verify-btn verified">Verified</button>
+        <button class="approve-btn approved">Approved</button>
+      </div>
+      <div class="report">
+        <div class="meta">| SOURCE: alerts@ciepd.org | 09:15 AM</div>
+        <div class="content"><strong>Community Alert</strong><br>Heavy rainfall reported in Zone B; local teams have been dispatched.</div>
+        <button class="verify-btn verified">Verified</button>
+        <button class="approve-btn">Approve</button>
+      </div>
+      <div class="report">
+        <div class="meta">| SOURCE: updates@ciepd.org | 08:45 AM</div>
+        <div class="content"><strong>Power Outage</strong><br>Power disruption in Ward 3 confirmed. Repairs are ongoing.</div>
+        <button class="verify-btn">Verify</button>
+        <button class="approve-btn">Approve</button>
+      </div>
+    </div>
+    <a href="#" class="view-all">View all reports</a>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try {
+      const res = await fetch("/logout", { method: "POST" });
+      if (res.ok) window.location.href = "/login.html";
+      else alert("Error logging out.");
+    } catch (err) { alert("Error logging out."); }
+  });
+
+  function createReportItem(data) {
+    const div = document.createElement("div");
+    div.className = "report";
+    div.innerHTML = `
+      <div class="meta">| SOURCE: ${data.email || "Unknown"} | 
+        ${new Date(data.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      </div>
+      <div class="content">
+        <strong>${data.title}</strong><br>${data.content}
+      </div>
+      <button class="verify-btn ${data.verified ? 'verified' : ''}">
+        ${data.verified ? "Verified" : "Verify"}
+      </button>
+      <button class="approve-btn ${data.approved ? 'approved' : ''}">
+        ${data.approved ? "Approved" : "Approve"}
+      </button>
+    `;
+    return div;
+  }
+
+  let allNews = [];
+
+  async function loadNews() {
+    const res = await fetch("/get-news");
+    allNews = await res.json();
+    displayRecentNews();
+  }
+
+  function displayRecentNews() {
+    const container = document.querySelector(".reports-container");
+    allNews.slice(0, 5).forEach(news => container.prepend(createReportItem(news)));
+  }
+
+  function displayAllNews() {
+    const container = document.querySelector(".reports-container");
+    container.innerHTML = "";
+    allNews.forEach(news => container.appendChild(createReportItem(news)));
+  }
+
+  let showingAll = false;
+  document.querySelector(".view-all").addEventListener("click", (e) => {
+    e.preventDefault();
+    const link = e.target;
+    if (!showingAll) {
+      displayAllNews();
+      link.textContent = "Show less";
+      showingAll = true;
+    } else {
+      displayRecentNews();
+      link.textContent = "View all reports";
+      showingAll = false;
+    }
+  });
+
+  const socket = io();
+  socket.on("new_news", (news) => {
+    const container = document.querySelector(".reports-container");
+    container.prepend(createReportItem(news));
+  });
+
+  loadNews();
+</script>
+
+</body>
+</html>

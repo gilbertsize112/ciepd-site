@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIEPD Conflict/Peace Watch Center - Reports</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #b3e5fc, #ffffff);
+        color: #333;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+        background: linear-gradient(90deg, #0077b6, #00b4d8);
+        padding: 20px;
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        color: #fff;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        animation: fadeDown 1s ease;
+    }
+
+    /* Navbar */
+    .nav-bar {
+        background-color: #caf0f8;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        padding: 12px;
+        flex-wrap: wrap;
+        animation: fadeDown 1s ease;
+    }
+    .nav-bar a {
+        text-decoration: none;
+        color: #0077b6;
+        padding: 8px 18px;
+        border-radius: 25px;
+        border: 1px solid #0077b6;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .nav-bar a:hover {
+        background: #0077b6;
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Status bar */
+    .status-bar {
+        background-color: #e0f7fa;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #333;
+        animation: fadeDown 1.2s ease;
+    }
+
+    /* Main content */
+    .wrapper {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+        animation: fadeUp 1.2s ease;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 2em;
+        color: #0077b6;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .refresh-btn {
+        display: block;
+        margin: 0 auto 30px;
+        background: linear-gradient(90deg, #0077b6, #0096c7);
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1em;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+    .refresh-btn:hover {
+        background: linear-gradient(90deg, #0096c7, #48cae4);
+        transform: scale(1.05);
+    }
+
+    /* Reports layout */
+    .reports-container {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        position: relative;
+    }
+
+    .report {
+        display: flex;
+        flex-wrap: wrap;
+        background-color: #ffffff;
+        border-left: 5px solid #00b4d8;
+        border-radius: 12px;
+        padding: 20px;
+        align-items: flex-start;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        transition: all 0.4s ease;
+        opacity: 0;
+        transform: translateY(40px);
+        animation: slideUp 0.7s forwards;
+    }
+
+    .report:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    .report img {
+        width: 150px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 20px;
+        border: 2px solid #0077b6;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease;
+    }
+
+    .report img:hover {
+        transform: scale(1.05);
+    }
+
+    .report-details {
+        flex: 1;
+        animation: fadeIn 1s ease;
+    }
+
+    .report-title {
+        font-size: 1.25em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #0077b6;
+    }
+
+    .report-title a {
+        text-decoration: none;
+        color: #0077b6;
+        transition: color 0.3s;
+    }
+    .report-title a:hover {
+        color: #023e8a;
+    }
+
+    .status {
+        font-size: 0.85em;
+        font-weight: bold;
+        margin-left: 10px;
+        text-transform: uppercase;
+    }
+    .status.verified { color: green; }
+    .status.unverified { color: #ff4d4d; }
+
+    .report-date, .report-location, .report-category {
+        font-size: 0.9em;
+        margin-top: 5px;
+        color: #555;
+    }
+
+    .report-description {
+        font-size: 0.95em;
+        line-height: 1.5;
+        margin-top: 8px;
+        color: #333;
+    }
+
+    /* Loading animation */
+    .loading {
+        text-align: center;
+        display: none;
+    }
+    .loading.show {
+        display: block;
+    }
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #ccc;
+        border-top: 4px solid #0077b6;
+        border-radius: 50%;
+        margin: 20px auto;
+        animation: spin 1s linear infinite;
+    }
+
+    /* Footer */
+    .footer {
+        background-color: #0077b6;
+        text-align: center;
+        padding: 20px;
+        font-size: 0.9em;
+        color: #fff;
+        margin-top: 40px;
+    }
+    .footer a {
+        color: #fff;
+        text-decoration: underline;
+    }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+    CIEPD Conflict/Peace Watch Center
+</div>
+
+<div class="nav-bar">
+    <a href="index.html">Dashboard</a>
+    <a href="report.html">Reports</a>
+    <a href="message.html">Messages</a>
+    <a href="#">Stats</a>
+    <a href="#">Addons</a>
+    <a href="admin-map.html">Admin Map</a>
+</div>
+
+<div class="status-bar">
+    <div>Showing Reports</div>
+    <div>
+        <span id="total-count">Total: 3</span> |
+        <span id="verified-count">Verified: 1</span> |
+        <span id="unverified-count">Unverified: 2</span>
+    </div>
+</div>
+
+<div class="wrapper">
+    <h2>Reports</h2>
+    <button class="refresh-btn" onclick="loadReports()">🔄 Refresh Reports</button>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Loading new reports...</p>
+    </div>
+
+    <div class="reports-container" id="reports-container">
+
+        <!-- Static Reports -->
+        <div class="report static-report">
+            <img src="https://c683652.ssl.cf2.rackcdn.com/media/img/report-thumb-default.jpg" alt="Protest Erupts in Ondo Community">
+            <div class="report-details">
+                <div class="report-title"><a href="#">Protest Erupts in Ondo Community Over Mysterious Death of Young Man</a> <span class="status unverified">Unverified</span></div>
+                <div class="report-date">13:31 Aug 22, 2025</div>
+                <div class="report-description">The incident, which has unsettled residents, led to demonstrations as protesters stormed the streets of Ile-Oluji...</div>
+                <div class="report-location">Location: Ondo</div>
+                <div class="report-category">Category: Early Warning signal</div>
+            </div>
+        </div>
+
+        <div class="report static-report">
+            <img src="https://c683652.ssl.cf2.rackcdn.com/media/img/report-thumb-default.jpg" alt="Tension in Edo community">
+            <div class="report-details">
+                <div class="report-title"><a href="#">Tension in Edo community over alleged sale of communal land</a> <span class="status verified">Verified</span></div>
+                <div class="report-date">15:26 Aug 21, 2025</div>
+                <div class="report-description">Unease is brewing in Iguelegbon community following concerns among residents over communal land disputes...</div>
+                <div class="report-location">Location: Edo state</div>
+                <div class="report-category">Category: Early Warning signal</div>
+            </div>
+        </div>
+
+        <div class="report static-report">
+            <img src="https://c683652.ssl.cf2.rackcdn.com/media/img/report-thumb-default.jpg" alt="Police rescue in Akwa Ibom">
+            <div class="report-details">
+                <div class="report-title"><a href="#">Police rescue 20 trafficked Ghanaians in Akwa Ibom, suspect hypnosis</a> <span class="status unverified">Unverified</span></div>
+                <div class="report-date">15:19 Aug 21, 2025</div>
+                <div class="report-description">The Akwa Ibom State Police Command rescued 20 Ghanaians, trafficked to Uyo Local Government Area...</div>
+                <div class="report-location">Location: Akwa Ibom</div>
+                <div class="report-category">Category: Kidnapping</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    All rights reserved. Powered by <a href="http://www.ushahidi.com/">Sammy Tech</a>
+</div>
+
+<script>
+let loadedIds = new Set();
+
+async function loadReports() {
+    const container = document.getElementById('reports-container');
+    const loading = document.getElementById('loading');
+    loading.classList.add('show');
+
+    try {
+        const res = await fetch('http://localhost:3000/get-news');
+        const data = await res.json();
+        loading.classList.remove('show');
+
+        if (!data.length) {
+            console.log('No new reports found.');
+            return;
+        }
+
+        // Remove only previous dynamic reports
+        container.querySelectorAll('.dynamic-report').forEach(el => el.remove());
+
+        let verified = 0, unverified = 0;
+
+        data.forEach(report => {
+            if (loadedIds.has(report._id)) return;
+            loadedIds.add(report._id);
+
+            const isVerified = report.verified === true || report.status === 'verified';
+            if (isVerified) verified++; else unverified++;
+
+            const reportHTML = `
+                <div class="report dynamic-report">
+                    <img src="${report.image || 'https://c683652.ssl.cf2.rackcdn.com/media/img/report-thumb-default.jpg'}" alt="${report.title}">
+                    <div class="report-details">
+                        <div class="report-title">
+                            <a href="#">${report.title}</a>
+                            <span class="status ${isVerified ? 'verified' : 'unverified'}">${isVerified ? 'Verified' : 'Unverified'}</span>
+                        </div>
+                        <div class="report-date">${new Date(report.date || Date.now()).toLocaleString()}</div>
+                        <div class="report-description">${report.description || ''}</div>
+                        <div class="report-location">Location: ${report.location || 'Unknown'}</div>
+                        <div class="report-category">Category: ${report.category || 'General'}</div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', reportHTML);
+        });
+
+        // Update counts
+        const staticReports = container.querySelectorAll('.static-report').length;
+        document.getElementById('total-count').innerText = `Total: ${data.length + staticReports}`;
+        document.getElementById('verified-count').innerText = `Verified: ${verified + 1}`;
+        document.getElementById('unverified-count').innerText = `Unverified: ${unverified + 2}`;
+    } catch (error) {
+        console.error('Error fetching reports:', error);
+        loading.classList.remove('show');
+        alert('Failed to load reports. Please check console for details.');
+    }
+}
+
+// Auto-refresh every 30 seconds
+setInterval(loadReports, 30000);
+</script>
+
+</body>
+</html>

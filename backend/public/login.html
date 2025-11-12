@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIEPD Login Portal</title>
+  <style>
+    * { box-sizing: border-box; font-family: "Poppins", sans-serif; margin: 0; padding: 0; }
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: linear-gradient(120deg, #6a11cb, #2575fc, #00c6ff);
+      background-size: 400% 400%;
+      animation: gradientMove 20s ease infinite;
+      position: relative;
+      color: #333;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .shape { position: absolute; border-radius: 50%; opacity: 0.2; animation: float 25s linear infinite; }
+    .shape.small { width: 50px; height: 50px; }
+    .shape.medium { width: 100px; height: 100px; }
+    .shape.large { width: 150px; height: 150px; }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-50px) rotate(180deg); }
+      100% { transform: translateY(0) rotate(360deg); }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      padding: 45px 35px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    h1 { font-size: 1.7rem; color: #2575fc; margin-bottom: 10px; }
+    p.subtitle { font-size: 0.95rem; color: #555; margin-bottom: 25px; }
+
+    .tabs { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+    .tab {
+      padding: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #666;
+      transition: 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active { color: #2575fc; border-color: #2575fc; }
+
+    form { display: none; text-align: left; animation: fadeIn 0.5s ease; }
+    form.active { display: block; }
+
+    .input-group { margin-bottom: 18px; }
+    label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 5px; }
+    input[type="text"], input[type="password"], input[type="email"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.3s;
+    }
+    input:focus { border-color: #2575fc; box-shadow: 0 0 0 4px rgba(37,117,252,0.2); }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2575fc;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover { background: #0053b3; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+    .footer { margin-top: 25px; font-size: 0.8rem; color: #666; text-align: center; }
+
+    @media (max-width: 500px) { .container { margin: 0 20px; padding: 35px 25px; } }
+  </style>
+</head>
+
+<body>
+  <!-- Background shapes -->
+  <div class="shape small" style="top:10%; left:15%; background:#ff6b6b;"></div>
+  <div class="shape medium" style="top:70%; left:75%; background:#ffca3a;"></div>
+  <div class="shape large" style="top:50%; left:50%; background:#6bcB77;"></div>
+  <div class="shape medium" style="top:20%; left:80%; background:#4d96ff;"></div>
+  <div class="shape small" style="top:80%; left:20%; background:#ff6b6b;"></div>
+
+  <div class="container">
+    <h1>CIEPD Conflict/Peace Watch Center</h1>
+    <p class="subtitle">Access your account</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('login')">Login</div>
+      <div class="tab" onclick="showTab('signup')">Sign Up</div>
+      <div class="tab" onclick="showTab('reset')">Reset</div>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login" class="active">
+      <div class="input-group">
+        <label for="loginEmail">Email Address</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" required />
+      </div>
+      <div class="input-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required />
+      </div>
+      <button type="submit">Login</button>
+    </form>
+
+    <!-- Sign Up Form -->
+    <form id="signup">
+      <div class="input-group">
+        <label for="signupName">Full Name</label>
+        <input type="text" id="signupName" placeholder="Your full name" required />
+      </div>
+      <div class="input-group">
+        <label for="signupEmail">Email Address</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com" required />
+      </div>
+      <div class="input-group">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="Create a password" required />
+      </div>
+      <div class="input-group">
+        <label for="signupConfirm">Confirm Password</label>
+        <input type="password" id="signupConfirm" placeholder="Re-enter password" required />
+      </div>
+      <button type="submit">Create Account</button>
+    </form>
+
+    <!-- Reset Password Form -->
+    <form id="reset">
+      <div class="input-group">
+        <label for="resetEmail">Registered Email</label>
+        <input type="email" id="resetEmail" placeholder="you@example.com" required />
+      </div>
+      <div class="input-group">
+        <label for="resetToken">Reset Token</label>
+        <input type="text" id="resetToken" placeholder="Enter token received" />
+      </div>
+      <div class="input-group">
+        <label for="resetNewPassword">New Password</label>
+        <input type="password" id="resetNewPassword" placeholder="Enter new password" />
+      </div>
+      <button type="submit">Reset Password</button>
+    </form>
+
+    <div class="footer">
+      <p>Send Reports via SMS/WhatsApp: <strong>08034559689</strong></p>
+    </div>
+  </div>
+
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function showMessage(msg) { alert(msg); }
+
+    // Login Form
+    const loginForm = document.getElementById("login");
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const res = await fetch("http://localhost:3000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok || !data) {
+          showMessage(data?.message || "Login failed. Please check your credentials.");
+          return;
+        }
+
+        // ✅ Redirect based on server role
+        if (data.role === "admin") {
+          window.location.href = "admin.html";
+        } else {
+          window.location.href = "submit.html";
+        }
+
+      } catch (err) {
+        console.error(err);
+        showMessage("⚠️ Unable to connect to server. Please check your network or try again.");
+      }
+    });
+
+    // Sign Up Form
+    const signupForm = document.getElementById("signup");
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+      const confirm = document.getElementById("signupConfirm").value;
+      if (password !== confirm) { showMessage("Passwords do not match!"); return; }
+
+      try {
+        const res = await fetch("http://localhost:3000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password })
+        });
+        const text = await res.text();
+        showMessage(text);
+        signupForm.reset();
+        showTab("login");
+      } catch (err) {
+        console.error(err);
+        showMessage("Error creating account. Check console.");
+      }
+    });
+
+    // Reset Password Form
+    const resetForm = document.getElementById("reset");
+    resetForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("resetEmail").value.trim();
+      const token = document.getElementById("resetToken").value.trim();
+      const newPassword = document.getElementById("resetNewPassword").value;
+
+      try {
+        if (!token || !newPassword) {
+          const res = await fetch("http://localhost:3000/reset-password-request", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+          });
+          const text = await res.text();
+          showMessage("Your reset token: " + text);
+        } else {
+          const res = await fetch("http://localhost:3000/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, token, newPassword })
+          });
+          const text = await res.text();
+          showMessage(text);
+          resetForm.reset();
+        }
+      } catch (err) {
+        console.error(err);
+        showMessage("Error resetting password. Check console.");
+      }
+    });
+  </script>
+</body>
+</html>

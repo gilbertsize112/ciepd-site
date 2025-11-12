@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | CIEPD Conflict/Peace Watch Center</title>
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&display=swap" rel="stylesheet">
+    <style>
+        /* General body and font */
+        body {
+            font-family: 'PT Sans Narrow', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e6f2ff;
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: #004080;
+            font-weight: bold; /* Make all links bold */
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Header */
+        #header_nav {
+            background-color: #ffffff;
+            padding: 10px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-weight: bold; /* Make header text bold */
+        }
+
+        #header_nav_left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #header_nav_right {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #header_nav_right a {
+            padding: 5px 12px;
+            border: 1px solid #004080;
+            border-radius: 4px;
+            background-color: #ffffff;
+            transition: 0.3s;
+        }
+
+        #header_nav_right a:hover {
+            background-color: #cce0ff;
+        }
+
+        /* Top info line */
+        #info-line {
+            background-color: #ffffff;
+            color: #0056b3;
+            padding: 8px 30px;
+            font-size: 14px;
+            font-weight: bold; /* Make info line text bold */
+        }
+
+        /* Logo */
+        #logo h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #004080;
+            font-weight: bold; /* Make logo bold */
+        }
+
+        #logo span {
+            display: block;
+            font-size: 14px;
+            margin-top: 5px;
+            color: #0056b3;
+            font-weight: bold; /* Make logo subtitle bold */
+        }
+
+        /* Main menu */
+        #mainmenu ul {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+            padding: 10px 30px;
+            margin: 0;
+            background-color: #ffffff;
+            border-bottom: 2px solid #cce0ff;
+        }
+
+        #mainmenu ul li a {
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        #mainmenu ul li a:hover, #mainmenu ul li a.active {
+            background-color: #cce0ff;
+        }
+
+        /* Submit report button */
+        .submit-incident {
+            margin: 10px 30px;
+        }
+
+        .submit-incident a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .submit-incident a:hover {
+            background-color: #003f7f;
+        }
+
+        /* Map */
+        .map-wrapper {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .map-wrapper img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        /* Contact form */
+        .contact {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            margin: 20px 30px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input.text, textarea.textarea {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn_submit {
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .btn_submit:hover {
+            background-color: #003f7f;
+        }
+
+        .report_row strong {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        #footer {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            color: #333;
+            font-size: 14px;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top navigation & info -->
+    <div id="header_nav">
+        <ul id="header_nav_left">
+            <li><a href="#">English (US)</a></li>
+        </ul>
+        <ul id="header_nav_right">
+            <li><a href="https://ciepdcwc.crowdmap.com/login">Login</a></li>
+        </ul>
+    </div>
+
+    <div id="info-line">
+        CIEPD Conflict/Peace Watch Center | Send Reports also via SMS/WhatsApp to: 09056454523 | 
+        <span class="submit-incident"><a href="https://ciepdcwc.crowdmap.com/reports/submit">Submit a Report</a></span>
+    </div>
+
+    <!-- Main menu -->
+    <div id="mainmenu">
+        <ul>
+            <li><a href="https://ciepdcwc.crowdmap.com/main" class="active">Home</a></li>
+            <li><a href="https://ciepdcwc.crowdmap.com/reports">Reports</a></li>
+            <li><a href="https://ciepdcwc.crowdmap.com/reports/submit">Submit a Report</a></li>
+            <li><a href="https://ciepdcwc.crowdmap.com/alerts">Get Alerts</a></li>
+            <li><a href="https://ciepdcwc.crowdmap.com/contact">Contact Us</a></li>
+            <li><a href="https://ciepdcwc.crowdmap.com/bigmap">Big Map</a></li>
+        </ul>
+    </div>
+
+    <!-- Map -->
+    <div class="map-wrapper">
+        <img src="Nigerdelta.jpg" alt="Map of the region">
+    </div>
+
+    <!-- Contact Form -->
+    <div class="contact">
+        <h1>Contact Us</h1>
+        <form action="https://ciepdcwc.crowdmap.com/contact" method="post">
+            <div class="report_row">
+                <strong>Your Name:</strong>
+                <input type="text" name="contact_name" class="text">
+            </div>
+            <div class="report_row">
+                <strong>Your Email Address:</strong>
+                <input type="text" name="contact_email" class="text">
+            </div>
+            <div class="report_row">
+                <strong>Your Phone Number:</strong>
+                <input type="text" name="contact_phone" class="text">
+            </div>
+            <div class="report_row">
+                <strong>Message Subject:</strong>
+                <input type="text" name="contact_subject" class="text">
+            </div>
+            <div class="report_row">
+                <strong>Message:</strong>
+                <textarea name="contact_message" rows="4" class="textarea"></textarea>
+            </div>
+            <div class="report_row">
+                <strong>Security Code:</strong>
+                +234 = <input type="text" name="captcha" class="text">
+            </div>
+            <div class="report_row">
+                <input type="submit" value="Send Message" class="btn_submit">
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        Powered by the <a href="http://www.ushahidi.com/">Ushahidi</a> Platform | All rights reserved.
+    </div>
+
+</body>
+</html>
