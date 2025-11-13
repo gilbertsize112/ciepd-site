@@ -103,6 +103,7 @@
 </head>
 
 <body>
+
   <!-- Background shapes -->
   <div class="shape small" style="top:10%; left:15%; background:#ff6b6b;"></div>
   <div class="shape medium" style="top:70%; left:75%; background:#ffca3a;"></div>
@@ -115,9 +116,9 @@
     <p class="subtitle">Access your account</p>
 
     <div class="tabs">
-      <div class="tab active" onclick="showTab('login')">Login</div>
-      <div class="tab" onclick="showTab('signup')">Sign Up</div>
-      <div class="tab" onclick="showTab('reset')">Reset</div>
+      <div class="tab active" onclick="showTab('login', this)">Login</div>
+      <div class="tab" onclick="showTab('signup', this)">Sign Up</div>
+      <div class="tab" onclick="showTab('reset', this)">Reset</div>
     </div>
 
     <!-- Login Form -->
@@ -176,17 +177,20 @@
     </div>
   </div>
 
+  <!-- JS FIXED -->
   <script>
-    function showTab(tabId) {
+    const BASE_URL = "https://ciepd-backend.onrender.com";
+
+    function showTab(tabId, element) {
       document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
-      event.target.classList.add('active');
+      element.classList.add('active');
       document.getElementById(tabId).classList.add('active');
     }
 
     function showMessage(msg) { alert(msg); }
 
-    // Login Form
+    // Login
     const loginForm = document.getElementById("login");
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -194,20 +198,18 @@
       const password = document.getElementById("loginPassword").value;
 
       try {
-        const res = await fetch("http://localhost:3000/login", {
+        const res = await fetch(`${BASE_URL}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
         });
 
         const data = await res.json().catch(() => null);
-
         if (!res.ok || !data) {
-          showMessage(data?.message || "Login failed. Please check your credentials.");
+          showMessage(data?.message || "Login failed.");
           return;
         }
 
-        // ✅ Redirect based on server role
         if (data.role === "admin") {
           window.location.href = "admin.html";
         } else {
@@ -216,11 +218,11 @@
 
       } catch (err) {
         console.error(err);
-        showMessage("⚠️ Unable to connect to server. Please check your network or try again.");
+        showMessage("⚠️ Unable to connect to server.");
       }
     });
 
-    // Sign Up Form
+    // Sign Up
     const signupForm = document.getElementById("signup");
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -228,25 +230,30 @@
       const email = document.getElementById("signupEmail").value.trim();
       const password = document.getElementById("signupPassword").value;
       const confirm = document.getElementById("signupConfirm").value;
-      if (password !== confirm) { showMessage("Passwords do not match!"); return; }
+
+      if (password !== confirm) {
+        showMessage("Passwords do not match!");
+        return;
+      }
 
       try {
-        const res = await fetch("http://localhost:3000/register", {
+        const res = await fetch(`${BASE_URL}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, email, password })
         });
+
         const text = await res.text();
         showMessage(text);
         signupForm.reset();
-        showTab("login");
+        showTab("login", document.querySelector(".tab"));
       } catch (err) {
         console.error(err);
-        showMessage("Error creating account. Check console.");
+        showMessage("Error creating account.");
       }
     });
 
-    // Reset Password Form
+    // Reset Password
     const resetForm = document.getElementById("reset");
     resetForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -256,7 +263,7 @@
 
       try {
         if (!token || !newPassword) {
-          const res = await fetch("http://localhost:3000/reset-password-request", {
+          const res = await fetch(`${BASE_URL}/reset-password-request`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email })
@@ -264,7 +271,7 @@
           const text = await res.text();
           showMessage("Your reset token: " + text);
         } else {
-          const res = await fetch("http://localhost:3000/reset-password", {
+          const res = await fetch(`${BASE_URL}/reset-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, token, newPassword })
@@ -275,9 +282,10 @@
         }
       } catch (err) {
         console.error(err);
-        showMessage("Error resetting password. Check console.");
+        showMessage("Error resetting password.");
       }
     });
   </script>
+
 </body>
 </html>
