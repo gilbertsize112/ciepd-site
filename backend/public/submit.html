@@ -6,6 +6,7 @@
 <title>CIEPD Watch Center – Submit Report</title>
 
 <style>
+/* ——— SAME STYLES YOU PROVIDED ——— */
 :root {
   --primary: #0077b6;
   --secondary: #0096c7;
@@ -14,7 +15,6 @@
   --light: #f1f9ff;
 }
 
-/* General */
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -22,7 +22,7 @@ body {
   color: #333;
 }
 
-/* Animated header background */
+/* Header */
 #header {
   position: relative;
   overflow: hidden;
@@ -34,18 +34,9 @@ body {
   padding: 50px 10px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
+#header h1 { margin: 0; font-size: 2rem; letter-spacing: 1px; }
+#header p { margin: 5px 0 0; font-size: 1rem; }
 
-#header h1 {
-  margin: 0;
-  font-size: 2rem;
-  letter-spacing: 1px;
-}
-#header p {
-  margin: 5px 0 0;
-  font-size: 1rem;
-}
-
-/* Floating orbs animation inside header */
 #header::before, #header::after {
   content: '';
   position: absolute;
@@ -54,21 +45,10 @@ body {
   background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%);
   animation: floatOrbs 12s infinite ease-in-out;
 }
-#header::before {
-  width: 200px;
-  height: 200px;
-  top: -60px;
-  left: -60px;
-}
-#header::after {
-  width: 250px;
-  height: 250px;
-  bottom: -80px;
-  right: -80px;
-  animation-delay: 4s;
-}
 
-/* Keyframes for animations */
+#header::before { width: 200px; height: 200px; top: -60px; left: -60px; }
+#header::after { width: 250px; height: 250px; bottom: -80px; right: -80px; animation-delay: 4s; }
+
 @keyframes gradientMove {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -104,7 +84,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Form container */
+/* Form wrapper */
 .wrapper {
   width: 95%;
   max-width: 900px;
@@ -140,14 +120,8 @@ textarea.textarea {
   min-height: 120px;
 }
 
-input[type="checkbox"] {
-  margin-right: 8px;
-}
-
-.report_row label {
-  display: block;
-  margin: 4px 0;
-}
+input[type="checkbox"] { margin-right: 8px; }
+.report_row label { display: block; margin: 4px 0; }
 
 input.btn_submit {
   background: var(--primary);
@@ -160,9 +134,7 @@ input.btn_submit {
   transition: 0.3s;
   width: 100%;
 }
-input.btn_submit:hover {
-  background: var(--secondary);
-}
+input.btn_submit:hover { background: var(--secondary); }
 
 button.back-btn {
   background: #999;
@@ -176,62 +148,7 @@ button.back-btn {
   transition: 0.3s;
   width: 100%;
 }
-button.back-btn:hover {
-  background: #777;
-}
-
-/* Floating Map Animation */
-#niger-delta-map {
-  position: fixed;
-  bottom: 15px;
-  right: 15px;
-  width: 220px;
-  height: auto;
-  border-radius: 10px;
-  border: 2px solid var(--primary);
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  animation: floatMap 8s ease-in-out infinite;
-  transition: transform 0.3s ease;
-  z-index: 10;
-}
-
-#niger-delta-map:hover {
-  transform: scale(1.08);
-}
-
-@keyframes floatMap {
-  0%   { transform: translate(0, 0); }
-  25%  { transform: translate(-5px, -8px); }
-  50%  { transform: translate(5px, 5px); }
-  75%  { transform: translate(-3px, 5px); }
-  100% { transform: translate(0, 0); }
-}
-
-@media (max-width: 768px) {
-  #niger-delta-map {
-    width: 55%;
-    bottom: 10px;
-    right: 10px;
-    animation: floatMap 10s ease-in-out infinite;
-  }
-}
-
-/* Footer */
-#footer {
-  background: var(--dark);
-  color: white;
-  text-align: center;
-  padding: 20px;
-  margin-top: 40px;
-}
-#footer a {
-  color: #aeeaff;
-  text-decoration: none;
-  font-weight: bold;
-}
-#footer a:hover {
-  text-decoration: underline;
-}
+button.back-btn:hover { background: #777; }
 </style>
 </head>
 
@@ -255,86 +172,98 @@ button.back-btn:hover {
 
 <!-- Main Form -->
 <div class="wrapper">
-  <form id="reportForm" name="reportForm" enctype="multipart/form-data">
+  <form id="reportForm" name="reportForm">
     <h1>Submit a New Report</h1>
 
     <div class="report_row">
-      <h4>Report Title <span style="color:red">*</span></h4>
-      <input type="text" id="incident_title" name="incident_title" class="text">
+      <h4>Report Title *</h4>
+      <input type="text" id="title" class="text">
     </div>
 
     <div class="report_row">
-      <h4>Description <span style="color:red">*</span></h4>
-      <textarea id="incident_description" name="incident_description" class="textarea"></textarea>
+      <h4>Description *</h4>
+      <textarea id="content" class="textarea"></textarea>
     </div>
 
     <div class="report_row">
-      <h4>Categories <span style="color:red">*</span></h4>
-      <label><input type="checkbox" name="incident_category" value="Violent Conflicts">Violent Conflicts</label>
-      <label><input type="checkbox" name="incident_category" value="Electoral Violence">Electoral Violence</label>
-      <label><input type="checkbox" name="incident_category" value="Peace Initiatives">Peace Initiatives</label>
-      <label><input type="checkbox" name="incident_category" value="Hate Speech">Hate Speech</label>
+      <h4>Categories *</h4>
+      <label><input type="checkbox" name="category" value="Violent Conflicts">Violent Conflicts</label>
+      <label><input type="checkbox" name="category" value="Electoral Violence">Electoral Violence</label>
+      <label><input type="checkbox" name="category" value="Peace Initiatives">Peace Initiatives</label>
+      <label><input type="checkbox" name="category" value="Hate Speech">Hate Speech</label>
     </div>
 
     <div class="report_row">
-      <h4>Location Name <span style="color:red">*</span></h4>
-      <input type="text" id="location_name" name="location_name" class="text">
+      <h4>Location *</h4>
+      <input type="text" id="location" class="text">
     </div>
 
     <h3 style="color:#0077b6; margin-top:25px;">Optional Information</h3>
-    <div class="report_row"><h4>First Name</h4><input type="text" name="person_first" id="person_first" class="text"></div>
-    <div class="report_row"><h4>Last Name</h4><input type="text" name="person_last" id="person_last" class="text"></div>
-    <div class="report_row"><h4>Email</h4><input type="text" name="person_email" id="person_email" class="text"></div>
 
-    <input type="submit" name="submit" value="Submit Report" class="btn_submit">
+    <div class="report_row">
+      <h4>First Name</h4>
+      <input type="text" id="firstName" class="text">
+    </div>
+
+    <div class="report_row">
+      <h4>Last Name</h4>
+      <input type="text" id="lastName" class="text">
+    </div>
+
+    <div class="report_row">
+      <h4>Email</h4>
+      <input type="text" id="email" class="text">
+    </div>
+
+    <input type="submit" value="Submit Report" class="btn_submit">
     <button type="button" onclick="window.location.href='/admin.html'" class="back-btn">Back to Admin</button>
   </form>
 </div>
 
-<!-- Floating Map -->
-<img src="Nigerdelta.jpg" id="niger-delta-map" alt="Niger Delta Map">
-
-<!-- Footer -->
-<div id="footer">
-  Powered by <a href="#">Sammy Tech</a>
-</div>
-
 <script>
-const reportForm = document.getElementById('reportForm');
+const form = document.getElementById("reportForm");
 
-reportForm.addEventListener('submit', async (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const title = document.getElementById('incident_title').value.trim();
-  const content = document.getElementById('incident_description').value.trim();
-  const location = document.getElementById('location_name').value.trim();
-  const first = document.getElementById('person_first').value.trim();
-  const last = document.getElementById('person_last').value.trim();
-  const email = document.getElementById('person_email').value.trim();
+  const title = document.getElementById("title").value.trim();
+  const content = document.getElementById("content").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const email = document.getElementById("email").value.trim();
 
-  const categories = Array.from(document.querySelectorAll('input[name="incident_category"]:checked'))
-    .map(cb => cb.value);
+  const category = Array.from(
+    document.querySelectorAll('input[name="category"]:checked')
+  ).map(c => c.value);
 
-  if (!title || !content || !location) {
-    alert('Please fill in all required fields!');
+  if (!title || !content || !location || category.length === 0) {
+    alert("Please fill all required fields.");
     return;
   }
 
-  const data = { title, content, location, first, last, email, categories };
+  const payload = {
+    title,
+    content,
+    description: content,
+    location,
+    firstName,
+    lastName,
+    email,
+    category
+  };
 
-  try {
-    const res = await fetch('http://localhost:3000/submit-news', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+  const res = await fetch("/api/news", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
 
-    const text = await res.text();
-    alert(text);
-    reportForm.reset();
-  } catch (err) {
-    alert('Error submitting report.');
-    console.error(err);
+  if (res.ok) {
+    alert("Report submitted successfully!");
+    form.reset();
+  } else {
+    alert("Failed to submit report.");
   }
 });
 </script>

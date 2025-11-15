@@ -18,24 +18,20 @@
       position: relative;
       color: #333;
     }
-
     @keyframes gradientMove {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-
     .shape { position: absolute; border-radius: 50%; opacity: 0.2; animation: float 25s linear infinite; }
     .shape.small { width: 50px; height: 50px; }
     .shape.medium { width: 100px; height: 100px; }
     .shape.large { width: 150px; height: 150px; }
-
     @keyframes float {
       0% { transform: translateY(0) rotate(0deg); }
       50% { transform: translateY(-50px) rotate(180deg); }
       100% { transform: translateY(0) rotate(360deg); }
     }
-
     .container {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
@@ -48,12 +44,9 @@
       z-index: 1;
       animation: fadeIn 1s ease forwards;
     }
-
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
     h1 { font-size: 1.7rem; color: #2575fc; margin-bottom: 10px; }
     p.subtitle { font-size: 0.95rem; color: #555; margin-bottom: 25px; }
-
     .tabs { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #eee; }
     .tab {
       padding: 10px;
@@ -97,8 +90,6 @@
     button:hover { background: #0053b3; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
     .footer { margin-top: 25px; font-size: 0.8rem; color: #666; text-align: center; }
-
-    @media (max-width: 500px) { .container { margin: 0 20px; padding: 35px 25px; } }
   </style>
 </head>
 
@@ -124,8 +115,8 @@
     <!-- Login Form -->
     <form id="login" class="active">
       <div class="input-group">
-        <label for="loginEmail">Email Address</label>
-        <input type="email" id="loginEmail" placeholder="you@example.com" required />
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="Enter your email" required />
       </div>
       <div class="input-group">
         <label for="loginPassword">Password</label>
@@ -137,39 +128,19 @@
     <!-- Sign Up Form -->
     <form id="signup">
       <div class="input-group">
-        <label for="signupName">Full Name</label>
-        <input type="text" id="signupName" placeholder="Your full name" required />
+        <label>Signup Disabled</label>
+        <p style="font-size:14px;color:#444;">User signup is not available.</p>
       </div>
-      <div class="input-group">
-        <label for="signupEmail">Email Address</label>
-        <input type="email" id="signupEmail" placeholder="you@example.com" required />
-      </div>
-      <div class="input-group">
-        <label for="signupPassword">Password</label>
-        <input type="password" id="signupPassword" placeholder="Create a password" required />
-      </div>
-      <div class="input-group">
-        <label for="signupConfirm">Confirm Password</label>
-        <input type="password" id="signupConfirm" placeholder="Re-enter password" required />
-      </div>
-      <button type="submit">Create Account</button>
+      <button type="button" onclick="showMessage('Signup is disabled.')">Okay</button>
     </form>
 
-    <!-- Reset Password Form -->
+    <!-- Reset Form -->
     <form id="reset">
       <div class="input-group">
-        <label for="resetEmail">Registered Email</label>
-        <input type="email" id="resetEmail" placeholder="you@example.com" required />
+        <label>Reset Disabled</label>
+        <p style="font-size:14px;color:#444;">Password reset is not available.</p>
       </div>
-      <div class="input-group">
-        <label for="resetToken">Reset Token</label>
-        <input type="text" id="resetToken" placeholder="Enter token received" />
-      </div>
-      <div class="input-group">
-        <label for="resetNewPassword">New Password</label>
-        <input type="password" id="resetNewPassword" placeholder="Enter new password" />
-      </div>
-      <button type="submit">Reset Password</button>
+      <button type="button" onclick="showMessage('Password reset is disabled.')">Okay</button>
     </form>
 
     <div class="footer">
@@ -177,9 +148,13 @@
     </div>
   </div>
 
-  <!-- JS FIXED -->
   <script>
-    const BASE_URL = "https://ciepd-backend.onrender.com";
+    // FIXED BACKEND URL DETECTION
+    const BASE_URL =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000"
+        : "https://ciepd-backend.onrender.com";
 
     function showTab(tabId, element) {
       document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -188,101 +163,37 @@
       document.getElementById(tabId).classList.add('active');
     }
 
-    function showMessage(msg) { alert(msg); }
+    function showMessage(msg) {
+      alert(msg);
+    }
 
-    // Login
-    const loginForm = document.getElementById("login");
-    loginForm.addEventListener("submit", async (e) => {
+    // LOGIN FIXED
+    document.getElementById("login").addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value;
 
       try {
-        const res = await fetch(`${BASE_URL}/login`, {
+        const res = await fetch(`${BASE_URL}/admin/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ email, password })
         });
 
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data) {
-          showMessage(data?.message || "Login failed.");
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMessage(data.message || "Login failed.");
           return;
         }
 
-        if (data.role === "admin") {
-          window.location.href = "admin.html";
-        } else {
-          window.location.href = "submit.html";
-        }
+        window.location.href = "admin.html";
 
       } catch (err) {
         console.error(err);
-        showMessage("⚠️ Unable to connect to server.");
-      }
-    });
-
-    // Sign Up
-    const signupForm = document.getElementById("signup");
-    signupForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const username = document.getElementById("signupName").value.trim();
-      const email = document.getElementById("signupEmail").value.trim();
-      const password = document.getElementById("signupPassword").value;
-      const confirm = document.getElementById("signupConfirm").value;
-
-      if (password !== confirm) {
-        showMessage("Passwords do not match!");
-        return;
-      }
-
-      try {
-        const res = await fetch(`${BASE_URL}/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, email, password })
-        });
-
-        const text = await res.text();
-        showMessage(text);
-        signupForm.reset();
-        showTab("login", document.querySelector(".tab"));
-      } catch (err) {
-        console.error(err);
-        showMessage("Error creating account.");
-      }
-    });
-
-    // Reset Password
-    const resetForm = document.getElementById("reset");
-    resetForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("resetEmail").value.trim();
-      const token = document.getElementById("resetToken").value.trim();
-      const newPassword = document.getElementById("resetNewPassword").value;
-
-      try {
-        if (!token || !newPassword) {
-          const res = await fetch(`${BASE_URL}/reset-password-request`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email })
-          });
-          const text = await res.text();
-          showMessage("Your reset token: " + text);
-        } else {
-          const res = await fetch(`${BASE_URL}/reset-password`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, token, newPassword })
-          });
-          const text = await res.text();
-          showMessage(text);
-          resetForm.reset();
-        }
-      } catch (err) {
-        console.error(err);
-        showMessage("Error resetting password.");
+        showMessage("Unable to connect to server.");
       }
     });
   </script>

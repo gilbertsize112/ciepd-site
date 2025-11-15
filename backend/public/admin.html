@@ -1,336 +1,610 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIEPD Watch Center - Admin</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CIEPD Admin Dashboard</title>
+<script src="/socket.io/socket.io.js"></script>
 
 <style>
-  :root {
+  :root{
     --primary: #0077b6;
     --secondary: #00b4d8;
-    --accent: #90e0ef;
-    --light: #caf0f8;
-    --danger: #ff4d4d;
-    --success: #28a745;
-    --warning: #f0ad4e;
+    --accent: #023047;
+    --muted: #6b7280;
+    --danger: #e63946;
+    --success: #06d6a0;
+    --card: #ffffff;
+    --glass: rgba(255,255,255,0.85);
+    --radius: 14px;
   }
 
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #222;
-    min-height: 100vh;
-    background-attachment: fixed;
+  /* ===== Base ===== */
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: "Inter", "Segoe UI", Poppins, system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg,#e6f7ff 0%, #f8feff 100%);
+    color: #0b2447;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    min-height:100vh;
   }
 
-  /* HEADER */
-  .header {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-    color: white;
-    text-align: center;
-    padding: 20px;
-    font-size: 26px;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  }
-
-  #logoutBtn {
-    padding: 8px 18px;
-    background-color: var(--danger);
-    border: none;
-    border-radius: 30px;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-  #logoutBtn:hover {
-    background-color: #cc0000;
-    transform: scale(1.05);
-  }
-
-  /* NAV BAR */
-  .nav-bar {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-  }
-  .nav-bar a {
-    text-decoration: none;
-    color: white;
-    background: rgba(255,255,255,0.1);
-    padding: 10px 18px;
-    border-radius: 25px;
-    border: 1px solid rgba(255,255,255,0.3);
-    transition: all 0.3s ease;
-    font-weight: 500;
-  }
-  .nav-bar a:hover {
-    background: rgba(255,255,255,0.3);
-    transform: translateY(-2px);
-  }
-
-  /* STATUS BAR */
-  .status-bar {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 15px;
-  }
-
-  .container {
-    width: 95%;
-    max-width: 1100px;
-    margin: 25px auto;
-  }
-
-  /* CARD SECTIONS */
-  .section {
-    background: rgba(255,255,255,0.85);
-    border-radius: 16px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-  }
-  .section:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  }
-
-  h2 {
-    color: var(--primary);
-    margin-top: 0;
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 5px;
-  }
-
-  /* TABS */
-  .tabs {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .tab {
-    background-color: var(--primary);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .tab:hover {
-    background-color: var(--secondary);
-    transform: scale(1.05);
-  }
-
-  /* REPORT STYLES */
-  .report {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: transform 0.3s;
-  }
-  .report:hover {
-    transform: translateY(-3px);
-  }
-
-  .meta {
-    font-size: 0.85rem;
-    color: #555;
-  }
-  .content {
-    margin-top: 5px;
-  }
-
-  .verify-btn, .approve-btn {
-    margin-top: 10px;
-    margin-right: 10px;
-    padding: 7px 14px;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .verify-btn { background-color: var(--warning); color: white; }
-  .verify-btn.verified { background-color: var(--success); }
-  .approve-btn { background-color: var(--secondary); color: white; }
-  .approve-btn.approved { background-color: var(--success); }
-
-  .view-all {
-    display: inline-block;
-    margin-top: 12px;
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s ease;
-  }
-  .view-all:hover { color: var(--secondary); }
-
-  .reports-container {
+  /* ===== Scrolling Header Text ===== */
+  .scroll-container {
+    width: 300px;
     overflow: hidden;
-    transition: max-height 0.6s ease;
+    white-space: nowrap;
+    position: relative;
   }
+  .scroll-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll-left 20s linear infinite;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.4px;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* ===== Header ===== */
+  .header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 28px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.65), rgba(255,255,255,0.45));
+    border-bottom: 1px solid rgba(11,36,71,0.06);
+    backdrop-filter: blur(6px);
+  }
+  .brand { font-weight:700; color:var(--primary); font-size:20px; letter-spacing:0.2px; }
+  .logout-btn{
+    background:var(--danger);
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:600;
+  }
+
+  /* ===== Nav ===== */
+  .nav-bar{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    padding:12px;
+    background: linear-gradient(90deg, rgba(0,119,182,0.06), rgba(0,180,216,0.03));
+    flex-wrap:wrap;
+  }
+  .nav-bar a{
+    text-decoration:none;
+    padding:9px 16px;
+    border-radius:999px;
+    color:var(--accent);
+    background:transparent;
+    font-weight:600;
+    border:1px solid rgba(3,37,61,0.05);
+  }
+  .nav-bar a.special-btn{
+    background:var(--primary);
+    color:white;
+    border:none;
+  }
+
+  /* ===== Page container ===== */
+  .container{
+    width:94%;
+    max-width:1200px;
+    margin:28px auto;
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:26px;
+    box-shadow: 0 10px 30px rgba(3,37,61,0.06);
+  }
+
+  h1{ margin:0 0 18px 0; color:var(--primary); font-size:20px; }
+  .top-row{ display:flex; gap:16px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:18px; }
+
+  /* ===== Filters ===== */
+  .filters{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .filters input[type="text"], .filters select{
+    padding:10px 14px;
+    border-radius:999px;
+    border:1px solid #e6eef6;
+    min-width:220px;
+    font-size:14px;
+    background: #fbfdff;
+  }
+
+  /* ===== Grid ===== */
+  .news-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+    gap:16px;
+    margin-top:8px;
+  }
+  .news-card{
+    background:linear-gradient(180deg,#ffffff,#fbfdff);
+    border-radius:12px;
+    padding:16px;
+    box-shadow: 0 6px 18px rgba(3,37,61,0.04);
+    border-left:4px solid var(--primary);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    cursor:pointer;
+    transition: transform .14s ease, box-shadow .14s ease;
+  }
+  .news-card:hover{ transform: translateY(-6px); box-shadow:0 14px 34px rgba(3,37,61,0.08); }
+  .news-title{ font-weight:700; color:var(--accent); margin:0; font-size:16px; }
+  .news-desc{ color:var(--muted); font-size:14px; line-height:1.4; min-height:44px; overflow:hidden; }
+  .news-meta{ display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+  .badges{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  .badge{ padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; color:white; }
+  .verified{ background:var(--success); }
+  .approved{ background:var(--primary); }
+  .unverified{ background:var(--danger); }
+
+  /* ===== Pagination ===== */
+  #pagination{ text-align:center; margin-top:20px; display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
+  #pagination button{
+    background:var(--primary);
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  #pagination .page-info{ color:var(--muted); font-weight:600; }
+
+  /* ===== Side panel (slide-in) ===== */
+  .side-panel {
+    position:fixed;
+    right:0;
+    top:0;
+    height:100vh;
+    width:0;
+    max-width:950px;
+    background:linear-gradient(180deg,#ffffff,#f9fcff);
+    box-shadow: -18px 0 40px rgba(3,37,61,0.12);
+    overflow:auto;
+    transition: width .28s cubic-bezier(.2,.9,.2,1), transform .28s cubic-bezier(.2,.9,.2,1);
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+  }
+  .side-panel.open{ width:min(920px,100%); transform:translateX(0); }
+  .panel-inner{ padding:28px; display:flex; flex-direction:column; gap:18px; flex:1; min-width:350px; }
+  .panel-top{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .panel-title{ font-size:20px; color:var(--primary); font-weight:800; margin:0; }
+
+  .close-btn{
+    background:transparent;
+    border:none;
+    font-size:14px;
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    color:var(--muted);
+  }
+
+  .panel-meta{ display:flex; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:14px; }
+  .panel-block{
+    background:#fbfeff;
+    border-radius:12px;
+    padding:18px;
+    box-shadow: inset 0 1px 0 rgba(3,37,61,0.02);
+  }
+
+  .panel-text{
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap:break-word;
+    line-height:1.65;
+    color:#17324d;
+    font-size:15px;
+  }
+
+  .panel-actions{
+    display:flex;
+    gap:12px;
+    margin-top:6px;
+    flex-wrap:wrap;
+  }
+  .btn{ padding:10px 16px; border-radius:999px; border:none; cursor:pointer; font-weight:700; }
+  .btn-verify{ background:var(--success); color:white; }
+  .btn-approve{ background:var(--primary); color:white; }
+  .btn-delete{ background:var(--danger); color:white; }
+
+  @media (max-width:880px){
+    .news-grid{ grid-template-columns: repeat( auto-fill, minmax(260px,1fr) ); }
+    .side-panel.open{ width:100%; }
+  }
+
+  .loading {
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    color:var(--muted);
+    font-weight:700;
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--primary); opacity:0.85; animation:blink 1.2s infinite; }
+  .dot:nth-child(2){ animation-delay:.12s }
+  .dot:nth-child(3){ animation-delay:.24s }
+  @keyframes blink { 0% {opacity:0.15} 50% {opacity:1} 100% {opacity:0.15} }
+
 </style>
 </head>
 <body>
 
-<div class="header">
-  <span>CIEPD Watch Center Admin</span>
-  <button id="logoutBtn">Logout</button>
-</div>
-
-<div class="nav-bar">
-  <a href="index.html">Dashboard</a>
-  <a href="report.html">Reports</a>
-  <a href="message.html">Messages</a>
-  <a href="#">Stats</a>
-  <a href="#">Addons</a>
-  <a href="/admin-map.html">Admin Map</a>
-  <a href="/settings.html">Settings</a>
-  <a href="#">Manage Users</a>
-  <a href="submit.html">Submit Report</a>
-</div>
-
-<div class="status-bar">
-  <div>Admin Panel</div>
-  <div>
-    <span>Users (120)</span> |
-    <span>Reports (250)</span> |
-    <span>Verified (180)</span> |
-    <span>Approved (150)</span>
-  </div>
-</div>
-
-<div class="container">
-  <div class="section">
-    <h2>Dashboard Overview</h2>
-    <div class="tabs">
-      <div class="tab">Timeline</div>
-      <div class="tab">Today</div>
-      <div class="tab">Past Month</div>
-      <div class="tab">Past Year</div>
-      <div class="tab">All</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Recent Reports</h2>
-    <div class="reports-container">
-      <!-- Sample Reports -->
-      <div class="report">
-        <div class="meta">| SOURCE: info@ciepd.org | 10:30 AM</div>
-        <div class="content"><strong>System Update</strong><br>New version of the monitoring dashboard deployed successfully.</div>
-        <button class="verify-btn verified">Verified</button>
-        <button class="approve-btn approved">Approved</button>
-      </div>
-      <div class="report">
-        <div class="meta">| SOURCE: alerts@ciepd.org | 09:15 AM</div>
-        <div class="content"><strong>Community Alert</strong><br>Heavy rainfall reported in Zone B; local teams have been dispatched.</div>
-        <button class="verify-btn verified">Verified</button>
-        <button class="approve-btn">Approve</button>
-      </div>
-      <div class="report">
-        <div class="meta">| SOURCE: updates@ciepd.org | 08:45 AM</div>
-        <div class="content"><strong>Power Outage</strong><br>Power disruption in Ward 3 confirmed. Repairs are ongoing.</div>
-        <button class="verify-btn">Verify</button>
-        <button class="approve-btn">Approve</button>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="scroll-container">
+        <div class="scroll-text">Welcome to CIEPD Conflict Watch Center</div>
       </div>
     </div>
-    <a href="#" class="view-all">View all reports</a>
-  </div>
-</div>
 
-<script src="/socket.io/socket.io.js"></script>
+    <!-- ⭐ FIXED LOGOUT BUTTON -->
+   <button onclick="window.location.href='login.html'" class="logout-btn">
+  Logout
+</button>
+
+
+  </div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <a href="home.html">Home</a>
+    <a href="report.html">Reports</a>
+    <a href="submit.html">Submit Report</a>
+    <a href="getalert.html">Get Alerts</a>
+    <a href="contact.html">Contact Us</a>
+    <a href="admin-map.html" class="special-btn">Big Map</a>
+  </div>
+
+  <!-- PAGE -->
+  <div class="container">
+    <div class="top-row">
+      <h1>Manage Submitted Reports</h1>
+
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="status" class="loading" style="display:none">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Loading</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input id="search" type="text" placeholder="Search title, location or description…" />
+      <select id="categoryFilter"><option value="">All Categories</option></select>
+      <div style="flex:1"></div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="refreshBtn" class="btn" style="background:#eef6ff; color:var(--primary); font-weight:700;">Refresh</button>
+      </div>
+    </div>
+
+    <div id="newsGrid" class="news-grid"></div>
+
+    <div id="pagination"></div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <aside id="sidePanel" class="side-panel" aria-hidden="true">
+    <div class="panel-inner">
+      <div class="panel-top">
+        <div>
+          <h2 id="panelTitle" class="panel-title">Title</h2>
+          <div class="panel-meta">
+            <div id="panelDate">Date</div>
+            <div id="panelLocation">Location</div>
+            <div id="panelCats">Categories</div>
+          </div>
+        </div>
+
+        <div>
+          <button id="panelBack" class="close-btn" title="Back to reports">⬅ Back</button>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div id="panelShort" class="panel-text" style="font-weight:700;margin-bottom:8px"></div>
+        <div id="panelContent" class="panel-text"></div>
+      </div>
+
+      <div class="panel-block" style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex; gap:12px; align-items:center; justify-content:flex-start;">
+          <span id="panelVerifiedBadge" class="badge unverified" style="display:none"></span>
+          <span id="panelApprovedBadge" class="badge" style="display:none"></span>
+        </div>
+
+        <div class="panel-actions" id="panelButtons"></div>
+      </div>
+
+    </div>
+  </aside>
+
 <script>
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    try {
-      const res = await fetch("/logout", { method: "POST" });
-      if (res.ok) window.location.href = "/login.html";
-      else alert("Error logging out.");
-    } catch (err) { alert("Error logging out."); }
-  });
+/* ---------------------
+   Data + pagination state
+   --------------------- */
+let allNews = [];
+let currentPage = 1;
+const pageSize = 40;
 
-  function createReportItem(data) {
-    const div = document.createElement("div");
-    div.className = "report";
-    div.innerHTML = `
-      <div class="meta">| SOURCE: ${data.email || "Unknown"} | 
-        ${new Date(data.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-      </div>
-      <div class="content">
-        <strong>${data.title}</strong><br>${data.content}
-      </div>
-      <button class="verify-btn ${data.verified ? 'verified' : ''}">
-        ${data.verified ? "Verified" : "Verify"}
-      </button>
-      <button class="approve-btn ${data.approved ? 'approved' : ''}">
-        ${data.approved ? "Approved" : "Approve"}
-      </button>
-    `;
-    return div;
-  }
+/* UI Elements */
+const newsGrid = () => document.getElementById('newsGrid');
+const pagination = () => document.getElementById('pagination');
+const searchInput = () => document.getElementById('search');
+const categorySelect = () => document.getElementById('categoryFilter');
+const statusIndicator = () => document.getElementById('status');
+const refreshBtn = () => document.getElementById('refreshBtn');
 
-  let allNews = [];
+const sidePanel = document.getElementById('sidePanel');
+const panelTitle = document.getElementById('panelTitle');
+const panelShort = document.getElementById('panelShort');
+const panelContent = document.getElementById('panelContent');
+const panelDate = document.getElementById('panelDate');
+const panelLocation = document.getElementById('panelLocation');
+const panelCats = document.getElementById('panelCats');
+const panelButtons = document.getElementById('panelButtons');
+const panelVerifiedBadge = document.getElementById('panelVerifiedBadge');
+const panelApprovedBadge = document.getElementById('panelApprovedBadge');
+const panelBack = document.getElementById('panelBack');
 
-  async function loadNews() {
-    const res = await fetch("/get-news");
+const socket = io();
+socket.on('news-updated', () => loadNews());
+
+async function loadNews(){
+  try{
+    statusIndicator().style.display = 'inline-flex';
+    const res = await fetch('/api/news');
+    if(!res.ok) throw new Error('Failed to fetch');
     allNews = await res.json();
-    displayRecentNews();
+    currentPage = 1;
+    renderCategories();
+    renderNews();
+  }catch(err){
+    console.error(err);
+    alert('Could not load news — check server.');
+  }finally{
+    statusIndicator().style.display = 'none';
+  }
+}
+
+function renderCategories(){
+  const cats = new Set();
+  allNews.forEach(n => (n.categories || []).forEach(c => cats.add(c)));
+  const sel = categorySelect();
+  sel.innerHTML = '<option value="">All Categories</option>';
+  Array.from(cats).sort().forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function applyFilters(){
+  const query = (searchInput().value || '').trim().toLowerCase();
+  const cat = categorySelect().value;
+  return allNews.filter(n => {
+    const inQuery = !query || (
+      (n.title||'').toLowerCase().includes(query) ||
+      (n.location||'').toLowerCase().includes(query) ||
+      (n.description||'').toLowerCase().includes(query) ||
+      (n.content||'').toLowerCase().includes(query)
+    );
+    const inCat = !cat || (n.categories || []).includes(cat);
+    return inQuery && inCat;
+  });
+}
+
+function paginate(arr){
+  const start = (currentPage - 1) * pageSize;
+  return arr.slice(start, start + pageSize);
+}
+
+function renderNews(){
+  const grid = newsGrid();
+  grid.innerHTML = '';
+  const filtered = applyFilters();
+  const page = paginate(filtered);
+
+  if(page.length === 0){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:26px;border-radius:10px;background:#fbfeff">No reports found.</div>`;
   }
 
-  function displayRecentNews() {
-    const container = document.querySelector(".reports-container");
-    allNews.slice(0, 5).forEach(news => container.prepend(createReportItem(news)));
-  }
+  page.forEach(n => {
+    const card = document.createElement('article');
+    card.className = 'news-card';
+    card.dataset.id = n._id || n.id || '';
 
-  function displayAllNews() {
-    const container = document.querySelector(".reports-container");
-    container.innerHTML = "";
-    allNews.forEach(news => container.appendChild(createReportItem(news)));
-  }
+    const title = document.createElement('h3');
+    title.className = 'news-title';
+    title.textContent = n.title || 'Untitled';
 
-  let showingAll = false;
-  document.querySelector(".view-all").addEventListener("click", (e) => {
-    e.preventDefault();
-    const link = e.target;
-    if (!showingAll) {
-      displayAllNews();
-      link.textContent = "Show less";
-      showingAll = true;
-    } else {
-      displayRecentNews();
-      link.textContent = "View all reports";
-      showingAll = false;
+    const desc = document.createElement('p');
+    desc.className = 'news-desc';
+    desc.textContent = (n.description || '').slice(0,170).replace(/\s+$/,'') + ( (n.description||'').length > 170 ? '…' : '' );
+
+    const meta = document.createElement('div');
+    meta.className = 'news-meta';
+
+    const left = document.createElement('div');
+    left.style.display = 'flex';
+    left.style.gap = '8px';
+    left.style.alignItems = 'center';
+
+    const badges = document.createElement('div');
+    badges.className = 'badges';
+    const verifiedSpan = document.createElement('span');
+    verifiedSpan.className = 'badge ' + (n.verified ? 'verified' : 'unverified');
+    verifiedSpan.textContent = n.verified ? 'Verified' : 'Unverified';
+    badges.appendChild(verifiedSpan);
+    if(n.approved){
+      const app = document.createElement('span');
+      app.className = 'badge approved';
+      app.textContent = 'Approved';
+      badges.appendChild(app);
     }
+    left.appendChild(badges);
+
+    const right = document.createElement('div');
+    right.style.textAlign = 'right';
+    right.innerHTML = `<div style="font-weight:700;color:var(--muted);font-size:13px">${new Date(n.createdAt || n.date || Date.now()).toLocaleDateString()}</div>
+                       <div style="font-size:12px;color:var(--muted)">${n.location || ''}</div>`;
+
+    meta.appendChild(left);
+    meta.appendChild(right);
+
+    card.appendChild(title);
+    card.appendChild(desc);
+    card.appendChild(meta);
+
+    card.addEventListener('click', () => openPanel(n));
+    grid.appendChild(card);
   });
 
-  const socket = io();
-  socket.on("new_news", (news) => {
-    const container = document.querySelector(".reports-container");
-    container.prepend(createReportItem(news));
-  });
+  renderPagination(filtered.length);
+}
 
-  loadNews();
+function renderPagination(totalItems){
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const container = pagination();
+  container.innerHTML = '';
+
+  const prev = document.createElement('button');
+  prev.textContent = '⬅ Back';
+  prev.disabled = currentPage === 1;
+  prev.onclick = () => { if(currentPage>1){ currentPage--; renderNews(); window.scrollTo({top:0,behavior:'smooth'}); } };
+
+  const next = document.createElement('button');
+  next.textContent = 'Next ➡';
+  next.disabled = currentPage === totalPages;
+  next.onclick = () => { if(currentPage<totalPages){ currentPage++; renderNews(); window.scrollTo({top:0,behavior:'smooth'}); } };
+
+  const info = document.createElement('span');
+  info.className = 'page-info';
+  info.textContent = `Page ${currentPage} of ${totalPages}`;
+
+  container.appendChild(prev);
+  container.appendChild(info);
+  container.appendChild(next);
+}
+
+function openPanel(item){
+  panelTitle.textContent = item.title || 'Untitled';
+  panelShort.textContent = item.description || '';
+  panelContent.textContent = item.content || '';
+  panelDate.textContent = new Date(item.createdAt || item.date || Date.now()).toLocaleString();
+  panelLocation.textContent = item.location || 'Unknown';
+  panelCats.textContent = (item.categories && item.categories.length) ? item.categories.join(', ') : 'None';
+
+  if(item.verified){
+    panelVerifiedBadge.style.display = 'inline-block';
+    panelVerifiedBadge.className = 'badge verified';
+    panelVerifiedBadge.textContent = 'Verified';
+  } else {
+    panelVerifiedBadge.style.display = 'inline-block';
+    panelVerifiedBadge.className = 'badge unverified';
+    panelVerifiedBadge.textContent = 'Unverified';
+  }
+
+  if(item.approved){
+    panelApprovedBadge.style.display = 'inline-block';
+    panelApprovedBadge.className = 'badge approved';
+    panelApprovedBadge.textContent = 'Approved';
+  } else {
+    panelApprovedBadge.style.display = 'none';
+  }
+
+  panelButtons.innerHTML = '';
+  if(!item.verified){
+    const v = document.createElement('button');
+    v.className = 'btn btn-verify';
+    v.textContent = 'Verify';
+    v.onclick = async (e) => { e.stopPropagation(); await verifyNews(item._id); };
+    panelButtons.appendChild(v);
+  }
+  if(!item.approved){
+    const a = document.createElement('button');
+    a.className = 'btn btn-approve';
+    a.textContent = 'Approve';
+    a.onclick = async (e) => { e.stopPropagation(); await approveNews(item._id); };
+    panelButtons.appendChild(a);
+  }
+  const d = document.createElement('button');
+  d.className = 'btn btn-delete';
+  d.textContent = 'Delete';
+  d.onclick = async (e) => { e.stopPropagation(); 
+      if(confirm('Delete this report? This action cannot be undone.')) { await deleteNews(item._id); }
+    };
+  panelButtons.appendChild(d);
+
+  sidePanel.classList.add('open');
+  sidePanel.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePanel(){
+  sidePanel.classList.remove('open');
+  sidePanel.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+
+panelBack.addEventListener('click', () => closePanel());
+document.addEventListener('keydown', (ev) => { if(ev.key === 'Escape') closePanel(); });
+
+async function verifyNews(id){
+  try{
+    const res = await fetch(`/api/news/verify/${id}`, { method:'PUT' });
+    if(!res.ok) throw new Error('Failed to verify');
+    await loadNews();
+    closePanel();
+  }catch(e){
+    console.error(e); alert('Could not verify — check server.');
+  }
+}
+
+async function approveNews(id){
+  try{
+    const res = await fetch(`/api/news/approve/${id}`, { method:'PUT' });
+    if(!res.ok) throw new Error('Failed to approve');
+    await loadNews();
+    closePanel();
+  }catch(e){
+    console.error(e); alert('Could not approve — check server.');
+  }
+}
+
+async function deleteNews(id){
+  try{
+    const res = await fetch(`/api/news/delete/${id}`, { method:'DELETE' });
+    if(!res.ok) throw new Error('Failed to delete');
+    await loadNews();
+    closePanel();
+  }catch(e){
+    console.error(e); alert('Could not delete — check server.');
+  }
+}
+
+searchInput().addEventListener('input', () => { currentPage = 1; renderNews(); });
+categorySelect().addEventListener('change', () => { currentPage = 1; renderNews(); });
+refreshBtn().addEventListener('click', () => loadNews());
+
+sidePanel.addEventListener('click', (e) => {
+  if(e.target === sidePanel) closePanel();
+});
+
+loadNews();
 </script>
-
 </body>
 </html>
