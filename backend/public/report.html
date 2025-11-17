@@ -6,94 +6,211 @@
 <title>CIEPD Conflict/Peace Watch Center - Reports</title>
 
 <style>
+    /* GLOBAL STYLING */
     body {
-        font-family: Arial, sans-serif;
-        background: linear-gradient(to bottom, #f2f7ff, #d9eaff);
         margin: 0;
-        padding: 0;
+        font-family: "Inter", "Segoe UI", sans-serif;
+        background: #eef3ff;
+        overflow-x: hidden;
     }
+
+    /* HEADER */
     header {
-        background-color: #1a237e;
+        background: linear-gradient(135deg, #0d47a1, #1a237e);
         color: white;
-        padding: 20px;
+        padding: 45px 20px;
         text-align: center;
-        font-size: 32px;
-        font-weight: bold;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+        border-bottom-left-radius: 25px;
+        border-bottom-right-radius: 25px;
+        animation: fadeDown 0.9s ease-out;
     }
+
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     .container {
         width: 95%;
-        max-width: 1200px;
-        margin: 30px auto;
-        padding-bottom: 20px;
+        max-width: 1300px;
+        margin: 40px auto;
     }
+
+    /* STATS SECTION */
     .stats {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        font-size: 18px;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+        animation: fadeUp 1s ease-out;
     }
 
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-box {
+        flex: 1;
+        min-width: 250px;
+        padding: 22px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a237e;
+        transition: 0.25s;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.18);
+    }
+
+    /* FILTERS */
     .filters {
-        margin-bottom: 20px;
         display: flex;
-        gap: 10px;
-    }
-    .filters input, .filters select {
-        padding: 10px;
-        border-radius: 6px;
-        border: 1px solid #aaa;
-        width: 100%;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+        animation: fadeUp 1.2s ease-out;
     }
 
-    /* TABLE STYLING */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    table thead {
-        background: #1a237e;
-        color: white;
+    .filters input, .filters select {
+        padding: 16px;
+        border-radius: 12px;
+        border: none;
         font-size: 16px;
+        width: 100%;
+        max-width: 350px;
+        background: white;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        outline: none;
+        transition: 0.25s;
     }
-    table th, table td {
-        padding: 14px;
-        border-bottom: 1px solid #ddd;
+
+    .filters input:focus, .filters select:focus {
+        box-shadow: 0 0 0 3px #1a237e44;
+        transform: scale(1.02);
+    }
+
+    /* REPORT GRID */
+    .report-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        animation: fadeUp 1.4s ease-out;
+    }
+
+    /* CARD */
+    .report-card {
+        background: #ffffff;
+        padding: 22px;
+        border-radius: 20px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+        transition: 0.25s;
+        position: relative;
+        overflow: hidden;
+        animation: fadeUpSmall 0.5s ease;
+    }
+
+    @keyframes fadeUpSmall {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .report-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.18);
+    }
+
+    .report-card::after {
+        content: "";
+        position: absolute;
+        top: -40%;
+        right: -40%;
+        width: 150px;
+        height: 150px;
+        background: #1a237e22;
+        border-radius: 50%;
+        transition: 0.35s;
+    }
+
+    .report-card:hover::after {
+        transform: scale(1.4);
+        background: #0d47a133;
+    }
+
+    .report-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0d47a1;
+        margin-bottom: 10px;
+        display: block;
+        text-decoration: none;
+        transition: 0.2s;
+        line-height: 1.3;
+    }
+
+    .report-title:hover {
+        color: #002171;
+    }
+
+    .report-location {
+        font-size: 16px;
+        color: #424242;
+        margin-bottom: 6px;
+    }
+
+    .report-date {
+        color: #616161;
         font-size: 15px;
+        margin-bottom: 12px;
     }
-    table tbody tr:hover {
-        background: #f1f5ff;
-    }
+
     .status {
-        padding: 4px 10px;
-        border-radius: 5px;
+        display: inline-block;
+        padding: 7px 14px;
+        border-radius: 25px;
         font-size: 12px;
         font-weight: bold;
         color: white;
+        letter-spacing: 0.3px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     }
-    .verified { background: green; }
-    .unverified { background: red; }
 
+    .verified { background: #2e7d32; }
+    .unverified { background: #c62828; }
+
+    /* PAGINATION */
     .pagination {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 35px;
+        animation: fadeUp 1.6s ease-out;
     }
+
     .pagination button {
-        padding: 10px 15px;
+        padding: 12px 18px;
         background: #1a237e;
         color: white;
         border: none;
-        border-radius: 6px;
+        border-radius: 10px;
         margin: 5px;
         cursor: pointer;
+        font-size: 15px;
+        transition: 0.25s;
+    }
+
+    .pagination button:hover {
+        background: #0d47a1;
+        transform: translateY(-3px);
     }
 </style>
 </head>
@@ -103,31 +220,23 @@
 
 <div class="container">
 
+    <!-- STATS -->
     <div class="stats">
-        <div id="total-count">Total: 0</div>
-        <div id="verified-count">Verified: 0</div>
-        <div id="unverified-count">Unverified: 0</div>
+        <div class="stat-box" id="total-count">Total: 0</div>
+        <div class="stat-box" id="verified-count">Verified: 0</div>
+        <div class="stat-box" id="unverified-count">Unverified: 0</div>
     </div>
 
+    <!-- FILTERS -->
     <div class="filters">
-        <input id="search-input" type="text" placeholder="Search reports...">
+        <input id="search-input" type="text" placeholder="🔍 Search reports...">
         <select id="category-filter">
             <option value="">All Categories</option>
         </select>
     </div>
 
-    <!-- REPORTS TABLE -->
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="reports-table"></tbody>
-    </table>
+    <!-- GRID -->
+    <div class="report-grid" id="report-grid"></div>
 
     <div class="pagination" id="pagination"></div>
 
@@ -136,18 +245,29 @@
 <script>
 let allReports = [];
 let currentPage = 1;
-const perPage = 15;
+const perPage = 12;
 
 /* LOAD DATA */
 loadReports();
 setInterval(loadReports, 30000);
 
+/* FETCH REPORTS */
 async function loadReports() {
     try {
-        const res = await fetch("/api/news?limit=1000&page=1"); 
+        const res = await fetch("/api/news?limit=5000&page=1");
         const data = await res.json();
 
-        allReports = data.items || [];
+        if (!data.items) return;
+
+        const seen = new Set();
+        allReports = data.items.filter(r => {
+            const key = r._id || r.id;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+
+        allReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         updateStats(allReports);
         populateCategoryDropdown(allReports);
@@ -159,7 +279,7 @@ async function loadReports() {
     }
 }
 
-/* STATS COUNTER */
+/* UPDATE STATS */
 function updateStats(data) {
     let verified = data.filter(n => n.verified).length;
     let unverified = data.length - verified;
@@ -186,7 +306,7 @@ function populateCategoryDropdown(data) {
     });
 }
 
-/* FILTERS */
+/* FILTERING */
 function applyFilters() {
     const search = document.getElementById("search-input").value.toLowerCase();
     const category = document.getElementById("category-filter").value;
@@ -199,50 +319,78 @@ function applyFilters() {
     });
 }
 
-/* DISPLAY TABLE */
+/* DISPLAY REPORTS */
 function displayReports() {
-    const table = document.getElementById("reports-table");
-    table.innerHTML = "";
+    const grid = document.getElementById("report-grid");
+    grid.innerHTML = "";
 
     const filtered = applyFilters();
     const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
 
     paginated.forEach(report => {
         const isVerified = report.verified;
+        const id = report._id || report.id;
 
-        table.innerHTML += `
-            <tr>
-                <td><a href="news-details.html?id=${report._id}">${report.title}</a></td>
-                <td>${report.location || "Unknown"}</td>
-                <td>${report.createdAt ? new Date(report.createdAt).toLocaleDateString() : "Unknown"}</td>
-                <td>
+        grid.innerHTML += `
+            <div class="report-card">
+                <a class="report-title" href="news-details.html?id=${id}">
+                    ${report.title}
+                </a>
+                <div class="report-location">
+                    📍 ${report.location || "Unknown"}
+                </div>
+                <div class="report-date">
+                    📅 ${report.createdAt ? new Date(report.createdAt).toLocaleDateString() : "Unknown"}
+                </div>
+                <div>
                     <span class="status ${isVerified ? "verified" : "unverified"}">
                         ${isVerified ? "Verified" : "Unverified"}
                     </span>
-                </td>
-            </tr>
+                </div>
+            </div>
         `;
     });
 
     renderPagination(filtered.length);
 }
 
-/* PAGINATION */
+/* 🚀 UPDATED PAGINATION (Prev + Page X of Y + Next) */
 function renderPagination(total) {
     const pages = Math.ceil(total / perPage);
     const pag = document.getElementById("pagination");
 
     pag.innerHTML = "";
-    for (let i = 1; i <= pages; i++) {
-        pag.innerHTML += `
-            <button onclick="gotoPage(${i})" ${i === currentPage ? 'style="background:#3949ab;"' : ''}>${i}</button>
-        `;
+
+    if (currentPage > 1) {
+        pag.innerHTML += `<button onclick="gotoPrev()">⬅ Previous</button>`;
+    }
+
+    pag.innerHTML += `
+        <span style="margin:0 10px;font-size:16px;color:#333;">
+            Page ${currentPage} of ${pages}
+        </span>
+    `;
+
+    if (currentPage < pages) {
+        pag.innerHTML += `<button onclick="gotoNext()">Next ➡</button>`;
     }
 }
 
-function gotoPage(p) {
-    currentPage = p;
-    displayReports();
+function gotoPrev() {
+    if (currentPage > 1) {
+        currentPage--;
+        displayReports();
+    }
+}
+
+function gotoNext() {
+    const filtered = applyFilters();
+    const pages = Math.ceil(filtered.length / perPage);
+
+    if (currentPage < pages) {
+        currentPage++;
+        displayReports();
+    }
 }
 
 /* EVENT LISTENERS */

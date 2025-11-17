@@ -99,7 +99,7 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model("User", UserSchema);
 
 // ==========================
-// CSV IMPORTER
+// CSV IMPORTER — FIXED!
 // ==========================
 async function importCSV() {
   try {
@@ -118,8 +118,11 @@ async function importCSV() {
 
     console.log(`📥 Importing ${jsonArray.length} items...`);
 
-    const formatted = jsonArray.map((item) => ({
-      id: item["#"],
+    const formatted = jsonArray.map((item, index) => ({
+      id:
+        item["#"] && item["#"].trim() !== ""
+          ? item["#"]
+          : `csv-${index}-${Date.now()}`,
       title: item["INCIDENT TITLE"],
       description: item["DESCRIPTION"]?.slice(0, 200),
       content: item["DESCRIPTION"],
@@ -131,11 +134,38 @@ async function importCSV() {
       createdAt: new Date(item["INCIDENT DATE"]),
     }));
 
-    await News.insertMany(formatted, { ordered: false }).catch(() => {});
+    for (let row of formatted) {
+      const exists = await News.findOne({ id: row.id });
+      if (!exists) {
+        await News.create(row);
+      }
+    }
 
     console.log("✅ CSV Imported Correctly!");
   } catch (err) {
     console.error("❌ CSV Import Error:", err);
+  }
+}
+
+// ==========================
+// REMOVE DUPLICATES — FIX
+// ==========================
+async function cleanDuplicates() {
+  try {
+    const items = await News.find().lean();
+    const seen = new Set();
+
+    for (let item of items) {
+      if (seen.has(item.id)) {
+        await News.deleteOne({ _id: item._id });
+      } else {
+        seen.add(item.id);
+      }
+    }
+
+    console.log("🧹 Duplicate news cleaned!");
+  } catch (err) {
+    console.error("Duplicate-clean error:", err);
   }
 }
 
@@ -156,42 +186,15 @@ async function ensureAdmin() {
   }
 }
 
-connectDB().then(importCSV).then(ensureAdmin);
+connectDB()
+  .then(importCSV)
+  .then(cleanDuplicates)
+  .then(ensureAdmin);
 
 // ==========================
-// AUTH ROUTES
-// ==========================
-app.post("/admin/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-  if (!user) return res.status(400).json({ message: "Invalid login details." });
-
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(400).json({ message: "Invalid password." });
-
-  req.session.user = { id: user._id, email: user.email };
-
-  res.json({ message: "Login successful" });
-});
-
-app.get("/admin/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({ message: "Logged out" });
-  });
-});
-
-// PROTECT admin.html
-app.get("/admin.html", (req, res, next) => {
-  if (!req.session.user) return res.redirect("/login.html");
-  next();
-});
-
-// ==========================
-// HELPERS — FIXED HERE!!!
+// HELPERS
 // ==========================
 async function findNews(id) {
-  // Allow both CSV `id` and Mongo `_id`
   if (mongoose.Types.ObjectId.isValid(id)) {
     let item = await News.findById(id);
     if (item) return item;
@@ -304,6 +307,25 @@ app.delete("/api/news/delete/:id", async (req, res) => {
   } catch (err) {
     console.error("DELETE ERROR:", err);
     res.status(500).json({ error: "Delete failed" });
+  }
+});
+
+// ==========================
+// ⭐ ADDED: GET SINGLE NEWS (FIX)
+// ==========================
+app.get("/api/news/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const item = await findNews(id);
+    if (!item) {
+      return res.status(404).json({ error: "News not found" });
+    }
+
+    res.json(item);
+  } catch (err) {
+    console.error("GET SINGLE NEWS ERROR:", err);
+    res.status(500).json({ error: "Failed to load article" });
   }
 });
 

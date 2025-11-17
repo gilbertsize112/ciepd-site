@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>News Details</title>
+
+<style>
+  body {
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(to bottom, #e6ecff, #f6fbff);
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #0d47a1, #1a237e);
+    padding: 55px 25px;
+    text-align: center;
+    color: white;
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.25);
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    animation: fadeDown .9s ease-out;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    max-width: 950px;
+    margin: 40px auto;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(15px);
+    padding: 30px;
+    border-radius: 22px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    animation: fadeUp 0.9s ease-out;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .title {
+    color: #0d47a1;
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .meta {
+    color: #555;
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .image {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+  }
+
+  .content {
+    line-height: 1.75;
+    color: #222;
+    font-size: 17px;
+    white-space: pre-wrap;
+    margin-bottom: 18px;
+  }
+
+  .tags {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: #eef7ff;
+    padding: 7px 14px;
+    border-radius: 999px;
+    margin-right: 8px;
+    font-weight: 600;
+    color: #0d47a1;
+    font-size: 13px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  }
+
+  .actions {
+    margin-top: 25px;
+    display: flex;
+    gap: 12px;
+  }
+
+  button {
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    transition: .25s;
+  }
+
+  .verify {
+    background: #f0ad4e;
+    color: #fff;
+  }
+  .verify:hover {
+    background: #e09635;
+    transform: translateY(-3px);
+  }
+
+  .approved {
+    background: #28a745;
+    color: #fff;
+  }
+  .approved:hover {
+    background: #1e7c34;
+    transform: translateY(-3px);
+  }
+</style>
+</head>
+
+<body>
+
+<div class="hero">News Details</div>
+
+<div class="card" id="card">
+  <div id="loading">Loading...</div>
+
+  <div id="content" style="display:none">
+    <div class="title" id="title"></div>
+    <div class="meta" id="meta"></div>
+
+    <img id="image" class="image" src="" alt="" style="display:none"/>
+
+    <div class="content" id="body"></div>
+
+    <div class="tags">
+      <span class="badge" id="category"></span>
+      <span class="badge" id="location"></span>
+    </div>
+
+    <div class="actions">
+      <button id="verifyBtn" class="verify">Verify</button>
+      <button id="approveBtn" class="approved">Approve</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function qs(key){
+  const u=new URLSearchParams(location.search);
+  return u.get(key);
+}
+
+const id = qs('id');
+if(!id){
+  document.getElementById('loading').innerText = 'No article selected.';
+}
+
+/* LOAD NEWS DETAILS */
+async function load(){
+  try {
+    const res = await fetch('/api/news/' + id);
+    if(!res.ok){
+      document.getElementById('loading').innerText = 'Article not found.';
+      return;
+    }
+
+    const data = await res.json();
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    document.getElementById('title').innerText = data.title || 'Untitled';
+
+    document.getElementById('meta').innerText =
+      new Date(data.createdAt).toLocaleString();
+
+    // IMAGE
+    if(data.image){
+      const img = document.getElementById('image');
+      img.src = data.image;
+      img.style.display = 'block';
+    }
+
+    // CONTENT
+    document.getElementById('body').innerText =
+      data.content || data.description || '';
+
+    // TAGS
+    document.getElementById('category').innerText =
+      (data.categories && data.categories[0]) || 'General';
+
+    document.getElementById('location').innerText =
+      data.location || 'Unknown location';
+
+    // BUTTONS
+    const verifyBtn = document.getElementById('verifyBtn');
+    const approveBtn = document.getElementById('approveBtn');
+
+    verifyBtn.textContent = data.verified ? 'Verified' : 'Verify';
+    approveBtn.textContent = data.approved ? 'Approved' : 'Approve';
+
+    verifyBtn.disabled = data.verified;
+    approveBtn.disabled = data.approved;
+
+    // VERIFY ACTION
+    verifyBtn.addEventListener('click', async () => {
+      const r = await fetch('/api/news/verify/' + id, { method: 'PUT' });
+      if(r.ok){
+        verifyBtn.textContent = 'Verified';
+        verifyBtn.disabled = true;
+      }
+    });
+
+    // APPROVE ACTION
+    approveBtn.addEventListener('click', async () => {
+      const r = await fetch('/api/news/approve/' + id, { method: 'PUT' });
+      if(r.ok){
+        approveBtn.textContent = 'Approved';
+        approveBtn.disabled = true;
+      }
+    });
+
+  } catch (err){
+    document.getElementById('loading').innerText = 'Error loading article';
+  }
+}
+
+load();
+</script>
+
+</body>
+</html>
