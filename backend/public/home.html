@@ -8,7 +8,7 @@
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel="stylesheet">
 
-<!-- Original CSS (kept intact) -->
+<!-- ORIGINAL CSS (unchanged) -->
 <link rel="stylesheet" type="text/css" href="https://c683652.ssl.cf2.rackcdn.com/media/css/jquery-ui-themeroller.css">
 <link rel="stylesheet" type="text/css" href="https://c683652.ssl.cf2.rackcdn.com/media/css/global.css">
 <link rel="stylesheet" type="text/css" href="https://c683652.ssl.cf2.rackcdn.com/plugins/fullscreenmap/views/css/fullscreenmap.css">
@@ -23,178 +23,276 @@
 <link rel="stylesheet" type="text/css" href="https://c683652.ssl.cf2.rackcdn.com/plugins/enhancedmap/css/embedd_setup.css">
 <link rel="stylesheet" type="text/css" href="https://c683652.ssl.cf2.rackcdn.com/plugins/enhancedmap/css/printmap_link.css">
 
-<!-- Custom Styles -->
+
+<!-- BEAUTIFIED UI -->
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #d9f0fc; /* light blue background */
-    color: #333;
-}
 
-/* Navigation buttons like admin panel */
-.main-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin: 20px 0;
-}
-.main-buttons a {
-    padding: 10px 20px;
-    background: #1a73e8;
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 5px;
-    transition: background 0.3s;
-}
-.main-buttons a:hover {
-    background: #0b5ed7;
-}
-
-/* Header */
-#logo h1 {
-    font-size: 36px;
-    font-weight: bold;
-    margin: 0;
-}
-#logo span {
-    font-size: 16px;
-    display: block;
-    margin-top: 5px;
-    color: #333;
-}
-#submit-btn {
-    background: #e53935;
-    color: #fff;
-    padding: 10px 20px;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 5px;
-    float: right;
-    margin-top: -40px;
-}
-#submit-btn:hover {
-    background: #c62828;
-}
-
-/* Green box */
-.green-box {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px;
-}
-
-/* News table */
-.report-table {
+/* CENTER WRAPPER ADDED */
+.center-section {
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background-color: #ffffff; /* White table background */
-}
-.report-table th, .report-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
-.report-table th {
-    background-color: #cce4f6; /* Light blue header */
-    text-align: left;
-}
-
-/* Hover effect for table rows */
-.report-table tbody tr {
-    transition: background-color 0.3s, font-weight 0.3s;
-}
-.report-table tbody tr:hover {
-    background-color: #e6f7ff; /* Light sky blue */
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* "View More" link */
-.more {
-    display: inline-block;
-    margin-top: 10px;
-    color: #1a73e8;
-    text-decoration: none;
-    font-weight: bold;
-}
-.more:hover {
-    text-decoration: underline;
-}
-
-/* Footer */
-#footer {
-    background: #1a73e8;
-    color: #fff;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
 }
-#footer a {
-    color: #fff;
-    text-decoration: underline;
+
+/* ===== VIDEO BG ===== */
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -10;
+    opacity: 0.40;
 }
 
-/* Responsive Table for Mobile */
-@media screen and (max-width: 768px) {
-    .report-table thead {
-        display: none;
-    }
-    .report-table, .report-table tbody, .report-table tr, .report-table td {
-        display: block;
-        width: 100%;
-    }
-    .report-table tr {
-        margin-bottom: 15px;
-        border-bottom: 2px solid #ddd;
-    }
-    .report-table td {
-        text-align: right;
-        padding-left: 50%;
-        position: relative;
-    }
-    .report-table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        width: calc(50% - 20px);
-        padding-right: 10px;
-        font-weight: bold;
-        text-align: left;
-    }
+/* Overlay */
+.video-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.35);
+    z-index: -9;
 }
+
+/* Floating glow */
+body::before, body::after {
+    content: "";
+    position: fixed;
+    width: 420px; height: 420px;
+    background: rgba(255,255,255,0.25);
+    filter: blur(140px);
+    border-radius: 50%;
+    z-index: -8;
+}
+body::before { top: -120px; left: -80px; }
+body::after { bottom: -120px; right: -80px; }
+
+body {
+    font-family: 'PT Sans Narrow', sans-serif;
+    margin: 0;
+    color: #fff;
+}
+
+/* ===== HEADER ===== */
+#header {
+    background: rgba(0, 79, 159, 0.60);
+    backdrop-filter: blur(20px);
+    padding: 45px 20px 55px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.3);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    animation: fadeDown 1.2s ease-out;
+}
+
+#logo h1 {
+    margin: 0;
+    font-size: 44px;
+    text-shadow: 0 3px 8px rgba(0,0,0,0.4);
+}
+#logo span {
+    display: block;
+    margin-top: 8px;
+    font-size: 17px;
+    opacity: 0.9;
+}
+
+/* Submit btn (top right) */
+#submit-btn {
+    position: absolute;
+    top: 35px;
+    right: 30px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    text-decoration: none;
+    background: linear-gradient(135deg, #ff6969, #d60000);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    transition: 0.25s ease;
+}
+#submit-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+}
+
+/* ===== NAV BUTTONS ===== */
+.main-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding: 18px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
+    animation: fadeUp 1.4s ease-out;
+}
+
+.main-buttons a {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #0077cc, #005fa3);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: bold;
+    transition: 0.25s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.main-buttons a:hover {
+    transform: translateY(-4px);
+    filter: brightness(1.15);
+}
+
+/* ===== HERO CARD ===== */
+.green-box {
+    width: 90%;
+    max-width: 950px;
+    margin: 40px auto 55px;
+    background: rgba(255,255,255,0.60);
+    color: #002b47;
+    padding: 35px;
+    border-radius: 18px;
+    backdrop-filter: blur(16px);
+    font-size: 22px;
+    text-align: center;
+    font-weight: bold;
+    line-height: 1.6;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    animation: fadeUp 1.3s ease-out;
+}
+
+/* ===== TABLE ===== */
+.wrapper {
+    width: 95%;
+    margin: auto;
+}
+
+.report-table {
+    width: 100%;
+    background: rgba(255,255,255,0.60);
+    border-radius: 18px;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    animation: fadeUp 1.6s ease-out;
+}
+
+.report-table th {
+    background: rgba(0, 119, 204, 0.95);
+    padding: 18px;
+    font-size: 20px;
+    color: white;
+    letter-spacing: 1px;
+}
+
+.report-table td {
+    padding: 16px;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+}
+
+.report-table tbody tr:hover {
+    background: rgba(0,119,204,0.1);
+    transition: 0.25s;
+}
+
+/* ===== VIEW MORE BUTTON ===== */
+.more {
+    display: inline-block;
+    margin: 25px auto;
+    background: linear-gradient(135deg,#0077cc,#005fa3);
+    padding: 14px 30px;
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    transition: 0.25s;
+}
+.more:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.18);
+}
+
+/* ===== FOOTER ===== */
+#footer {
+    text-align: center;
+    padding: 35px 20px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    color: white;
+    margin-top: 60px;
+    box-shadow: 0 -8px 20px rgba(0,0,0,0.4);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(40px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+    0% { opacity: 0; transform: translateY(-30px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
 </style>
 </head>
+
+
+
 <body>
 
-<!-- Header -->
+<!-- Background video -->
+<video id="bg-video" autoplay muted loop playsinline>
+    <source src="videos/bg.mp4" type="video/mp4">
+</video>
+<div class="video-overlay"></div>
+
+
+<!-- HEADER -->
 <div id="header">
     <div id="logo">
         <h1>CIEPD Conflict/Peace Watch Center</h1>
-        <span>Send Reports also via SMS/Whatapp to: 09056454523</span>
+        <span>Send Reports via SMS/WhatsApp: 09056454523</span>
     </div>
-    <a href="https://ciepdcwc.crowdmap.com/reports/submit" id="submit-btn">Submit a Report</a>
+
+    <a href="https://ciepdcwc.crowdmap.com/reports/submit" id="submit-btn">
+        Submit Report
+    </a>
 </div>
 
-<!-- Navigation buttons -->
-<div class="main-buttons">
-    <a href="https://ciepdcwc.crowdmap.com/main">Home</a>
-    <a href="https://ciepdcwc.crowdmap.com/reports">Reports</a>
-    <a href="https://ciepdcwc.crowdmap.com/reports/submit">Submit a Report</a>
-    <a href="https://ciepdcwc.crowdmap.com/alerts">Get Alerts</a>
-    <a href="https://ciepdcwc.crowdmap.com/contact">Contact Us</a>
-    <a href="https://ciepdcwc.crowdmap.com/bigmap">Big Map</a>
-</div>
 
-<!-- Green Box Description -->
-<div class="green-box">
-Community Initiative for Enhanced Peace and Development domiciled Conflict Watch Center, which relies on various community based sources of information, and community specific indicators to generate analysis on potential conflict hotspots. The approach of the CWC is tuned towards predicting, tracking, monitoring and reporting on situations, events and actors (individual, group and institutional) with the capacity to cause violence. It is built on conflict preventive measures more than mitigating.
-</div>
+<!-- ⭐⭐ CENTERED SECTION STARTS ⭐⭐ -->
+<div class="center-section">
 
-<!-- News / Reports Table -->
+    <!-- NAVIGATION -->
+    <div class="main-buttons">
+        <a href="https://ciepdcwc.crowdmap.com/main">Home</a>
+        <a href="https://ciepdcwc.crowdmap.com/reports">Reports</a>
+        <a href="https://ciepdcwc.crowdmap.com/reports/submit">Submit Report</a>
+        <a href="https://ciepdcwc.crowdmap.com/alerts">Get Alerts</a>
+        <a href="https://ciepdcwc.crowdmap.com/contact">Contact Us</a>
+        <a href="https://ciepdcwc.crowdmap.com/bigmap">Big Map</a>
+    </div>
+
+    <!-- INTRO CARD -->
+    <div class="green-box">
+        Community Initiative for Enhanced Peace and Development domiciled Conflict Watch Center uses
+        community-based sources & indicators to generate analysis on potential conflict hotspots.<br><br>
+        It predicts, tracks, monitors & reports events with the capacity to cause violence —
+        with emphasis on <strong>conflict prevention</strong>.
+    </div>
+
+</div>
+<!-- ⭐⭐ CENTERED SECTION ENDS ⭐⭐ -->
+
+
+<!-- TABLE -->
 <div class="wrapper">
 <table class="report-table">
 <thead>
@@ -204,85 +302,50 @@ Community Initiative for Enhanced Peace and Development domiciled Conflict Watch
 <th>Date</th>
 </tr>
 </thead>
+
 <tbody>
 <tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6702">Protest Erupts in Ondo Community Over Mysterious...</a></td>
-<td data-label="Location">Ondo</td>
-<td data-label="Date">Aug 22 2025</td>
+<td><a href="https://ciepdcwc.crowdmap.com/reports/view/6702">Protest Erupts in Ondo Community Over Mysterious...</a></td>
+<td>Ondo</td>
+<td>Aug 22 2025</td>
 </tr>
+
 <tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6701">Tension in Edo community over alleged sale...</a></td>
-<td data-label="Location">Edo state</td>
-<td data-label="Date">Aug 21 2025</td>
+<td><a href="https://ciepdcwc.crowdmap.com/reports/view/6701">Tension in Edo community over alleged sale...</a></td>
+<td>Edo state</td>
+<td>Aug 21 2025</td>
 </tr>
+
 <tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6700">Police rescue 20 trafficked Ghanaians in...</a></td>
-<td data-label="Location">Akwa Ibom</td>
-<td data-label="Date">Aug 21 2025</td>
+<td><a href="https://ciepdcwc.crowdmap.com/reports/view/6700">Police rescue 20 trafficked Ghanaians in...</a></td>
+<td>Akwa Ibom</td>
+<td>Aug 21 2025</td>
 </tr>
+
 <tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6699">Rivers State Indigenes Drag Tinubu, Administrator,...</a></td>
-<td data-label="Location">Rivers State</td>
-<td data-label="Date">Aug 13 2025</td>
+<td><a href="https://ciepdcwc.crowdmap.com/reports/view/6699">Rivers State Indigenes Drag Tinubu...</a></td>
+<td>Rivers State</td>
+<td>Aug 13 2025</td>
 </tr>
+
 <tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6698">Edo youths’ protest over erosion,...</a></td>
-<td data-label="Location">Edo state</td>
-<td data-label="Date">Jul 31 2025</td>
+<td><a href="https://ciepdcwc.crowdmap.com/reports/view/6698">Eedo youths’ protest over erosion...</a></td>
+<td>Edo state</td>
+<td>Jul 31 2025</td>
 </tr>
-<tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6697">Edo moves to meet community demands after...</a></td>
-<td data-label="Location">Edo state</td>
-<td data-label="Date">Jul 24 2025</td>
-</tr>
-<tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6696">Delta Women Protest Against Herdsmen Destruction...</a></td>
-<td data-label="Location">Delta State</td>
-<td data-label="Date">Jul 24 2025</td>
-</tr>
-<tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6695">One killed in renewed Benue-Cross River...</a></td>
-<td data-label="Location">Cross River</td>
-<td data-label="Date">Jul 21 2025</td>
-</tr>
-<tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6694">Benue-Cross River border dispute claims...</a></td>
-<td data-label="Location">Cross River</td>
-<td data-label="Date">Jul 21 2025</td>
-</tr>
-<tr>
-<td data-label="Title"><a href="https://ciepdcwc.crowdmap.com/reports/view/6693">Ondo community youths protest, demand installation...</a></td>
-<td data-label="Location">Ondo</td>
-<td data-label="Date">Jul 16 2025</td>
-</tr>
+
 </tbody>
 </table>
+
 <a class="more" href="https://ciepdcwc.crowdmap.com/reports/">View More</a>
 </div>
 
-<!-- Footer -->
-<div id="footer">
-<p>Powered by <a href="http://www.ushahidi.com/">Sammy Tech</a> Platform</p>
-<p>All right reserved. No part of this report should be used without acknowledgment of the source</p>
-</div>
 
-<!-- Original JS integration -->
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jquery.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jquery.ui.min.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jquery.pngFix.pack.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jquery.timeago.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/global.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/plugins/fullscreenmap/views/js/jquery.colorbox.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/OpenLayers.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/ushahidi.js"></script>
-<script type="text/javascript" src="https://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/selectToUISlider.jQuery.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jqplot.dateAxisRenderer.min.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jqplot.barRenderer.min.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/media/js/jqplot.pointLabels.min.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/plugins/enhancedmap/js/embedd_setup.js"></script>
-<script type="text/javascript" src="https://c683652.ssl.cf2.rackcdn.com/plugins/enhancedmap/js/LoadingPanel.js"></script>
+<!-- FOOTER -->
+<div id="footer">
+    <p>Powered by <a href="#">Sammy Tech</a></p>
+    <p>All rights reserved. No part may be used without acknowledging source.</p>
+</div>
 
 </body>
 </html>
