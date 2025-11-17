@@ -10,240 +10,307 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
-import multer from "multer";
-import { v4 as uuidv4 } from "uuid";
+import csv from "csvtojson";
 import fs from "fs";
 
 dotenv.config();
 
-// -------------------------
-// Basic Setup
-// -------------------------
+// ==========================
+// BASIC SETUP
+// ==========================
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const server = http.createServer(app);
+const io = new Server(server);
+
+mongoose.set("strictQuery", false);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ==========================
+// CORS
+// ==========================
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "super-secret",
-    resave: false,
-    saveUninitialized: false,
+  cors({
+    origin: ["http://localhost:3000", "https://ciepd-backend.onrender.com"],
+    credentials: true,
   })
 );
 
-// -------------------------
-// MongoDB Connection
-// -------------------------
-mongoose
-  .connect(process.env.MONGO_URI, { dbName: "CIEPD" })
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB Error:", err));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// -------------------------
-// Schemas
-// -------------------------
-const UserSchema = new mongoose.Schema({
-  username: String,
-  password: String,
-});
+// ==========================
+// SESSION
+// ==========================
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "ciepd_secret_key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+  })
+);
 
+// STATIC FILES
+app.use(express.static(path.join(__dirname, "public")));
+
+// ==========================
+// DATABASE
+// ==========================
+async function connectDB() {
+  try {
+    console.log("DEBUG:: MONGODB_URI =", process.env.MONGODB_URI);
+
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: "ciepd",
+      serverSelectionTimeoutMS: 30000,
+    });
+
+    console.log("✅ MongoDB Connected Successfully");
+  } catch (err) {
+    console.error("❌ MongoDB Connection Error:", err);
+  }
+}
+
+// ==========================
+// SCHEMAS
+// ==========================
 const NewsSchema = new mongoose.Schema({
   id: String,
   title: String,
+  description: String,
   content: String,
-  date: String,
+  location: String,
+  categories: [String],
   image: String,
   verified: { type: Boolean, default: false },
-  approved: { type: Boolean, default: false }
+  approved: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
 });
 
-const ReportSchema = new mongoose.Schema({
-  id: String,
-  title: String,
-  description: String,
-  date: String,
-  file: String,
+const News = mongoose.model("News", NewsSchema);
+
+const UserSchema = new mongoose.Schema({
+  email: String,
+  password: String,
 });
 
 const User = mongoose.model("User", UserSchema);
-const News = mongoose.model("News", NewsSchema);
-const Report = mongoose.model("Report", ReportSchema);
 
-// -------------------------
-// Multer Setup
-// -------------------------
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const folder = file.fieldname === "newsImage" ? "uploads/news" : "uploads/reports";
-    cb(null, folder);
-  },
-  filename: function (req, file, cb) {
-    cb(null, uuidv4() + path.extname(file.originalname));
-  },
-});
+// ==========================
+// CSV IMPORTER
+// ==========================
+async function importCSV() {
+  try {
+    const filePath = path.join(__dirname, "news.csv");
 
-const upload = multer({ storage });
+    if (!fs.existsSync(filePath)) {
+      console.log("⚠️ news.csv not found. Skipping CSV import.");
+      return;
+    }
 
-// -------------------------
-// Auth Middleware
-// -------------------------
-function isLoggedIn(req, res, next) {
-  if (req.session.userId) return next();
-  return res.status(401).json({ message: "Unauthorized" });
+    const jsonArray = await csv().fromFile(filePath);
+    if (!jsonArray.length) {
+      console.log("⚠️ CSV file is empty.");
+      return;
+    }
+
+    console.log(`📥 Importing ${jsonArray.length} items...`);
+
+    const formatted = jsonArray.map((item) => ({
+      id: item["#"],
+      title: item["INCIDENT TITLE"],
+      description: item["DESCRIPTION"]?.slice(0, 200),
+      content: item["DESCRIPTION"],
+      location: item["LOCATION"],
+      categories: [item["CATEGORY"]],
+      image: "",
+      verified: item["VERIFIED"] === "YES",
+      approved: item["APPROVED"] === "YES",
+      createdAt: new Date(item["INCIDENT DATE"]),
+    }));
+
+    await News.insertMany(formatted, { ordered: false }).catch(() => {});
+
+    console.log("✅ CSV Imported Correctly!");
+  } catch (err) {
+    console.error("❌ CSV Import Error:", err);
+  }
 }
 
-// -------------------------
+// ==========================
+// CREATE ADMIN
+// ==========================
+async function ensureAdmin() {
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+
+  const exist = await User.findOne({ email });
+  if (!exist) {
+    const hashed = await bcrypt.hash(password, 10);
+    await User.create({ email, password: hashed });
+    console.log(`👤 Default Admin Created: ${email} | pass: ${password}`);
+  } else {
+    console.log("🔐 Admin Already Exists");
+  }
+}
+
+connectDB().then(importCSV).then(ensureAdmin);
+
+// ==========================
 // AUTH ROUTES
-// -------------------------
+// ==========================
+app.post("/admin/login", async (req, res) => {
+  const { email, password } = req.body;
 
-// Register Admin (one-time)
-app.post("/register-admin", async (req, res) => {
-  const { username, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.status(400).json({ message: "Invalid login details." });
 
-  const exists = await User.findOne({ username });
-  if (exists) return res.status(400).json({ message: "Admin already exists" });
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return res.status(400).json({ message: "Invalid password." });
 
-  const hashed = await bcrypt.hash(password, 10);
-  await User.create({ username, password: hashed });
+  req.session.user = { id: user._id, email: user.email };
 
-  res.json({ message: "Admin registered successfully" });
-});
-
-// Login
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  const admin = await User.findOne({ username });
-  if (!admin) return res.status(404).json({ message: "User not found" });
-
-  const match = await bcrypt.compare(password, admin.password);
-  if (!match) return res.status(400).json({ message: "Incorrect password" });
-
-  req.session.userId = admin._id;
   res.json({ message: "Login successful" });
 });
 
-// Logout
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.json({ message: "Logged out" });
+app.get("/admin/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.json({ message: "Logged out" });
+  });
 });
 
-// -------------------------
-// NEWS ROUTES
-// -------------------------
-
-// Add News
-app.post("/add-news", isLoggedIn, upload.single("newsImage"), async (req, res) => {
-  const id = uuidv4();
-  const { title, content, date } = req.body;
-
-  const image = req.file ? `/uploads/news/${req.file.filename}` : "";
-
-  const news = new News({ id, title, content, date, image });
-  await news.save();
-
-  res.json({ message: "News added successfully" });
+// PROTECT admin.html
+app.get("/admin.html", (req, res, next) => {
+  if (!req.session.user) return res.redirect("/login.html");
+  next();
 });
 
-// Get News (for frontend)
-app.get("/news", async (req, res) => {
-  const news = await News.find().sort({ _id: -1 });
-  res.json(news);
+// ==========================
+// HELPERS — FIXED HERE!!!
+// ==========================
+async function findNews(id) {
+  // Allow both CSV `id` and Mongo `_id`
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    let item = await News.findById(id);
+    if (item) return item;
+  }
+
+  return await News.findOne({ id });
+}
+
+// ==========================
+// CATEGORY LIST API
+// ==========================
+app.get("/api/news/categories", async (req, res) => {
+  try {
+    const cats = await News.distinct("categories");
+    res.json(cats.filter((c) => c && c.trim() !== ""));
+  } catch (err) {
+    res.status(500).json({ error: "Could not load categories" });
+  }
 });
 
-// ADMIN DASHBOARD: Get All Reports with verification
+// ==========================
+// SEARCH & FILTER API
+// ==========================
 app.get("/api/news", async (req, res) => {
-  const news = await News.find().sort({ _id: -1 });
-  res.json(news);
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
+  const search = req.query.search?.toLowerCase() || "";
+  const category = req.query.category || "";
+
+  let filter = {};
+
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+      { content: { $regex: search, $options: "i" } },
+      { location: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  if (category && category.trim() !== "") {
+    filter.categories = category;
+  }
+
+  const totalItems = await News.countDocuments(filter);
+  const totalPages = Math.ceil(totalItems / limit);
+
+  const items = await News.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  res.json({
+    items,
+    totalItems,
+    totalPages,
+    currentPage: page,
+  });
 });
 
-// Verify Report
+// ==========================
+// VERIFY NEWS
+// ==========================
 app.put("/api/news/verify/:id", async (req, res) => {
-  await News.updateOne({ id: req.params.id }, { verified: true });
-  res.json({ message: "Report verified" });
+  try {
+    const item = await findNews(req.params.id);
+    if (!item) return res.status(404).json({ error: "News not found" });
+
+    item.verified = true;
+    await item.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("VERIFY ERROR:", err);
+    res.status(500).json({ error: "Verify failed" });
+  }
 });
 
-// Approve Report
+// ==========================
+// APPROVE NEWS
+// ==========================
 app.put("/api/news/approve/:id", async (req, res) => {
-  await News.updateOne({ id: req.params.id }, { approved: true });
-  res.json({ message: "Report approved" });
+  try {
+    const item = await findNews(req.params.id);
+    if (!item) return res.status(404).json({ error: "News not found" });
+
+    item.approved = true;
+    await item.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("APPROVE ERROR:", err);
+    res.status(500).json({ error: "Approve failed" });
+  }
 });
 
-// Delete Report (Dashboard delete)
+// ==========================
+// DELETE NEWS
+// ==========================
 app.delete("/api/news/delete/:id", async (req, res) => {
-  await News.deleteOne({ id: req.params.id });
-  res.json({ message: "Report deleted" });
-});
+  try {
+    const item = await findNews(req.params.id);
+    if (!item) return res.status(404).json({ error: "News not found" });
 
-// Delete News
-app.delete("/news/:id", isLoggedIn, async (req, res) => {
-  const { id } = req.params;
+    await item.deleteOne();
 
-  const item = await News.findOne({ id });
-  if (!item) return res.status(404).json({ message: "News not found" });
-
-  if (item.image) {
-    fs.unlink("." + item.image, () => {});
+    res.json({ success: true });
+  } catch (err) {
+    console.error("DELETE ERROR:", err);
+    res.status(500).json({ error: "Delete failed" });
   }
-
-  await News.deleteOne({ id });
-  res.json({ message: "News deleted" });
 });
 
-// -------------------------
-// REPORT ROUTES
-// -------------------------
-
-// Upload Report
-app.post("/add-report", isLoggedIn, upload.single("reportFile"), async (req, res) => {
-  const id = uuidv4();
-  const { title, description, date } = req.body;
-
-  const file = req.file ? `/uploads/reports/${req.file.filename}` : "";
-
-  await Report.create({ id, title, description, date, file });
-
-  res.json({ message: "Report uploaded successfully" });
-});
-
-// Get Reports
-app.get("/reports", async (req, res) => {
-  const reports = await Report.find().sort({ _id: -1 });
-  res.json(reports);
-});
-
-// Delete Report
-app.delete("/reports/:id", isLoggedIn, async (req, res) => {
-  const { id } = req.params;
-
-  const report = await Report.findOne({ id });
-  if (!report) return res.status(404).json({ message: "Report not found" });
-
-  if (report.file) {
-    fs.unlink("." + report.file, () => {});
-  }
-
-  await Report.deleteOne({ id });
-  res.json({ message: "Report deleted" });
-});
-
-// -------------------------
-// Static Files
-// -------------------------
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use(express.static(path.join(__dirname, "public")));
-
-// -------------------------
-// Start Server
-// -------------------------
+// ==========================
+// START SERVER
+// ==========================
 const PORT = process.env.PORT || 3000;
-const server = http.createServer(app);
-
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import Old Reports</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 40px;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    input[type="file"] {
+      margin-top: 20px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #0056ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background: #003fcc; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Import Old Reports (CSV)</h2>
+  <p>Select the CSV file exported from the old Crowdmap panel.</p>
+
+  <form id="importForm">
+    <input type="file" id="csv" accept=".csv" required />
+    <button type="submit">Upload & Import</button>
+  </form>
+
+  <p id="status" style="margin-top: 20px; font-weight: bold;"></p>
+</div>
+
+<script>
+document.getElementById("importForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const file = document.getElementById("csv").files[0];
+  if (!file) return alert("Please select a CSV file");
+
+  const formData = new FormData();
+  formData.append("csv", file); // MUST MATCH BACKEND FIELD NAME
+
+  document.getElementById("status").innerText = "Uploading... Please wait.";
+
+  try {
+    const res = await fetch("/api/import-csv", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById("status").innerText =
+        `✅ Successfully imported ${data.imported} reports!`;
+    } else {
+      document.getElementById("status").innerText =
+        "❌ Import failed. Check server logs.";
+    }
+
+  } catch (err) {
+    document.getElementById("status").innerText =
+      "❌ Network error. Server unreachable.";
+  }
+});
+</script>
+
+</body>
+</html>

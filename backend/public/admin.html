@@ -333,163 +333,227 @@
 
 <script>
 /* ---------------------
-   Data + pagination state
-   --------------------- */
-let allNews = [];
+   Pagination State
+--------------------- */
 let currentPage = 1;
 const pageSize = 40;
 
 /* UI Elements */
 const newsGrid = () => document.getElementById('newsGrid');
 const pagination = () => document.getElementById('pagination');
+const statusIndicator = () => document.getElementById('status');
 const searchInput = () => document.getElementById('search');
 const categorySelect = () => document.getElementById('categoryFilter');
-const statusIndicator = () => document.getElementById('status');
 const refreshBtn = () => document.getElementById('refreshBtn');
 
-const sidePanel = document.getElementById('sidePanel');
-const panelTitle = document.getElementById('panelTitle');
-const panelShort = document.getElementById('panelShort');
-const panelContent = document.getElementById('panelContent');
-const panelDate = document.getElementById('panelDate');
-const panelLocation = document.getElementById('panelLocation');
-const panelCats = document.getElementById('panelCats');
-const panelButtons = document.getElementById('panelButtons');
-const panelVerifiedBadge = document.getElementById('panelVerifiedBadge');
-const panelApprovedBadge = document.getElementById('panelApprovedBadge');
-const panelBack = document.getElementById('panelBack');
+/* ---------------------
+   LOAD CATEGORIES
+--------------------- */
+async function loadCategories() {
+  try {
+    const res = await fetch("/api/news/categories");
+    const data = await res.json();
 
-const socket = io();
-socket.on('news-updated', () => loadNews());
+    categorySelect().innerHTML = `<option value="">All Categories</option>`;
+    data.forEach(cat => {
+      categorySelect().innerHTML += `<option value="${cat}">${cat}</option>`;
+    });
 
-async function loadNews(){
-  try{
+  } catch (err) {
+    console.error("Category load failed", err);
+  }
+}
+
+/* ---------------------
+   OPEN DETAILS PANEL 
+--------------------- */
+function openPanel(n) {
+  const panel = document.getElementById("sidePanel");
+
+  document.getElementById("panelTitle").innerText = n.title || "";
+  document.getElementById("panelShort").innerText = n.description || "";
+  document.getElementById("panelContent").innerText = n.content || "";
+  document.getElementById("panelDate").innerText = new Date(n.createdAt).toLocaleString();
+  document.getElementById("panelLocation").innerText = n.location || "—";
+  document.getElementById("panelCats").innerText = (n.categories || []).join(", ");
+
+  /* Verified badge */
+  const verified = document.getElementById("panelVerifiedBadge");
+  if (n.verified) {
+    verified.style.display = "inline-block";
+    verified.className = "badge verified";
+    verified.innerText = "VERIFIED";
+  } else {
+    verified.style.display = "inline-block";
+    verified.className = "badge unverified";
+    verified.innerText = "NOT VERIFIED";
+  }
+
+  /* Approved badge */
+  const approved = document.getElementById("panelApprovedBadge");
+  if (n.approved) {
+    approved.style.display = "inline-block";
+    approved.className = "badge approved";
+    approved.innerText = "APPROVED";
+  } else {
+    approved.style.display = "none";
+  }
+
+  /* Buttons */
+  document.getElementById("panelButtons").innerHTML = `
+    <button class="btn btn-verify" 
+        style="display:${n.verified ? "none" : "inline-block"}"
+        onclick="verifyNews('${n._id}')">
+        Verify
+    </button>
+
+    <button class="btn btn-approve" 
+        style="display:${n.approved ? "none" : "inline-block"}"
+        onclick="approveNews('${n._id}')">
+        Approve
+    </button>
+
+    <button class="btn btn-delete" onclick="deleteNews('${n._id}')">Delete</button>
+  `;
+
+  panel.classList.add("open");
+}
+
+/* Close panel */
+document.getElementById("panelBack").onclick = () => {
+  document.getElementById("sidePanel").classList.remove("open");
+};
+
+/* ---------------------
+   VERIFY NEWS (Fully Fixed)
+--------------------- */
+async function verifyNews(id) {
+  try {
+    const res = await fetch(`/api/news/verify/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" }
+    });
+
+
+    const data = await res.json();
+    if (!data.success) return alert("Verification failed.");
+
+    /* Update Side Panel */
+    const badge = document.getElementById("panelVerifiedBadge");
+    badge.className = "badge verified";
+    badge.innerText = "VERIFIED";
+
+    /* Hide verify button */
+    const btn = document.querySelector(".btn-verify");
+    if (btn) btn.style.display = "none";
+
+    /* Update card in grid */
+    const card = document.querySelector(`.news-card[data-id="${id}"]`);
+    if (card) {
+      const row = card.querySelector(".badge-row");
+      row.innerHTML = `<span class="badge verified">VERIFIED</span>`;
+    }
+
+  } catch (e) {
+    console.error(e);
+    alert("Server error verifying news.");
+  }
+}
+
+/* ---------------------
+   Load News 
+--------------------- */
+async function loadNews() {
+  try {
     statusIndicator().style.display = 'inline-flex';
-    const res = await fetch('/api/news');
-    if(!res.ok) throw new Error('Failed to fetch');
-    allNews = await res.json();
-    currentPage = 1;
-    renderCategories();
-    renderNews();
-  }catch(err){
-    console.error(err);
+
+    const query = searchInput().value.trim().toLowerCase();
+    const category = categorySelect().value;
+
+    const res = await fetch(
+      `/api/news?page=${currentPage}&limit=${pageSize}&search=${query}&category=${category}`,
+      { method: "GET", credentials: "include" }
+    );
+
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+
+    renderNews(data.items);
+    renderPagination(data.totalPages);
+
+  } catch (e) {
+    console.error(e);
     alert('Could not load news — check server.');
-  }finally{
+  } finally {
     statusIndicator().style.display = 'none';
   }
 }
 
-function renderCategories(){
-  const cats = new Set();
-  allNews.forEach(n => (n.categories || []).forEach(c => cats.add(c)));
-  const sel = categorySelect();
-  sel.innerHTML = '<option value="">All Categories</option>';
-  Array.from(cats).sort().forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    opt.textContent = c;
-    sel.appendChild(opt);
-  });
-}
-
-function applyFilters(){
-  const query = (searchInput().value || '').trim().toLowerCase();
-  const cat = categorySelect().value;
-  return allNews.filter(n => {
-    const inQuery = !query || (
-      (n.title||'').toLowerCase().includes(query) ||
-      (n.location||'').toLowerCase().includes(query) ||
-      (n.description||'').toLowerCase().includes(query) ||
-      (n.content||'').toLowerCase().includes(query)
-    );
-    const inCat = !cat || (n.categories || []).includes(cat);
-    return inQuery && inCat;
-  });
-}
-
-function paginate(arr){
-  const start = (currentPage - 1) * pageSize;
-  return arr.slice(start, start + pageSize);
-}
-
-function renderNews(){
+/* ---------------------
+   Render Cards
+--------------------- */
+function renderNews(items) {
   const grid = newsGrid();
   grid.innerHTML = '';
-  const filtered = applyFilters();
-  const page = paginate(filtered);
 
-  if(page.length === 0){
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:26px;border-radius:10px;background:#fbfeff">No reports found.</div>`;
+  if (items.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#888;padding:20px;">No reports found.</div>`;
+    return;
   }
 
-  page.forEach(n => {
+  items.forEach(n => {
     const card = document.createElement('article');
     card.className = 'news-card';
-    card.dataset.id = n._id || n.id || '';
+    card.setAttribute("data-id", n._id);
 
-    const title = document.createElement('h3');
-    title.className = 'news-title';
-    title.textContent = n.title || 'Untitled';
+    const verifiedBadge = n.verified
+      ? `<span class="badge verified">VERIFIED</span>`
+      : `<span class="badge unverified">NOT VERIFIED</span>`;
 
-    const desc = document.createElement('p');
-    desc.className = 'news-desc';
-    desc.textContent = (n.description || '').slice(0,170).replace(/\s+$/,'') + ( (n.description||'').length > 170 ? '…' : '' );
+    const approvedBadge = n.approved
+      ? `<span class="badge approved">APPROVED</span>`
+      : ``;
 
-    const meta = document.createElement('div');
-    meta.className = 'news-meta';
+    card.innerHTML = `
+      <div class="badge-row">${verifiedBadge}${approvedBadge}</div>
+      <h3 class="news-title">${n.title}</h3>
+      <p class="news-desc">${(n.description || '').slice(0,170)}...</p>
+      <div class="news-meta">
+        <span>${new Date(n.createdAt).toLocaleDateString()}</span>
+        <span>${n.location || ''}</span>
+      </div>
+    `;
 
-    const left = document.createElement('div');
-    left.style.display = 'flex';
-    left.style.gap = '8px';
-    left.style.alignItems = 'center';
-
-    const badges = document.createElement('div');
-    badges.className = 'badges';
-    const verifiedSpan = document.createElement('span');
-    verifiedSpan.className = 'badge ' + (n.verified ? 'verified' : 'unverified');
-    verifiedSpan.textContent = n.verified ? 'Verified' : 'Unverified';
-    badges.appendChild(verifiedSpan);
-    if(n.approved){
-      const app = document.createElement('span');
-      app.className = 'badge approved';
-      app.textContent = 'Approved';
-      badges.appendChild(app);
-    }
-    left.appendChild(badges);
-
-    const right = document.createElement('div');
-    right.style.textAlign = 'right';
-    right.innerHTML = `<div style="font-weight:700;color:var(--muted);font-size:13px">${new Date(n.createdAt || n.date || Date.now()).toLocaleDateString()}</div>
-                       <div style="font-size:12px;color:var(--muted)">${n.location || ''}</div>`;
-
-    meta.appendChild(left);
-    meta.appendChild(right);
-
-    card.appendChild(title);
-    card.appendChild(desc);
-    card.appendChild(meta);
-
-    card.addEventListener('click', () => openPanel(n));
+    card.onclick = () => openPanel(n);
     grid.appendChild(card);
   });
-
-  renderPagination(filtered.length);
 }
 
-function renderPagination(totalItems){
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+/* ---------------------
+   Pagination UI
+--------------------- */
+function renderPagination(totalPages) {
   const container = pagination();
   container.innerHTML = '';
 
   const prev = document.createElement('button');
   prev.textContent = '⬅ Back';
   prev.disabled = currentPage === 1;
-  prev.onclick = () => { if(currentPage>1){ currentPage--; renderNews(); window.scrollTo({top:0,behavior:'smooth'}); } };
+  prev.onclick = () => {
+    currentPage--;
+    loadNews();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const next = document.createElement('button');
   next.textContent = 'Next ➡';
   next.disabled = currentPage === totalPages;
-  next.onclick = () => { if(currentPage<totalPages){ currentPage++; renderNews(); window.scrollTo({top:0,behavior:'smooth'}); } };
+  next.onclick = () => {
+    currentPage++;
+    loadNews();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const info = document.createElement('span');
   info.className = 'page-info';
@@ -500,111 +564,27 @@ function renderPagination(totalItems){
   container.appendChild(next);
 }
 
-function openPanel(item){
-  panelTitle.textContent = item.title || 'Untitled';
-  panelShort.textContent = item.description || '';
-  panelContent.textContent = item.content || '';
-  panelDate.textContent = new Date(item.createdAt || item.date || Date.now()).toLocaleString();
-  panelLocation.textContent = item.location || 'Unknown';
-  panelCats.textContent = (item.categories && item.categories.length) ? item.categories.join(', ') : 'None';
-
-  if(item.verified){
-    panelVerifiedBadge.style.display = 'inline-block';
-    panelVerifiedBadge.className = 'badge verified';
-    panelVerifiedBadge.textContent = 'Verified';
-  } else {
-    panelVerifiedBadge.style.display = 'inline-block';
-    panelVerifiedBadge.className = 'badge unverified';
-    panelVerifiedBadge.textContent = 'Unverified';
-  }
-
-  if(item.approved){
-    panelApprovedBadge.style.display = 'inline-block';
-    panelApprovedBadge.className = 'badge approved';
-    panelApprovedBadge.textContent = 'Approved';
-  } else {
-    panelApprovedBadge.style.display = 'none';
-  }
-
-  panelButtons.innerHTML = '';
-  if(!item.verified){
-    const v = document.createElement('button');
-    v.className = 'btn btn-verify';
-    v.textContent = 'Verify';
-    v.onclick = async (e) => { e.stopPropagation(); await verifyNews(item._id); };
-    panelButtons.appendChild(v);
-  }
-  if(!item.approved){
-    const a = document.createElement('button');
-    a.className = 'btn btn-approve';
-    a.textContent = 'Approve';
-    a.onclick = async (e) => { e.stopPropagation(); await approveNews(item._id); };
-    panelButtons.appendChild(a);
-  }
-  const d = document.createElement('button');
-  d.className = 'btn btn-delete';
-  d.textContent = 'Delete';
-  d.onclick = async (e) => { e.stopPropagation(); 
-      if(confirm('Delete this report? This action cannot be undone.')) { await deleteNews(item._id); }
-    };
-  panelButtons.appendChild(d);
-
-  sidePanel.classList.add('open');
-  sidePanel.setAttribute('aria-hidden','false');
-  document.body.style.overflow = 'hidden';
-}
-
-function closePanel(){
-  sidePanel.classList.remove('open');
-  sidePanel.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
-}
-
-panelBack.addEventListener('click', () => closePanel());
-document.addEventListener('keydown', (ev) => { if(ev.key === 'Escape') closePanel(); });
-
-async function verifyNews(id){
-  try{
-    const res = await fetch(`/api/news/verify/${id}`, { method:'PUT' });
-    if(!res.ok) throw new Error('Failed to verify');
-    await loadNews();
-    closePanel();
-  }catch(e){
-    console.error(e); alert('Could not verify — check server.');
-  }
-}
-
-async function approveNews(id){
-  try{
-    const res = await fetch(`/api/news/approve/${id}`, { method:'PUT' });
-    if(!res.ok) throw new Error('Failed to approve');
-    await loadNews();
-    closePanel();
-  }catch(e){
-    console.error(e); alert('Could not approve — check server.');
-  }
-}
-
-async function deleteNews(id){
-  try{
-    const res = await fetch(`/api/news/delete/${id}`, { method:'DELETE' });
-    if(!res.ok) throw new Error('Failed to delete');
-    await loadNews();
-    closePanel();
-  }catch(e){
-    console.error(e); alert('Could not delete — check server.');
-  }
-}
-
-searchInput().addEventListener('input', () => { currentPage = 1; renderNews(); });
-categorySelect().addEventListener('change', () => { currentPage = 1; renderNews(); });
-refreshBtn().addEventListener('click', () => loadNews());
-
-sidePanel.addEventListener('click', (e) => {
-  if(e.target === sidePanel) closePanel();
+/* Filters & Refresh */
+searchInput().addEventListener('input', () => {
+  currentPage = 1;
+  loadNews();
 });
+categorySelect().addEventListener('change', () => {
+  currentPage = 1;
+  loadNews();
+});
+refreshBtn().addEventListener('click', loadNews);
 
+/* Start */
+loadCategories();
 loadNews();
 </script>
+
+
+
+
+
+
+
 </body>
 </html>

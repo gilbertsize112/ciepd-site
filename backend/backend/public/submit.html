@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIEPD Watch Center – Submit Report</title>
+
+<style>
+/* ——— SAME STYLES YOU PROVIDED ——— */
+:root {
+  --primary: #0077b6;
+  --secondary: #0096c7;
+  --dark: #023e8a;
+  --white: #fff;
+  --light: #f1f9ff;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: var(--light);
+  color: #333;
+}
+
+/* Header */
+#header {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(120deg, #0077b6, #0096c7, #48cae4);
+  background-size: 200% 200%;
+  animation: gradientMove 8s ease infinite;
+  color: white;
+  text-align: center;
+  padding: 50px 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+#header h1 { margin: 0; font-size: 2rem; letter-spacing: 1px; }
+#header p { margin: 5px 0 0; font-size: 1rem; }
+
+#header::before, #header::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.4;
+  background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%);
+  animation: floatOrbs 12s infinite ease-in-out;
+}
+
+#header::before { width: 200px; height: 200px; top: -60px; left: -60px; }
+#header::after { width: 250px; height: 250px; bottom: -80px; right: -80px; animation-delay: 4s; }
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes floatOrbs {
+  0% { transform: translateY(0) scale(1); opacity: 0.4; }
+  50% { transform: translateY(30px) scale(1.2); opacity: 0.6; }
+  100% { transform: translateY(0) scale(1); opacity: 0.4; }
+}
+
+/* Navbar */
+.topnav {
+  background: white;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.topnav a {
+  color: var(--dark);
+  text-decoration: none;
+  padding: 10px 18px;
+  margin: 3px;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: all 0.3s;
+}
+.topnav a:hover {
+  background: var(--secondary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Form wrapper */
+.wrapper {
+  width: 95%;
+  max-width: 900px;
+  margin: 40px auto;
+  background: var(--white);
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  color: var(--dark);
+  margin-bottom: 30px;
+}
+
+h4 {
+  margin: 10px 0 5px;
+  color: var(--dark);
+}
+
+input.text, textarea.textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+textarea.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+input[type="checkbox"] { margin-right: 8px; }
+.report_row label { display: block; margin: 4px 0; }
+
+input.btn_submit {
+  background: var(--primary);
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.3s;
+  width: 100%;
+}
+input.btn_submit:hover { background: var(--secondary); }
+
+button.back-btn {
+  background: #999;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  margin-top: 10px;
+  transition: 0.3s;
+  width: 100%;
+}
+button.back-btn:hover { background: #777; }
+</style>
+</head>
+
+<body>
+
+<!-- Header -->
+<div id="header">
+  <h1>CIEPD Conflict & Peace Watch Center</h1>
+  <p>Send reports via SMS/WhatsApp: <strong>09056454523</strong></p>
+</div>
+
+<!-- Navigation -->
+<div class="topnav">
+  <a href="index.html">Home</a>
+  <a href="reports.html">Reports</a>
+  <a href="submit.html">Submit Report</a>
+  <a href="get_alert.html">Get Alerts</a>
+  <a href="contact.html">Contact</a>
+  <a href="bigmap.html">Big Map</a>
+</div>
+
+<!-- Main Form -->
+<div class="wrapper">
+  <form id="reportForm" name="reportForm">
+    <h1>Submit a New Report</h1>
+
+    <div class="report_row">
+      <h4>Report Title *</h4>
+      <input type="text" id="title" class="text">
+    </div>
+
+    <div class="report_row">
+      <h4>Description *</h4>
+      <textarea id="content" class="textarea"></textarea>
+    </div>
+
+    <div class="report_row">
+      <h4>Categories *</h4>
+      <label><input type="checkbox" name="category" value="Violent Conflicts">Violent Conflicts</label>
+      <label><input type="checkbox" name="category" value="Electoral Violence">Electoral Violence</label>
+      <label><input type="checkbox" name="category" value="Peace Initiatives">Peace Initiatives</label>
+      <label><input type="checkbox" name="category" value="Hate Speech">Hate Speech</label>
+    </div>
+
+    <div class="report_row">
+      <h4>Location *</h4>
+      <input type="text" id="location" class="text">
+    </div>
+
+    <h3 style="color:#0077b6; margin-top:25px;">Optional Information</h3>
+
+    <div class="report_row">
+      <h4>First Name</h4>
+      <input type="text" id="firstName" class="text">
+    </div>
+
+    <div class="report_row">
+      <h4>Last Name</h4>
+      <input type="text" id="lastName" class="text">
+    </div>
+
+    <div class="report_row">
+      <h4>Email</h4>
+      <input type="text" id="email" class="text">
+    </div>
+
+    <input type="submit" value="Submit Report" class="btn_submit">
+    <button type="button" onclick="window.location.href='/admin.html'" class="back-btn">Back to Admin</button>
+  </form>
+</div>
+
+<script>
+const form = document.getElementById("reportForm");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const title = document.getElementById("title").value.trim();
+  const content = document.getElementById("content").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  const category = Array.from(
+    document.querySelectorAll('input[name="category"]:checked')
+  ).map(c => c.value);
+
+  if (!title || !content || !location || category.length === 0) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  const payload = {
+    title,
+    content,
+    description: content,
+    location,
+    firstName,
+    lastName,
+    email,
+    category
+  };
+
+  const res = await fetch("/api/news", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (res.ok) {
+    alert("Report submitted successfully!");
+    form.reset();
+  } else {
+    alert("Failed to submit report.");
+  }
+});
+</script>
+
+</body>
+</html>
