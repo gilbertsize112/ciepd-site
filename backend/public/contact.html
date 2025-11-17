@@ -15,7 +15,7 @@
         body {
             font-family: 'PT Sans Narrow', sans-serif;
             margin: 0;
-            background: linear-gradient(#dfeeff, #ffffff);
+            background: url('contact.jpg') no-repeat center center/cover; /* NEW BACKGROUND */
             color: #333;
         }
 
@@ -202,12 +202,14 @@
 
             <nav>
                 <ul>
-                    <li><a href="https://ciepdcwc.crowdmap.com/main">Home</a></li>
-                    <li><a href="https://ciepdcwc.crowdmap.com/reports">Reports</a></li>
-                    <li><a href="https://ciepdcwc.crowdmap.com/reports/submit">Submit a Report</a></li>
-                    <li><a href="https://ciepdcwc.crowdmap.com/alerts">Get Alerts</a></li>
-                    <li><a href="https://ciepdcwc.crowdmap.com/contact">Contact Us</a></li>
-                    <li><a href="https://ciepdcwc.crowdmap.com/bigmap">Big Map</a></li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="report.html">Reports</a></li> <!-- FIXED -->
+                    <li><a href="submit.html">Submit a Report</a></li> <!-- FIXED -->
+                    <li><a href="getalert.html">Get Alerts</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+
+                    <!-- ✅ UPDATED: Big Map now links to admin-map.html -->
+                    <li><a href="admin-map.html">Big Map</a></li>
                 </ul>
             </nav>
         </div>
@@ -216,7 +218,7 @@
     <!-- INFO BAR -->
     <div id="info-line">
         WhatsApp/SMS: <strong>08034559689</strong> |
-        <span class="submit-incident"><a href="https://ciepdcwc.crowdmap.com/reports/submit">Submit a Report</a></span>
+        <span class="submit-incident"><a href="submit.html">Submit a Report</a></span>
     </div>
 
     <!-- MAP -->
@@ -257,7 +259,7 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
-    <a href="https://ciepdcwc.crowdmap.com/reports/submit" class="submit-float">
+    <a href="submit.html" class="submit-float">
         Submit a Report
     </a>
 
