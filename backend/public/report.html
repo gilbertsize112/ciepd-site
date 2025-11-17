@@ -1,4 +1,3 @@
-<!-- Updated report.html with table layout for reports -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,7 +116,7 @@
         </select>
     </div>
 
-    <!-- NEW TABLE -->
+    <!-- REPORTS TABLE -->
     <table>
         <thead>
             <tr>
@@ -139,17 +138,19 @@ let allReports = [];
 let currentPage = 1;
 const perPage = 15;
 
+/* LOAD DATA */
 loadReports();
 setInterval(loadReports, 30000);
 
 async function loadReports() {
     try {
-        const res = await fetch("/api/news");
+        const res = await fetch("/api/news?limit=1000&page=1"); 
         const data = await res.json();
-        allReports = data;
 
-        updateStats(data);
-        populateCategoryDropdown(data);
+        allReports = data.items || [];
+
+        updateStats(allReports);
+        populateCategoryDropdown(allReports);
         displayReports();
 
     } catch (e) {
@@ -158,6 +159,7 @@ async function loadReports() {
     }
 }
 
+/* STATS COUNTER */
 function updateStats(data) {
     let verified = data.filter(n => n.verified).length;
     let unverified = data.length - verified;
@@ -167,11 +169,12 @@ function updateStats(data) {
     document.getElementById("unverified-count").innerText = "Unverified: " + unverified;
 }
 
+/* CATEGORY DROPDOWN */
 function populateCategoryDropdown(data) {
     const categories = new Set();
     data.forEach(r => {
-        if (Array.isArray(r.category)) {
-            r.category.forEach(c => categories.add(c));
+        if (Array.isArray(r.categories)) {
+            r.categories.forEach(c => categories.add(c));
         }
     });
 
@@ -183,18 +186,20 @@ function populateCategoryDropdown(data) {
     });
 }
 
+/* FILTERS */
 function applyFilters() {
     const search = document.getElementById("search-input").value.toLowerCase();
     const category = document.getElementById("category-filter").value;
 
     return allReports.filter(r => {
-        const titleMatch = r.title.toLowerCase().includes(search);
+        const titleMatch = r.title?.toLowerCase().includes(search);
         const descMatch = (r.description || "").toLowerCase().includes(search);
-        const categoryMatch = category === "" || (Array.isArray(r.category) && r.category.includes(category));
+        const categoryMatch = category === "" || (Array.isArray(r.categories) && r.categories.includes(category));
         return (titleMatch || descMatch) && categoryMatch;
     });
 }
 
+/* DISPLAY TABLE */
 function displayReports() {
     const table = document.getElementById("reports-table");
     table.innerHTML = "";
@@ -209,7 +214,7 @@ function displayReports() {
             <tr>
                 <td><a href="news-details.html?id=${report._id}">${report.title}</a></td>
                 <td>${report.location || "Unknown"}</td>
-                <td>${new Date(report.date).toLocaleDateString()}</td>
+                <td>${report.createdAt ? new Date(report.createdAt).toLocaleDateString() : "Unknown"}</td>
                 <td>
                     <span class="status ${isVerified ? "verified" : "unverified"}">
                         ${isVerified ? "Verified" : "Unverified"}
@@ -222,6 +227,7 @@ function displayReports() {
     renderPagination(filtered.length);
 }
 
+/* PAGINATION */
 function renderPagination(total) {
     const pages = Math.ceil(total / perPage);
     const pag = document.getElementById("pagination");
@@ -239,6 +245,7 @@ function gotoPage(p) {
     displayReports();
 }
 
+/* EVENT LISTENERS */
 document.getElementById("search-input").addEventListener("input", displayReports);
 document.getElementById("category-filter").addEventListener("change", displayReports);
 </script>
