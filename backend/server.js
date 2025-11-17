@@ -13,6 +13,9 @@ import { Server } from "socket.io";
 import csv from "csvtojson";
 import fs from "fs";
 
+// ⭐ NEW — AI IMPORT
+import OpenAI from "openai";
+
 dotenv.config();
 
 // ==========================
@@ -55,7 +58,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // RENDER HTTPS WILL STILL WORK
+      secure: false,
       httpOnly: true,
       sameSite: "lax",
     },
@@ -258,7 +261,7 @@ app.get("/api/news", async (req, res) => {
   const skip = (page - 1) * limit;
 
   const search = req.query.search?.toLowerCase() || "";
-  const category = req.query.category || "";
+  const location = req.query.location || "";
 
   let filter = {};
 
@@ -271,8 +274,8 @@ app.get("/api/news", async (req, res) => {
     ];
   }
 
-  if (category && category.trim() !== "") {
-    filter.categories = category;
+  if (location && location.trim() !== "") {
+    filter.location = location;
   }
 
   const totalItems = await News.countDocuments(filter);
@@ -360,6 +363,54 @@ app.get("/api/news/:id", async (req, res) => {
   } catch (err) {
     console.error("GET SINGLE NEWS ERROR:", err);
     res.status(500).json({ error: "Failed to load article" });
+  }
+});
+
+/*  
+===========================================================
+ ⭐ NEW — AI SAFETY SUGGESTION API (OPENAI 2025 FIX)
+===========================================================
+*/
+
+// ✅ New OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// ⭐ Updated AI Endpoint (2025 syntax)
+app.post("/api/ai/analyze-report", async (req, res) => {
+  try {
+    const { title, description, location, categories } = req.body;
+
+    const prompt = `
+You are a crisis-analysis AI for a peace & conflict early-warning system.
+Analyze this community report and return short actionable insights.
+
+Report:
+- Title: ${title}
+- Description: ${description}
+- Location: ${location}
+- Categories: ${categories}
+
+Return:
+1. Risk Level (Low • Medium • High)
+2. Why (2–3 sentences)
+3. Immediate Advice for local authorities
+4. Whether escalation is likely
+`;
+
+    // ⭐ NEW — REQUIRED 2025 RESPONSE API
+    const response = await openai.responses.create({
+      model: "gpt-4o-mini",
+      input: prompt,
+    });
+
+    const text = response.output_text || "No response";
+
+    res.json({ analysis: text });
+  } catch (err) {
+    console.error("AI ERROR:", err);
+    res.status(500).json({ error: "AI processing failed" });
   }
 });
 

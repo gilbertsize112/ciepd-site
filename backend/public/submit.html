@@ -185,9 +185,42 @@ body {
   color: var(--primary);
   animation: popFade 0.4s ease;
 }
+
 @keyframes popFade {
   from { transform: translate(-50%, -45%) scale(0.9); opacity: 0; }
   to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* ===== AI Box Styling ===== */
+.ai-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f0faff;
+  border-left: 4px solid var(--primary);
+  border-radius: 10px;
+}
+
+.ai-btn {
+  background: var(--secondary);
+  padding: 10px 16px;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.ai-btn:hover {
+  background: var(--primary);
+}
+
+.ai-output {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  display: none;
+  border: 1px solid #cfe8ff;
 }
 </style>
 </head>
@@ -199,14 +232,13 @@ body {
   <p>Report via WhatsApp/SMS: <strong>09056454523</strong></p>
 </div>
 
-<!-- Navigation -->
 <div class="topnav">
   <a href="index.html">Home</a>
   <a href="report.html">Reports</a>
   <a href="submit.html">Submit Report</a>
   <a href="getalert.html">Get Alerts</a>
   <a href="contact.html">Contact</a>
-  <a href="admin-map.html">Big Map</a> <!-- ✅ FIXED HERE -->
+  <a href="admin-map.html">Big Map</a>
 </div>
 
 <div class="wrapper">
@@ -222,6 +254,12 @@ body {
     <div class="input-group">
       <label>Description *</label>
       <textarea id="content" rows="5"></textarea>
+    </div>
+
+    <!-- ⭐⭐⭐ AI Assistant ⭐⭐⭐ -->
+    <div class="ai-box">
+      <button type="button" class="ai-btn" onclick="generateAI()">✨ AI Improve / Summarize Description</button>
+      <div id="aiOutput" class="ai-output"></div>
     </div>
 
     <div>
@@ -286,9 +324,70 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  popup.style.display = "block";
-  setTimeout(() => { popup.style.display = "none"; form.reset(); }, 2000);
+  const res = await fetch("/api/submit-report", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      title,
+      content,
+      category,
+      location,
+      firstName,
+      lastName,
+      email
+    })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    popup.style.display = "block";
+    setTimeout(() => { popup.style.display = "none"; form.reset(); }, 2000);
+  } else {
+    alert("Error submitting report.");
+  }
 });
+
+/* ⭐ FIXED AI FEATURE ⭐ */
+async function generateAI() {
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("content").value.trim();
+  const location = document.getElementById("location").value.trim();
+
+  const categories = Array.from(
+    document.querySelectorAll('input[name="category"]:checked')
+  ).map(c => c.value);
+
+  const output = document.getElementById("aiOutput");
+
+  if (!description) {
+    output.style.display = "block";
+    output.innerHTML = "⚠️ Please type a description first.";
+    return;
+  }
+
+  output.style.display = "block";
+  output.innerHTML = "⏳ AI is generating…";
+
+  try {
+    const res = await fetch("/api/ai/analyze-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title,
+        description,
+        location,
+        categories
+      })
+    });
+
+    const data = await res.json();
+    output.innerHTML = data.analysis || "AI could not generate a result.";
+  } catch (e) {
+    output.innerHTML = "❌ Error talking to AI service.";
+  }
+}
 </script>
 
 </body>
