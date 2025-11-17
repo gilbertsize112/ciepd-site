@@ -28,11 +28,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ==========================
-// CORS
+// CORS (UPDATED FOR LOGIN)
 // ==========================
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://ciepd-backend.onrender.com"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5500",
+      "https://ciepd-backend.onrender.com",
+      "https://ciepd.org",
+      "*",
+    ],
     credentials: true,
   })
 );
@@ -41,14 +47,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================
-// SESSION
+// SESSION (REQUIRED ON RENDER)
 // ==========================
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "ciepd_secret_key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false },
+    cookie: {
+      secure: false, // RENDER HTTPS WILL STILL WORK
+      httpOnly: true,
+      sameSite: "lax",
+    },
   })
 );
 
@@ -186,10 +196,7 @@ async function ensureAdmin() {
   }
 }
 
-connectDB()
-  .then(importCSV)
-  .then(cleanDuplicates)
-  .then(ensureAdmin);
+connectDB().then(importCSV).then(cleanDuplicates).then(ensureAdmin);
 
 // ==========================
 // HELPERS
@@ -199,9 +206,36 @@ async function findNews(id) {
     let item = await News.findById(id);
     if (item) return item;
   }
-
   return await News.findOne({ id });
 }
+
+// ==========================
+// ⭐⭐ LOGIN ROUTE (ADDED)
+// ==========================
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    console.log("LOGIN ATTEMPT:", email);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid login details" });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ error: "Invalid login details" });
+    }
+
+    req.session.user = { id: user._id, email: user.email };
+
+    return res.json({ success: true, redirect: "/admin.html" });
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
 
 // ==========================
 // CATEGORY LIST API
@@ -311,7 +345,7 @@ app.delete("/api/news/delete/:id", async (req, res) => {
 });
 
 // ==========================
-// ⭐ ADDED: GET SINGLE NEWS (FIX)
+// GET SINGLE NEWS (WORKING)
 // ==========================
 app.get("/api/news/:id", async (req, res) => {
   try {
