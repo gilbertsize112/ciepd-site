@@ -262,13 +262,41 @@ body {
       <div id="aiOutput" class="ai-output"></div>
     </div>
 
+    <!-- ⭐⭐⭐ UPDATED FULL CATEGORY SYSTEM ⭐⭐⭐ -->
     <div>
       <label style="font-weight:600;color:var(--dark);">Categories *</label>
+
       <div class="category-box">
-        <label><input type="checkbox" name="category" value="Violent Conflicts"> Violent Conflicts</label>
+
+        <!-- Incidences of Violent Conflicts -->
+        <strong>Incidences of Violent Conflicts</strong>
+        <label><input type="checkbox" name="category" value="Kidnapping"> Kidnapping</label>
+        <label><input type="checkbox" name="category" value="WASH Related Conflict"> WASH Related Conflict</label>
+        <label><input type="checkbox" name="category" value="Intra-Communial Conflict"> Intra-Communial Conflict</label>
+        <label><input type="checkbox" name="category" value="Inter-Communial Conflicts"> Inter-Communial Conflicts</label>
+        <label><input type="checkbox" name="category" value="Religious Conflicts"> Religious Conflicts</label>
+        <label><input type="checkbox" name="category" value="Resource Conflict"> Resource Conflict</label>
+        <label><input type="checkbox" name="category" value="Others"> Others</label>
+
+        <br><strong>Kidnapping — Sub Categories</strong>
+        <label><input type="checkbox" name="category" value="Early Warning Signal"> Early Warning Signal</label>
+        <label><input type="checkbox" name="category" value="Uncategorized Reports"> Uncategorized Reports</label>
         <label><input type="checkbox" name="category" value="Electoral Violence"> Electoral Violence</label>
-        <label><input type="checkbox" name="category" value="Peace Initiatives"> Peace Initiatives</label>
+        <label><input type="checkbox" name="category" value="Pre-Electoral Violence"> Pre-Electoral Violence</label>
+        <label><input type="checkbox" name="category" value="During"> During</label>
+        <label><input type="checkbox" name="category" value="Post Electoral Violence"> Post Electoral Violence</label>
+
+        <br><strong>Peace Initiatives</strong>
+        <label><input type="checkbox" name="category" value="NGO"> NGO</label>
+        <label><input type="checkbox" name="category" value="CBOs/Communities"> CBOs/Communities</label>
+        <label><input type="checkbox" name="category" value="Government Initiative"> Government Initiative</label>
+
+        <br><strong>Hate Speech</strong>
         <label><input type="checkbox" name="category" value="Hate Speech"> Hate Speech</label>
+
+        <br><strong>Violence Against Women and Girls (VAWG)</strong>
+        <label><input type="checkbox" name="category" value="VAWG"> VAWG</label>
+
       </div>
     </div>
 
@@ -324,7 +352,6 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  /* ⭐ FIX HERE — FULL RENDER URL ⭐ */
   const res = await fetch("https://ciepd-backend.onrender.com/api/submit-report", {
     method: "POST",
     headers: {
@@ -350,7 +377,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ⭐ FIXED AI FEATURE WITH FULL URL ⭐ */
+/* ⭐ AI FEATURE ⭐ */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -372,7 +399,6 @@ async function generateAI() {
   output.innerHTML = "⏳ AI is generating…";
 
   try {
-    /* ⭐ FIX HERE TOO — FULL URL ⭐ */
     const res = await fetch("https://ciepd-backend.onrender.com/api/ai/analyze-report", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
