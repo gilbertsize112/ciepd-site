@@ -13,6 +13,9 @@ import { Server } from "socket.io";
 import csv from "csvtojson";
 import fs from "fs";
 
+// EMAIL (Nodemailer)
+import nodemailer from "nodemailer";
+
 // ⭐ NEW — AI IMPORT
 import OpenAI from "openai";
 
@@ -111,6 +114,19 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
+/* ===== New: Subscription schema for Get Alerts =====
+   We store subscriber phone/email, chosen state/location, preferred method, createdAt.
+*/
+const SubscriptionSchema = new mongoose.Schema({
+  phone: String, // E.164 format expected (+234...)
+  email: String,
+  location: String, // e.g. "Rivers State" (the labels used in front-end)
+  method: String, // "WhatsApp" | "SMS" | "Email"
+  createdAt: { type: Date, default: Date.now },
+});
+
+const Subscription = mongoose.model("Subscription", SubscriptionSchema);
+
 // ==========================
 // CSV IMPORTER — FIXED!
 // ==========================
@@ -199,7 +215,15 @@ async function ensureAdmin() {
   }
 }
 
-connectDB().then(importCSV).then(cleanDuplicates).then(ensureAdmin);
+// RUN ONLY ONCE, NOT EVERY SERVER START
+connectDB().then(ensureAdmin);
+
+// If you ever want to re-import CSV manually, run:
+//   node server.js --import
+if (process.argv.includes("--import")) {
+  importCSV().then(cleanDuplicates);
+}
+
 
 // ==========================
 // HELPERS
@@ -211,6 +235,60 @@ async function findNews(id) {
   }
   return await News.findOne({ id });
 }
+
+/* ===== NEW: small utility helpers ===== */
+
+/**
+ * normalizeStateName
+ * makes comparisons case-insensitive and trims common words.
+ */
+function normalizeStateName(s) {
+  if (!s) return "";
+  return s.toLowerCase().replace(/state/gi, "").trim();
+}
+
+/**
+ * quick contains-match for state names in a news location string
+ */
+function locationMatchesState(newsLocation, subLocation) {
+  if (!newsLocation || !subLocation) return false;
+  const nl = newsLocation.toLowerCase();
+  const sl = subLocation.toLowerCase();
+  return nl.includes(sl) || sl.includes(nl);
+}
+
+/**
+ * A minimal haversine function in case you add coordinates later.
+ */
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  function toRad(x) {
+    return (x * Math.PI) / 180;
+  }
+  const R = 6371; // km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Small map of relevant Niger Delta state centroids (for future distance-based logic)
+const STATE_COORDS = {
+  rivers: { lat: 4.85, lon: 6.99 },
+  delta: { lat: 5.9, lon: 6.3 },
+  edo: { lat: 6.34, lon: 5.62 },
+  "akwa ibom": { lat: 4.99, lon: 7.93 },
+  bayelsa: { lat: 4.93, lon: 6.27 },
+  imo: { lat: 5.49, lon: 7.03 },
+  abia: { lat: 5.53, lon: 7.44 },
+  ondo: { lat: 7.1, lon: 5.2 },
+  "cross river": { lat: 5.96, lon: 8.32 },
+};
 
 // ==========================
 // ⭐⭐ LOGIN ROUTE (ADDED)
@@ -414,9 +492,282 @@ Return:
   }
 });
 
-// ==========================
-// START SERVER
-// ==========================
+/* =========================================================
+   NEW: Get latest news route used by getalert front-end
+   (keeps compatibility with your front-end which calls /get-news)
+   ========================================================= */
+app.get("/get-news", async (req, res) => {
+  try {
+    const items = await News.find().sort({ createdAt: -1 }).limit(200);
+    res.json(items);
+  } catch (err) {
+    console.error("GET-NEWS ERROR:", err);
+    res.status(500).json([]);
+  }
+});
+
+/* =========================================================
+   NEW: Subscribe alert endpoint
+   Body: { phone, email, location, method }
+   - Normalizes phone to E.164 (+234...) automatically for local numbers
+   ========================================================= */
+app.post("/subscribe-alert", async (req, res) => {
+  try {
+    let { phone, email, location, method } = req.body;
+
+    if (!phone || !location) {
+      return res.status(400).json({ message: "phone and location required" });
+    }
+
+    phone = String(phone).trim();
+    // auto add +234 if user typed local 0xxxxx or without +
+    if (!phone.startsWith("+")) {
+      if (phone.startsWith("0")) {
+        phone = "+234" + phone.substring(1);
+      } else {
+        phone = "+234" + phone;
+      }
+    }
+
+    const sub = await Subscription.create({ phone, email, location, method });
+    console.log("New subscription:", sub);
+
+    res.json({ success: true, subscriptionId: sub._id });
+  } catch (err) {
+    console.error("SUBSCRIBE ERROR:", err);
+    res.status(500).json({ message: "Subscription failed" });
+  }
+});
+
+/* =========================================================
+   NEW: submit-report endpoint (used by submit.html)
+   Creates a News document and triggers notifySubscribers(news)
+   ========================================================= */
+app.post("/api/submit-report", async (req, res) => {
+  try {
+    const { title, content, category, location, firstName, lastName, email } =
+      req.body;
+
+    // basic validation
+    if (!title || !content || !location) {
+      return res.status(400).json({ success: false, message: "Missing fields" });
+    }
+
+    const doc = {
+      id: `web-${Date.now()}`,
+      title,
+      description: content.slice(0, 200),
+      content,
+      location,
+      categories: Array.isArray(category) ? category : [category].filter(Boolean),
+      image: "",
+      verified: false,
+      approved: false,
+      createdAt: new Date(),
+    };
+
+    const created = await News.create(doc);
+
+    // Emit via socket.io to admin UI if connected
+    try {
+      io.emit("news:created", created);
+    } catch (e) {
+      // ignore socket errors
+    }
+
+    // Notify subscribers (async, fire-and-forget)
+    notifySubscribers(created).catch((err) => {
+      console.error("notifySubscribers error:", err);
+    });
+
+    return res.json({ success: true, news: created });
+  } catch (err) {
+    console.error("SUBMIT REPORT ERROR:", err);
+    res.status(500).json({ success: false, message: "Failed to submit report" });
+  }
+});
+
+/* =========================================================
+   Helper: sendEmail - uses Nodemailer when SMTP env configured
+   Env vars used (optional but required for real email):
+     SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, FROM_EMAIL
+   If not configured the message is logged instead of sent.
+   ========================================================= */
+async function sendEmail(to, subject, text) {
+  try {
+    const host = process.env.SMTP_HOST;
+    const port = process.env.SMTP_PORT;
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+    const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
+
+    if (!host || !port || !user || !pass) {
+      console.log(`[Email mock] To: ${to} | Subject: ${subject} | Text: ${text}`);
+      return { ok: true, mock: true };
+    }
+
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      host,
+      port: Number(port),
+      secure: Number(port) === 465, // true for 465, false for other ports
+      auth: {
+        user,
+        pass,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: from,
+      to,
+      subject,
+      text,
+    });
+
+    console.log("Email sent:", info.messageId);
+    return { ok: true, info };
+  } catch (err) {
+    console.error("sendEmail error:", err);
+    return { ok: false, error: err.message || err };
+  }
+}
+
+/* =========================================================
+   Helper: sendWhatsApp - uses WhatsApp Cloud API if configured
+   Env vars used (optional):
+     WHATSAPP_API_TOKEN, WHATSAPP_PHONE_ID
+   If not configured the message is logged instead of sent.
+   (Left here for completeness in case you later enable WhatsApp)
+   ========================================================= */
+async function sendWhatsApp(to, message) {
+  try {
+    const token = process.env.WHATSAPP_API_TOKEN;
+    const phoneId = process.env.WHATSAPP_PHONE_ID;
+    if (!token || !phoneId) {
+      console.log(`[WhatsApp mock] To: ${to} — Message: ${message}`);
+      return { ok: true, mock: true };
+    }
+
+    // Node 18+ has global fetch
+    const url = `https://graph.facebook.com/v17.0/${phoneId}/messages`;
+    const payload = {
+      messaging_product: "whatsapp",
+      to: to.replace("+", ""), // whatsapp expects numbers without + in this endpoint
+      type: "text",
+      text: { body: message },
+    };
+
+    const r = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await r.json();
+    if (!r.ok) {
+      console.error("WHATSAPP API ERROR:", json);
+      return { ok: false, error: json };
+    }
+    return { ok: true, result: json };
+  } catch (err) {
+    console.error("sendWhatsApp error:", err);
+    return { ok: false, error: err.message || err };
+  }
+}
+
+/* =========================================================
+   notifySubscribers(news)
+   - Matches subscriptions by state name inclusion (simple and reliable for current data)
+   - For each matched subscription, attempts to send Email (option C) or logs SMS/WhatsApp mocks
+   ========================================================= */
+async function notifySubscribers(news) {
+  try {
+    if (!news || !news.location) return;
+
+    // Get all subscriptions for all states (could be filtered)
+    const subs = await Subscription.find().lean();
+
+    // Build simple normalized news location
+    const newsLoc = String(news.location || "").toLowerCase();
+
+    // Message body
+    const message = `CIEPD Alert — ${news.title}
+Location: ${news.location}
+Categories: ${Array.isArray(news.categories) ? news.categories.join(", ") : news.categories}
+Date: ${new Date(news.createdAt).toLocaleString()}
+
+Details: ${news.description || (news.content || "").slice(0, 150)}
+`;
+
+    // For each sub, check if news location mentions their chosen location/state
+    for (let s of subs) {
+      try {
+        const subLoc = String(s.location || "").toLowerCase().trim();
+        if (!subLoc) continue;
+
+        // If the subscriber location is included in the news location string -> notify
+        if (
+          newsLoc.includes(subLoc) ||
+          subLoc.includes(newsLoc) ||
+          locationMatchesState(news.location, s.location)
+        ) {
+          // Send according to method
+          if (s.method && s.method.toLowerCase().includes("email")) {
+            // Send real email using nodemailer (Option C)
+            const to = s.email || s.phone; // prefer email, fall back to phone as identifier
+            if (!to) {
+              console.log("Skipping email notify, no recipient:", s);
+              continue;
+            }
+            const subject = `CIEPD Alert — ${news.title}`;
+            const text = `${message}\nVisit admin for more.`;
+            const sent = await sendEmail(to, subject, text);
+            console.log("Email notify result:", to, sent.ok ? "ok" : sent.error || "failed");
+          } else if (s.method && s.method.toLowerCase().includes("whatsapp")) {
+            // WhatsApp not configured by default in Option C — log/mock
+            const to = s.phone || "";
+            const sent = await sendWhatsApp(to, message);
+            console.log("WhatsApp notify result:", s.phone, sent.ok ? "ok" : sent.error || "failed");
+          } else if (s.method && s.method.toLowerCase().includes("sms")) {
+            // SMS not implemented — log for now
+            console.log(`[SMS mock] To: ${s.phone} — ${message}`);
+            // You can plug in Twilio or another SMS provider here if needed
+          } else {
+            // Default: email if available, else log
+            if (s.email) {
+              const to = s.email;
+              const subject = `CIEPD Alert — ${news.title}`;
+              const text = `${message}\nVisit admin for more.`;
+              const sent = await sendEmail(to, subject, text);
+              console.log("Default notify (Email) result:", to, sent.ok ? "ok" : sent.error || "failed");
+            } else {
+              console.log("No contact method for subscriber:", s);
+            }
+          }
+        }
+      } catch (innerErr) {
+        console.error("notifySubscribers inner error for sub:", s, innerErr);
+      }
+    }
+  } catch (err) {
+    console.error("notifySubscribers ERROR:", err);
+  }
+}
+
+/* =========================================================
+   Optional: When CSV import or other data pipelines create news,
+   you may want to trigger notifySubscribers() there as well.
+   For now submit-report triggers notifications.
+   ========================================================= */
+
+/*  
+===========================================================
+  START SERVER
+===========================================================
+*/
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

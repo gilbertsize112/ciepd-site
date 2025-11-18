@@ -23,6 +23,20 @@ body {
   color: #333;
 }
 
+/* ===== BOUNCE ANIMATION ===== */
+@keyframes bounceSmooth {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-12px); }
+  60% { transform: translateY(0); }
+  80% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.bounce-text {
+  display:inline-block;
+  animation: bounceSmooth 2.3s infinite ease-in-out;
+}
+
 /* ===== IMPROVED HEADER ===== */
 .header {
   background: rgba(0,0,0,0.55);
@@ -49,6 +63,7 @@ body {
   display: inline-block;
   padding: 6px 14px;
   border-radius: 8px;
+  font-weight: 600;
 }
 
 /* ===== IMPROVED NAVIGATION ===== */
@@ -228,15 +243,15 @@ body {
 <body>
 
 <div class="header">
-  <h1>CIEPD Conflict & Peace Watch Center</h1>
-  <p>Report via WhatsApp/SMS: <strong>09056454523</strong></p>
+  <h1 class="bounce-text">CIEPD Conflict & Peace Watch Center</h1>
+  <p class="bounce-text">Report via WhatsApp/SMS: <strong>09056454523</strong></p>
 </div>
 
 <div class="topnav">
   <a href="index.html">Home</a>
-  <a href="report.html">Reports</a>
+  <a href="reports.html">Reports</a>
   <a href="submit.html">Submit Report</a>
-  <a href="getalert.html">Get Alerts</a>
+  <a href="get_alert.html">Get Alerts</a>
   <a href="contact.html">Contact</a>
   <a href="admin-map.html">Big Map</a>
 </div>
@@ -248,12 +263,12 @@ body {
 
     <div class="input-group">
       <label>Report Title *</label>
-      <input type="text" id="title">
+      <input type="text" id="title" required>
     </div>
 
     <div class="input-group">
       <label>Description *</label>
-      <textarea id="content" rows="5"></textarea>
+      <textarea id="content" rows="5" required></textarea>
     </div>
 
     <!-- ⭐⭐⭐ AI Assistant ⭐⭐⭐ -->
@@ -268,7 +283,6 @@ body {
 
       <div class="category-box">
 
-        <!-- Incidences of Violent Conflicts -->
         <strong>Incidences of Violent Conflicts</strong>
         <label><input type="checkbox" name="category" value="Kidnapping"> Kidnapping</label>
         <label><input type="checkbox" name="category" value="WASH Related Conflict"> WASH Related Conflict</label>
@@ -302,7 +316,7 @@ body {
 
     <div class="input-group">
       <label>Location *</label>
-      <input type="text" id="location">
+      <input type="text" id="location" required>
     </div>
 
     <h3 style="color:var(--primary);margin-top:25px;">Optional Information</h3>
@@ -319,7 +333,7 @@ body {
 
     <div class="input-group">
       <label>Email</label>
-      <input type="text" id="email">
+      <input type="email" id="email">
     </div>
 
     <button type="submit" class="btn-submit">Submit Report</button>
@@ -343,16 +357,17 @@ form.addEventListener("submit", async (e) => {
   const lastName = document.getElementById("lastName").value.trim();
   const email = document.getElementById("email").value.trim();
   
-  const category = Array.from(
+  const categories = Array.from(
     document.querySelectorAll('input[name="category"]:checked')
   ).map(c => c.value);
 
-  if (!title || !content || !location || category.length === 0) {
+  if (!title || !content || !location || categories.length === 0) {
     alert("Please fill all required fields.");
     return;
   }
 
-  const res = await fetch("https://ciepd-backend.onrender.com/api/submit-report", {
+  /* ⭐ FIXED: NOW 100% MATCHES YOUR BACKEND ⭐ */
+  const res = await fetch("http://localhost:3000/api/submit-report", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -360,7 +375,7 @@ form.addEventListener("submit", async (e) => {
     body: JSON.stringify({
       title,
       content,
-      category,
+      category: categories,   // BACKEND expects "category"
       location,
       firstName,
       lastName,
@@ -369,11 +384,12 @@ form.addEventListener("submit", async (e) => {
   });
 
   const data = await res.json();
+
   if (data.success) {
     popup.style.display = "block";
     setTimeout(() => { popup.style.display = "none"; form.reset(); }, 2000);
   } else {
-    alert("Error submitting report.");
+    alert("Error submitting report: " + (data.message || "Unknown error"));
   }
 });
 
@@ -399,7 +415,7 @@ async function generateAI() {
   output.innerHTML = "⏳ AI is generating…";
 
   try {
-    const res = await fetch("https://ciepd-backend.onrender.com/api/ai/analyze-report", {
+    const res = await fetch("http://localhost:3000/ai/analyze-report", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

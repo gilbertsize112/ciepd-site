@@ -4,48 +4,238 @@
     <meta charset="UTF-8">
     <title>CIEPD Conflict/Peace Watch Center</title>
     <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel="stylesheet">
+
     <style>
-        body { margin:0; font-family: 'PT Sans Narrow', sans-serif; background-color: #f0f8ff; color: #333; }
-        a { text-decoration: none; color: #007acc; }
-        a:hover { text-decoration: underline; }
+        body { 
+            margin:0; 
+            font-family: 'PT Sans Narrow', sans-serif; 
+            background-color: #e9f4ff; 
+            color: #333; 
+        }
 
-        /* Header */
-        #header { background-color: #ffffff; padding: 20px 40px; text-align: center; border-bottom: 2px solid #007acc; }
-        #header h1 { font-size: 2em; margin-bottom: 5px; color: #007acc; }
-        #header span { font-size: 0.9em; color: #555; }
+        a { 
+            text-decoration: none; 
+            color: #007acc; 
+        }
 
-        /* Navigation */
-        #nav { background-color: #007acc; }
-        #nav ul { display: flex; justify-content: center; list-style: none; padding: 0; margin: 0; }
-        #nav li { margin: 0 15px; }
-        #nav a { color: white; font-weight: bold; padding: 15px 10px; display: block; }
-        #nav a.active { background-color: #005f99; border-radius: 4px; }
+        a:hover { 
+            text-decoration: underline; 
+        }
 
-        /* Main container */
-        .container { max-width: 1000px; margin: 30px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #007acc; margin-bottom: 15px; }
-        .map-wrapper { height: 400px; margin-bottom: 20px; border: 2px solid #007acc; border-radius: 8px; overflow: hidden; }
+        /* HEADER */
+        #header {
+            background: linear-gradient(to right, #007acc, #005f99);
+            padding: 35px 20px;
+            text-align: center;
+            color: white;
+            border-bottom: 4px solid #003f66;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
 
-        /* Report list */
-        .report-list { margin-top: 30px; }
-        .report-item { border-bottom: 1px solid #ccc; padding: 15px 0; }
-        .report-item:last-child { border-bottom: none; }
-        .report-title { font-weight: bold; color: #005f99; font-size: 1.1em; }
-        .report-content { margin-top: 5px; }
+        #header h1 {
+            font-size: 2.6em;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
 
-        /* Footer */
-        footer { text-align: center; padding: 20px; font-size: 0.9em; color: #555; margin-top: 40px; }
+        #header span {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-weight: bold;
+        }
+
+        /* NAVIGATION */
+        #nav {
+            background-color: #ffffff;
+            border-bottom: 2px solid #007acc;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 0;
+        }
+
+        #nav ul {
+            display: flex; 
+            justify-content: center; 
+            list-style: none; 
+            margin: 0; 
+            padding: 0;
+        }
+
+        #nav li {
+            margin: 0 10px;
+        }
+
+        #nav a {
+            color: #007acc;
+            font-weight: bold;
+            padding: 15px 14px;
+            display: block;
+            font-size: 1.1em;
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+
+        #nav a:hover {
+            background-color: #e6f2ff;
+        }
+
+        #nav a.active {
+            background-color: #007acc;
+            color: white;
+        }
+
+        /* MAIN CONTAINER */
+        .container { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            background: white; 
+            padding: 35px; 
+            border-radius: 12px; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15); 
+        }
+
+        h2 { 
+            color: #005f99; 
+            margin-bottom: 15px; 
+            font-size: 1.7em; 
+        }
+
+        p {
+            font-size: 1.1em;
+        }
+
+        /* MAP */
+        .map-wrapper { 
+            height: 420px; 
+            margin-bottom: 25px; 
+            border: 3px solid #007acc; 
+            border-radius: 12px; 
+            overflow: hidden; 
+        }
+
+        /* REPORT LIST */
+        .report-list { 
+            margin-top: 35px; 
+        }
+
+        .report-item { 
+            border-bottom: 1px solid #ccc; 
+            padding: 15px 0; 
+        }
+
+        .report-item:last-child { 
+            border-bottom: none; 
+        }
+
+        .report-title { 
+            font-weight: bold; 
+            color: #005f99; 
+            font-size: 1.2em; 
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 20px;
+        }
+
+        .pagination button {
+            padding: 12px 22px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #007acc;
+            color: white;
+            font-size: 1.1em;
+            transition: 0.3s;
+        }
+
+        .pagination button:hover {
+            background: #005f99;
+        }
+
+        .pagination button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* ALERT SUBSCRIPTION FORM */
+        .alert-box {
+            padding: 25px;
+            border: 2px solid #007acc;
+            border-radius: 12px;
+            margin-bottom: 35px;
+            background: #f4faff;
+        }
+
+        .alert-box h3 {
+            margin-top: 0;
+            color: #005f99;
+            font-size: 1.5em;
+        }
+
+        .alert-box label {
+            display: block;
+            margin-top: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #004c75;
+        }
+
+        .alert-box input, 
+        .alert-box select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: 1px solid #007acc;
+            font-size: 1em;
+            background: #ffffff;
+        }
+
+        .alert-btn {
+            margin-top: 18px;
+            background-color: #007acc;
+            color: white;
+            padding: 14px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .alert-btn:hover {
+            background-color: #005f99;
+        }
+
+        /* FOOTER */
+        footer { 
+            text-align: center; 
+            padding: 25px; 
+            font-size: 1em; 
+            color: #444; 
+            margin-top: 40px; 
+        }
+
+        footer a { color: #007acc; }
     </style>
 </head>
+
 <body>
 
-    <!-- Header -->
+    <!-- HEADER -->
     <div id="header">
         <h1>CIEPD Conflict/Peace Watch Center</h1>
-        <span>Send Reports also via SMS/Whatsapp to: 09056454523</span>
+        <span>Send Reports via SMS/Whatsapp: <strong>09056454523</strong></span>
     </div>
 
-    <!-- Navigation -->
+    <!-- NAVIGATION -->
     <nav id="nav">
         <ul>
             <li><a href="index.html">Home</a></li>
@@ -53,65 +243,191 @@
             <li><a href="submit.html">Submit a Report</a></li>
             <li><a href="get_alert.html" class="active">Get Alerts</a></li>
             <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="bigmap.html">Big Map</a></li>
+            <li><a href="admin-map.html">Big Map</a></li>
         </ul>
     </nav>
 
-    <!-- Main Content -->
+    <!-- MAIN CONTENT -->
     <div class="container">
+
         <h2>Get Alerts</h2>
-        <p>Place a spot on the map below or select your city/location. We'll alert you when a report is submitted within 20 kilometers.</p>
-        <div class="map-wrapper" id="divMap">
-            <img src="Nigerdelta.jpg" alt="">
+        <p>Select your location or set a point on the map. You will receive notifications when a report is submitted within a 20km radius.</p>
+
+        <!-- ALERT FORM -->
+        <div class="alert-box">
+            <h3>Subscribe for Alerts</h3>
+
+            <label>Your Phone Number (SMS / WhatsApp)</label>
+            <input id="alertPhone" type="text" placeholder="e.g. 09012345678">
+
+            <label>Your Email (Optional)</label>
+            <input id="alertEmail" type="email" placeholder="example@mail.com">
+
+            <label>Select Your Location (City/LGA)</label>
+            <select id="alertLocation">
+                <option value="">-- Select Location --</option>
+                <option>Rivers State</option>
+                <option>Akwaibom State</option>
+                <option>Edo State</option>
+                <option>Bayelsa State</option>
+                <option>Imo State</option>
+                <option>Ondo State</option>
+                <option>Delta State</option>
+                <option>Cross Rivers State</option>
+                <option>Abia State</option>
+            </select>
+
+            <label>Preferred Alert Method</label>
+            <select id="alertMethod">
+                <option>WhatsApp</option>
+                <option>SMS</option>
+                <option>Email</option>
+            </select>
+
+            <button class="alert-btn" onclick="subscribeAlert()">Subscribe for Alerts</button>
         </div>
 
-        <!-- Report List -->
+        <!-- MAP -->
+        <div class="map-wrapper" id="divMap">
+            <img src="Nigerdelta.jpg" alt="" style="width:100%; height:100%; object-fit: cover;">
+        </div>
+
+        <!-- REPORT LIST -->
         <div class="report-list" id="reportList">
             <h2>Latest Reports</h2>
             <p>Loading reports...</p>
         </div>
+
+        <!-- PAGINATION BUTTONS -->
+        <div class="pagination">
+            <button id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+            <button id="nextBtn" onclick="nextPage()" disabled>Next</button>
+        </div>
+
     </div>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer>
-        Powered by <a href="http://www.ushahidi.com/">Ushahidi</a> Platform. All rights reserved.
+        Powered by <a href="http://www.ushahidi.com/">SammyTech</a> Platform. All rights reserved.
     </footer>
 
-    <!-- Fetch reports from backend -->
+    <!-- FETCH + ALERT SCRIPT -->
     <script>
+
+        /* ------------- REPORT PAGINATION SETTINGS ------------- */
+        let currentPage = 1;
+        const pageSize = 20;
+        let allReports = [];
+
+        /* ---------------- FETCH LATEST REPORTS ---------------- */
         async function fetchReports() {
             try {
                 const response = await fetch('http://localhost:3000/get-news');
                 const reports = await response.json();
 
-                const container = document.getElementById('reportList');
-                if (reports.length === 0) {
-                    container.innerHTML = '<p>No reports yet.</p>';
-                    return;
-                }
+                allReports = reports;
+                renderPage();
 
-                container.innerHTML = '';
-                reports.forEach(report => {
-                    const div = document.createElement('div');
-                    div.className = 'report-item';
-                    div.innerHTML = `
-                        <div class="report-title">${report.title}</div>
-                        <div class="report-content">${report.content}</div>
-                        <div class="report-location"><strong>Location:</strong> ${report.location || 'N/A'}</div>
-                        <div class="report-categories"><strong>Categories:</strong> ${report.categories.join(', ') || 'None'}</div>
-                        <div class="report-author"><strong>Submitted by:</strong> ${report.firstName || ''} ${report.lastName || ''} ${report.email ? '(' + report.email + ')' : ''}</div>
-                        <div class="report-date"><strong>Date:</strong> ${new Date(report.createdAt).toLocaleString()}</div>
-                    `;
-                    container.appendChild(div);
-                });
             } catch (err) {
-                console.error(err);
-                document.getElementById('reportList').innerHTML = '<p>Error loading reports.</p>';
+                document.getElementById('reportList').innerHTML = '<p>No reports available.</p>';
             }
         }
 
-        // Fetch reports on page load
+        function renderPage() {
+            const container = document.getElementById('reportList');
+
+            if (allReports.length === 0) {
+                container.innerHTML = "<p>No reports available.</p>";
+                return;
+            }
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageItems = allReports.slice(start, end);
+
+            container.innerHTML = "<h2>Latest Reports</h2>";
+
+            pageItems.forEach(report => {
+                const div = document.createElement('div');
+                div.className = 'report-item';
+
+                div.innerHTML = `
+                    <div class="report-title">${report.title}</div>
+                    <div class="report-content">${report.content}</div>
+                    <div class="report-location"><strong>Location:</strong> ${report.location || 'N/A'}</div>
+                    <div class="report-categories"><strong>Categories:</strong> ${Array.isArray(report.categories) ? report.categories.join(', ') : 'None'}</div>
+                    <div class="report-author"><strong>Submitted by:</strong> ${report.firstName || ''} ${report.lastName || ''} ${report.email ? '(' + report.email + ')' : ''}</div>
+                    <div class="report-date"><strong>Date:</strong> ${new Date(report.createdAt).toLocaleString()}</div>
+                `;
+
+                container.appendChild(div);
+            });
+
+            updatePaginationButtons();
+        }
+
+        function updatePaginationButtons() {
+            const totalPages = Math.ceil(allReports.length / pageSize);
+
+            document.getElementById("prevBtn").disabled = currentPage === 1;
+            document.getElementById("nextBtn").disabled = currentPage === totalPages;
+        }
+
+        function nextPage() {
+            currentPage++;
+            renderPage();
+        }
+
+        function prevPage() {
+            currentPage--;
+            renderPage();
+        }
+
         fetchReports();
+
+
+        /* ---------------- ALERT SUBSCRIPTION ---------------- */
+        async function subscribeAlert() {
+            let phone = document.getElementById("alertPhone").value.trim();
+            const email = document.getElementById("alertEmail").value.trim();
+            const location = document.getElementById("alertLocation").value.trim();
+            const method = document.getElementById("alertMethod").value.trim();
+
+            if (!phone || !location) {
+                alert("Phone number and location are required.");
+                return;
+            }
+
+            /* ---- Auto-add +234 for WhatsApp/SMS ---- */
+            if (!phone.startsWith("+")) {
+                if (phone.startsWith("0")) {
+                    phone = "+234" + phone.substring(1);
+                } else {
+                    phone = "+234" + phone;
+                }
+            }
+
+            try {
+                const response = await fetch("http://localhost:3000/subscribe-alert", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone, email, location, method })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("✔ Subscription successful! You will now receive alerts.");
+                } else {
+                    alert("Subscription failed: " + data.message);
+                }
+
+            } catch (error) {
+                alert("Network error. Please try again.");
+            }
+        }
+
     </script>
+
 </body>
 </html>
