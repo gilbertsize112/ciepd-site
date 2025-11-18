@@ -3,96 +3,324 @@
 <head>
 <meta charset="UTF-8">
 <title>CIEPD Conflict/Peace Watch Center - Admin Map</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background: linear-gradient(to bottom, #87CEFA, #ffffff);
-        color: #333;
         margin: 0;
-        padding: 0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #f4faff;
+        color: #222;
     }
-    .header {
-        background-color: #4682B4;
-        padding: 20px;
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
-        color: #fff;
-    }
-    .nav-bar {
-        background-color: #ADD8E6;
+
+    /* Top Navbar */
+    .topbar {
+        background: #005b99;
+        padding: 18px;
+        color: white;
         display: flex;
-        justify-content: center;
-        gap: 10px;
-        padding: 10px;
-    }
-    .nav-bar a {
-        text-decoration: none;
-        color: #333;
-        padding: 8px 16px;
-        border-radius: 4px;
-        border: 1px solid #4682B4;
-        background-color: #E0F0FF;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 22px;
         font-weight: bold;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        flex-wrap: wrap;
+        overflow: hidden;
     }
-    .nav-bar a:hover {
-        background-color: #B0D4FF;
+
+    /* MOVING TITLE */
+    .marquee-title {
+        white-space: nowrap;
+        overflow: hidden;
+        display: inline-block;
+        animation: slideText 12s linear infinite;
     }
-    .stats-bar {
+
+    @keyframes slideText {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+
+    .topbar-links {
         display: flex;
-        justify-content: space-around;
-        background-color: #B0E0E6;
-        padding: 10px;
-        font-weight: bold;
-    }
-    .stats-bar div {
-        text-align: center;
-    }
-    #map {
-        width: 100%;
-        height: 75vh;
+        flex-wrap: wrap;
+        gap: 15px;
+        font-size: 15px;
         margin-top: 10px;
     }
-    .legend {
+
+    /* UPDATED HEADER BUTTON DESIGN */
+    .topbar-links a {
+        color: #e6f3ff;
+        text-decoration: none;
+        font-weight: 600;
+        background: rgba(255,255,255,0.15);
+        padding: 8px 16px;
+        border-radius: 25px;
+        transition: 0.25s;
+        border: 1px solid rgba(255,255,255,0.25);
+        backdrop-filter: blur(3px);
+    }
+
+    .topbar-links a:hover {
         background: white;
+        color: #005b99;
+        box-shadow: 0 0 8px rgba(255,255,255,0.7);
+    }
+
+    /* ACTIVE BUTTON STYLE */
+    .topbar-links a.active {
+        background: white !important;
+        color: #005b99 !important;
+        border: 1px solid white;
+        box-shadow: 0 0 8px rgba(255,255,255,0.8);
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: flex;
+        justify-content: space-around;
+        padding: 20px;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 14px;
+        width: 260px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: 0.3s;
+        border-top: 5px solid #005b99;
+    }
+    .stat-card:hover {
+        transform: translateY(-6px);
+    }
+
+    .stat-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #005b99;
+    }
+    .stat-value {
+        font-size: 38px;
+        font-weight: 800;
+        margin-top: 10px;
+    }
+
+    /* Filters Bar */
+    .filters-bar {
+        background: white;
+        padding: 12px 20px;
+        margin: 0 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        font-size: 15px;
+        flex-wrap: wrap;
+    }
+    .filters-bar select {
         padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #bbb;
+        outline: none;
+        width: 180px;
+    }
+
+    /* Map */
+    #map {
+        width: 100%;
+        height: 70vh;
+        margin-top: 20px;
+    }
+
+    /* Legend */
+    .legend {
         position: absolute;
-        bottom: 30px;
-        left: 30px;
-        border-radius: 5px;
-        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        bottom: 40px;
+        left: 40px;
+        background: white;
+        padding: 14px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         font-size: 14px;
     }
+
+    /* Floating Buttons */
+    .floating-buttons {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 999;
+    }
+    .fab {
+        background: #005b99;
+        color: white;
+        padding: 16px;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        justify-content:center;
+        align-items: center;
+        font-size: 26px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        transition: 0.3s;
+    }
+    .fab:hover {
+        background: #0072c2;
+        transform: scale(1.1);
+    }
+
+    @media (max-width: 900px) {
+        .topbar {
+            text-align: center;
+            font-size: 18px;
+        }
+        .topbar-links {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .filters-bar {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .filters-bar select {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .topbar {
+            padding: 14px;
+            font-size: 17px;
+        }
+        .stat-card {
+            width: 90%;
+        }
+        #map {
+            height: 60vh;
+        }
+        .legend {
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+        }
+        .fab {
+            width: 50px;
+            height: 50px;
+            font-size: 22px;
+        }
+    }
+
+    @media (max-width: 450px) {
+        .topbar {
+            font-size: 16px;
+        }
+        .stat-value {
+            font-size: 32px;
+        }
+        .topbar-links {
+            gap: 10px;
+        }
+        .filters-bar {
+            margin: 0 10px;
+        }
+    }
+
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
+
 <body>
 
-<div class="header">
-    CIEPD Conflict/Peace Watch Center
+<!-- NAVBAR -->
+<div class="topbar">
+    <div class="marquee-title">CIEPD Conflict/Peace Watch Center – Admin Map</div>
+    <div class="topbar-links">
+        <a href="/admin.html">Dashboard</a>
+        <a href="/report.html">Reports</a>
+        <a href="/message.html">Messages</a>
+        <a href="#">Stats</a>
+        <a href="/admin-map.html" class="active">Admin Map</a>
+    </div>
 </div>
 
-<div class="nav-bar">
-    <a href="#">Dashboard</a>
-    <a href="#">Reports</a>
-    <a href="#">Messages</a>
-    <a href="#">Stats</a>
-    <a href="#">Addons</a>
-    <a href="#">Admin Map</a>
+<!-- STAT CARDS -->
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-title">Total Incidents</div>
+        <div class="stat-value" id="totalIncidents">6,732</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Verified</div>
+        <div class="stat-value" id="verifiedIncidents">4,798</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Unverified</div>
+        <div class="stat-value" id="unverifiedIncidents">1,934</div>
+    </div>
 </div>
 
-<div class="stats-bar">
-    <div>Total Incidents<br><span id="totalIncidents">2060</span></div>
-    <div>Verified<br><span id="verifiedIncidents">1200</span></div>
-    <div>Unverified<br><span id="unverifiedIncidents">860</span></div>
+<!-- FILTERS BAR -->
+<div class="filters-bar">
+    <div>
+        <strong>Filter by State:</strong>
+        <select>
+            <option value="">All States</option>
+            <option>Delta</option>
+            <option>Rivers</option>
+            <option>Edo</option>
+            <option>Bayelsa</option>
+            <option>Imo</option>
+            <option>Abia</option>
+            <option>Ondo</option>
+            <option>Akwa Ibom</option>
+            <option>Cross River</option>
+        </select>
+    </div>
+
+    <div>
+        <strong>Filter by Category:</strong>
+        <select>
+            <option value="">All Categories</option>
+            <option>Kidnapping</option>
+            <option>Electural Violence</option>
+            <option>WASH Conflict</option>
+            <option>Resource Conflict</option>
+            <option>VAWG</option>
+            <option>Hate Speech</option>
+            <option>Peace Initiatives</option>
+        </select>
+    </div>
 </div>
 
+<!-- MAP -->
 <div id="map"></div>
+
 <div class="legend">
-    <div>📍 Size = Number of reports per state</div>
+    <strong>📍 State Incident Size</strong><br>
+    Circle size represents number of incidents
+</div>
+
+<!-- FLOATING ACTION BUTTONS -->
+<div class="floating-buttons">
+    <div class="fab" title="Refresh Map">⟳</div>
+    <div class="fab" title="Add Report" onclick="window.location='/submit.html'">+</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
     var map = L.map('map').setView([5.0, 6.0], 6);
 
@@ -101,35 +329,34 @@
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
+    /* UPDATED INCIDENT VALUES (Total = 6,732) */
     var states = {
-        "Delta": {coords:[5.9,6.3], incidents: 206},
-        "Rivers": {coords:[4.8,7.0], incidents: 391},
-        "Bayelsa": {coords:[4.9,6.3], incidents: 239},
-        "Akwa Ibom": {coords:[5.0,7.8], incidents: 217},
-        "Cross River": {coords:[5.9,8.3], incidents: 206},
-        "Ondo": {coords:[7.2,5.2], incidents: 226},
-        "Abia": {coords:[5.5,7.5], incidents: 189},
-        "Edo": {coords:[6.3,5.6], incidents: 251},
-        "Imo": {coords:[5.5,7.0], incidents: 200}
+        "Rivers": {coords:[4.8,7.0], incidents: 1420},
+        "Delta": {coords:[5.9,6.3], incidents: 1210},
+        "Edo": {coords:[6.3,5.6], incidents: 960},
+        "Akwa Ibom": {coords:[5.0,7.8], incidents: 780},
+        "Bayelsa": {coords:[4.9,6.3], incidents: 690},
+        "Imo": {coords:[5.5,7.0], incidents: 610},
+        "Abia": {coords:[5.5,7.5], incidents: 520},
+        "Ondo": {coords:[7.2,5.2], incidents: 320},
+        "Cross River": {coords:[5.9,8.3], incidents: 222}
     };
 
-    // Determine min/max incidents for scaling
     var incidentValues = Object.values(states).map(s => s.incidents);
     var minInc = Math.min(...incidentValues);
     var maxInc = Math.max(...incidentValues);
-    var minSize = 30; // minimum circle size
-    var maxSize = 80; // maximum circle size
+    var minSize = 30;
+    var maxSize = 80;
 
     Object.keys(states).forEach(function(state) {
-        // Scale size
         var size = minSize + (states[state].incidents - minInc) / (maxInc - minInc) * (maxSize - minSize);
 
         var numIcon = L.divIcon({
-            html: `<div style="background: #ff4d4d; color: white; 
-                  border-radius: 50%; width: ${size}px; height: ${size}px; 
-                  display: flex; justify-content: center; align-items: center;
-                  font-weight: bold; font-size: ${size/3}px;">${states[state].incidents}</div>`,
-            className: ''
+            html: `<div style="background:#ff4d4d; color:white;
+                  border-radius:50%; width:${size}px; height:${size}px;
+                  display:flex; justify-content:center; align-items:center;
+                  font-weight:bold; font-size:${size/3}px;">${states[state].incidents}</div>`,
+            className: 'state-marker'
         });
 
         L.marker(states[state].coords, {icon: numIcon})
