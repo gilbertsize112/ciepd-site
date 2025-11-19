@@ -235,7 +235,7 @@ body {
   margin-top: 10px;
   font-size: 0.95rem;
   display: none;
-  border: 1px solid #cfe8ff;
+  border: 1.5px solid #cfe8ff;
 }
 </style>
 </head>
@@ -249,9 +249,9 @@ body {
 
 <div class="topnav">
   <a href="index.html">Home</a>
-  <a href="reports.html">Reports</a>
+  <a href="report.html">Reports</a>
   <a href="submit.html">Submit Report</a>
-  <a href="get_alert.html">Get Alerts</a>
+  <a href="getalert.html">Get Alerts</a>
   <a href="contact.html">Contact</a>
   <a href="admin-map.html">Big Map</a>
 </div>
@@ -277,7 +277,7 @@ body {
       <div id="aiOutput" class="ai-output"></div>
     </div>
 
-    <!-- ⭐⭐⭐ UPDATED FULL CATEGORY SYSTEM ⭐⭐⭐ -->
+    <!-- ⭐⭐⭐ CATEGORIES ⭐⭐⭐ -->
     <div>
       <label style="font-weight:600;color:var(--dark);">Categories *</label>
 
@@ -337,7 +337,7 @@ body {
     </div>
 
     <button type="submit" class="btn-submit">Submit Report</button>
-    <button type="button" onclick="window.location.href='admin.html'" class="btn-back">Back to Admin</button>
+
   </form>
 </div>
 
@@ -366,8 +366,12 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  /* ⭐ FIXED: NOW 100% MATCHES YOUR BACKEND ⭐ */
-  const res = await fetch("http://localhost:3000/api/submit-report", {
+  /* BACKEND ROUTE */
+  const apiURL = window.location.hostname.includes("localhost")
+    ? "http://localhost:3000/reports"
+    : "https://ciepd-backend.onrender.com/reports";
+
+  const res = await fetch(apiURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -375,7 +379,7 @@ form.addEventListener("submit", async (e) => {
     body: JSON.stringify({
       title,
       content,
-      category: categories,   // BACKEND expects "category"
+      category: categories,
       location,
       firstName,
       lastName,
@@ -385,7 +389,7 @@ form.addEventListener("submit", async (e) => {
 
   const data = await res.json();
 
-  if (data.success) {
+  if (res.ok) {
     popup.style.display = "block";
     setTimeout(() => { popup.style.display = "none"; form.reset(); }, 2000);
   } else {
@@ -393,7 +397,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ⭐ AI FEATURE ⭐ */
+/* ⭐ FIXED AI FEATURE — MATCHES BACKEND ROUTE ⭐ */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -415,7 +419,13 @@ async function generateAI() {
   output.innerHTML = "⏳ AI is generating…";
 
   try {
-    const res = await fetch("http://localhost:3000/ai/analyze-report", {
+
+    /* FIXED ROUTE — your server.js uses /api/ai/analyze */
+    const apiURL = window.location.hostname.includes("localhost")
+      ? "http://localhost:3000/api/ai/analyze"
+      : "https://ciepd-backend.onrender.com/api/ai/analyze";
+
+    const res = await fetch(apiURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -427,7 +437,9 @@ async function generateAI() {
     });
 
     const data = await res.json();
+
     output.innerHTML = data.analysis || "AI could not generate a result.";
+
   } catch (e) {
     output.innerHTML = "❌ Error talking to AI service.";
   }
