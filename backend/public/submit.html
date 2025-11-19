@@ -397,7 +397,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ⭐ FIXED AI FEATURE — MATCHES BACKEND ROUTE ⭐ */
+/* ⭐ FIXED AI FEATURE — MATCH backend routes (/ai/improve & /ai/summarize) ⭐ */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -420,10 +420,10 @@ async function generateAI() {
 
   try {
 
-    /* FIXED ROUTE — your server.js uses /api/ai/analyze */
+    /* FIXED ROUTE — USE CORRECT BACKEND PATH */
     const apiURL = window.location.hostname.includes("localhost")
-      ? "http://localhost:3000/api/ai/analyze"
-      : "https://ciepd-backend.onrender.com/api/ai/analyze";
+      ? "http://localhost:3000/ai/improve"
+      : "https://ciepd-backend.onrender.com/ai/improve";
 
     const res = await fetch(apiURL, {
       method: "POST",
@@ -438,7 +438,7 @@ async function generateAI() {
 
     const data = await res.json();
 
-    output.innerHTML = data.analysis || "AI could not generate a result.";
+    output.innerHTML = data.output || "AI could not generate a result.";
 
   } catch (e) {
     output.innerHTML = "❌ Error talking to AI service.";
