@@ -46,9 +46,9 @@
       animation: fadeIn 1s ease forwards;
     }
 
-    @keyframes fadeIn { 
-      from { opacity: 0; transform: translateY(20px); } 
-      to { opacity: 1; transform: translateY(0); } 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     h1 { font-size: 1.7rem; color: #2575fc; margin-bottom: 10px; }
@@ -82,9 +82,9 @@
       transition: 0.3s;
     }
 
-    input:focus { 
-      border-color: #2575fc; 
-      box-shadow: 0 0 0 4px rgba(37,117,252,0.2); 
+    input:focus {
+      border-color: #2575fc;
+      box-shadow: 0 0 0 4px rgba(37,117,252,0.2);
     }
 
     button {
@@ -139,22 +139,39 @@
       <button type="submit">Login</button>
     </form>
 
-    <!-- Sign Up Form -->
+    <!-- Sign Up Form (ENABLED) -->
     <form id="signup">
       <div class="input-group">
-        <label>Signup Disabled</label>
-        <p style="font-size:14px;color:#444;">User signup is not available.</p>
+        <label for="signupName">Full Name</label>
+        <input type="text" id="signupName" placeholder="Enter your name" required />
       </div>
-      <button type="button" onclick="showMessage('Signup is disabled.')">Okay</button>
+
+      <div class="input-group">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="Enter your email" required />
+      </div>
+
+      <div class="input-group">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="Create password" required />
+      </div>
+
+      <button type="submit">Create Account</button>
     </form>
 
-    <!-- Reset Form -->
+    <!-- Reset Form (ENABLED) -->
     <form id="reset">
       <div class="input-group">
-        <label>Reset Disabled</label>
-        <p style="font-size:14px;color:#444;">Password reset is not available.</p>
+        <label for="resetEmail">Email</label>
+        <input type="email" id="resetEmail" placeholder="Enter your email" required />
       </div>
-      <button type="button" onclick="showMessage('Password reset is disabled.')">Okay</button>
+
+      <div class="input-group">
+        <label for="resetNewPassword">New Password</label>
+        <input type="password" id="resetNewPassword" placeholder="Enter new password" required />
+      </div>
+
+      <button type="submit">Reset Password</button>
     </form>
 
     <div class="footer">
@@ -204,6 +221,67 @@
         }
 
         window.location.href = "admin.html";
+
+      } catch (err) {
+        console.error(err);
+        showMessage("Unable to connect to server.");
+      }
+    });
+
+    /* 🔥 SIGNUP WORKING */
+    document.getElementById("signup").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value.trim();
+
+      try {
+        const res = await fetch(`${BASE_URL}/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMessage(data.message || "Signup failed.");
+          return;
+        }
+
+        showMessage("Account created successfully! You can now log in.");
+        showTab("login", document.querySelector(".tab"));
+
+      } catch (err) {
+        console.error(err);
+        showMessage("Unable to connect to server.");
+      }
+    });
+
+    /* 🔥 RESET PASSWORD WORKING */
+    document.getElementById("reset").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("resetEmail").value.trim();
+      const newPassword = document.getElementById("resetNewPassword").value.trim();
+
+      try {
+        const res = await fetch(`${BASE_URL}/reset-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, newPassword })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMessage(data.message || "Password reset failed.");
+          return;
+        }
+
+        showMessage("Password updated successfully! You can now log in.");
+        showTab("login", document.querySelector(".tab"));
 
       } catch (err) {
         console.error(err);

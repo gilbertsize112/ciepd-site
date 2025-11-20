@@ -15,14 +15,14 @@
         body {
             font-family: 'PT Sans Narrow', sans-serif;
             margin: 0;
-            background: url('contact.jpg') no-repeat center center/cover; /* NEW BACKGROUND */
+            background: url('contact.jpg') no-repeat center center/cover;
             color: #333;
         }
 
         a { text-decoration: none; color: #004080; font-weight: bold; }
         a:hover { text-decoration: underline; }
 
-        /* NEW MODERN GLASS HEADER */
+        /* HEADER */
         header {
             width: 100%;
             padding: 20px 40px;
@@ -80,6 +80,24 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
+        /* MOBILE NAV FIX */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px;
+            }
+
+            nav ul li a {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+
+            header {
+                padding: 15px 20px;
+            }
+        }
+
         /* INFO BAR */
         #info-line {
             background: #ffffff;
@@ -90,12 +108,13 @@
             font-weight: bold;
             color: #003366;
         }
-        .submit-incident a {
-            background: #0056b3;
-            color: #fff !important;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: 0.3s;
+
+        @media (max-width: 600px) {
+            #info-line {
+                padding: 10px 20px;
+                font-size: 14px;
+                line-height: 20px;
+            }
         }
 
         /* MAP */
@@ -104,6 +123,7 @@
             margin: 30px 0;
             animation: fadeIn 1s ease;
         }
+
         .map-wrapper img {
             width: 95%;
             max-width: 700px;
@@ -121,6 +141,14 @@
             box-shadow: 0 6px 25px rgba(0,0,0,0.15);
             backdrop-filter: blur(5px);
         }
+
+        @media (max-width: 600px) {
+            .contact {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+
         .contact h1 {
             text-align: center;
             color: #003366;
@@ -180,6 +208,15 @@
             border-radius: 30px;
         }
 
+        /* MOBILE FLOAT BUTTON FIX */
+        @media (max-width: 600px) {
+            .whatsapp-float, .submit-float {
+                bottom: 15px;
+                padding: 12px 18px;
+                font-size: 20px;
+            }
+        }
+
         /* FOOTER */
         #footer {
             background: #ffffff;
@@ -187,6 +224,13 @@
             padding: 30px;
             border-top: 1px solid #cce0ff;
             font-size: 15px;
+        }
+
+        @media (max-width: 600px) {
+            #footer {
+                font-size: 13px;
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -203,12 +247,10 @@
             <nav>
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="report.html">Reports</a></li> <!-- FIXED -->
-                    <li><a href="submit.html">Submit a Report</a></li> <!-- FIXED -->
+                    <li><a href="report.html">Reports</a></li>
+                    <li><a href="submit.html">Submit a Report</a></li>
                     <li><a href="getalert.html">Get Alerts</a></li>
                     <li><a href="contact.html">Contact Us</a></li>
-
-                    <!-- ✅ UPDATED: Big Map now links to admin-map.html -->
                     <li><a href="admin-map.html">Big Map</a></li>
                 </ul>
             </nav>
