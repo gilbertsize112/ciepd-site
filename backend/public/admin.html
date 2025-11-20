@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CIEPD Admin Dashboard</title>
+<title>CIEPD Admin Dashboard – Manage News</title>
 <script src="/socket.io/socket.io.js"></script>
 
 <style>
@@ -19,7 +19,6 @@
     --radius: 14px;
   }
 
-  /* ===== Base ===== */
   *{box-sizing:border-box}
   body{
     margin:0;
@@ -31,12 +30,10 @@
     min-height:100vh;
   }
 
-  /* ===== Scrolling Header Text ===== */
   .scroll-container {
     width: 300px;
     overflow: hidden;
     white-space: nowrap;
-    position: relative;
   }
   .scroll-text {
     display: inline-block;
@@ -44,14 +41,12 @@
     animation: scroll-left 20s linear infinite;
     font-weight: 700;
     color: var(--primary);
-    letter-spacing: 0.4px;
   }
   @keyframes scroll-left {
     0% { transform: translateX(0); }
     100% { transform: translateX(-100%); }
   }
 
-  /* ===== Header ===== */
   .header{
     display:flex;
     align-items:center;
@@ -61,7 +56,9 @@
     border-bottom: 1px solid rgba(11,36,71,0.06);
     backdrop-filter: blur(6px);
   }
-  .brand { font-weight:700; color:var(--primary); font-size:20px; letter-spacing:0.2px; }
+
+  .brand { font-weight:700; color:var(--primary); font-size:20px; }
+
   .logout-btn{
     background:var(--danger);
     color:white;
@@ -72,23 +69,20 @@
     font-weight:600;
   }
 
-  /* ===== Nav ===== */
   .nav-bar{
     display:flex;
     gap:10px;
     justify-content:center;
     padding:12px;
     background: linear-gradient(90deg, rgba(0,119,182,0.06), rgba(0,180,216,0.03));
-    flex-wrap:wrap;
   }
   .nav-bar a{
     text-decoration:none;
     padding:9px 16px;
     border-radius:999px;
     color:var(--accent);
-    background:transparent;
-    font-weight:600;
     border:1px solid rgba(3,37,61,0.05);
+    font-weight:600;
   }
   .nav-bar a.special-btn{
     background:var(--primary);
@@ -96,7 +90,6 @@
     border:none;
   }
 
-  /* ===== Page container ===== */
   .container{
     width:94%;
     max-width:1200px;
@@ -108,421 +101,394 @@
   }
 
   h1{ margin:0 0 18px 0; color:var(--primary); font-size:20px; }
-  .top-row{ display:flex; gap:16px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:18px; }
 
-  /* ===== Filters ===== */
-  .filters{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-  .filters input[type="text"], .filters select{
+  .top-row{
+    display:flex;
+    gap:16px;
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  .filters{ display:flex; gap:12px; flex-wrap:wrap; }
+  .filters input, .filters select{
     padding:10px 14px;
     border-radius:999px;
     border:1px solid #e6eef6;
-    min-width:220px;
-    font-size:14px;
-    background: #fbfdff;
+    min-width:230px;
+    background:#fbfdff;
   }
 
-  /* ===== Grid ===== */
   .news-grid{
     display:grid;
     grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
     gap:16px;
-    margin-top:8px;
+    margin-top:12px;
   }
   .news-card{
     background:linear-gradient(180deg,#ffffff,#fbfdff);
-    border-radius:12px;
     padding:16px;
-    box-shadow: 0 6px 18px rgba(3,37,61,0.04);
+    border-radius:12px;
     border-left:4px solid var(--primary);
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+    box-shadow: 0 6px 18px rgba(3,37,61,0.04);
     cursor:pointer;
-    transition: transform .14s ease, box-shadow .14s ease;
+    transition:0.15s;
   }
-  .news-card:hover{ transform: translateY(-6px); box-shadow:0 14px 34px rgba(3,37,61,0.08); }
+  .news-card:hover{ transform: translateY(-6px); }
+
   .news-title{ font-weight:700; color:var(--accent); margin:0; font-size:16px; }
-  .news-desc{ color:var(--muted); font-size:14px; line-height:1.4; min-height:44px; overflow:hidden; }
-  .news-meta{ display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
-  .badges{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .news-desc{ color:var(--muted); margin:6px 0; font-size:14px; }
 
-  .badge{ padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; color:white; }
+  .badge{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    color:white;
+  }
   .verified{ background:var(--success); }
-  .approved{ background:var(--primary); }
   .unverified{ background:var(--danger); }
+  .approved{ background:var(--primary); }
 
-  /* ===== Pagination ===== */
-  #pagination{ text-align:center; margin-top:20px; display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
+  #pagination{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-top:22px;
+  }
   #pagination button{
     background:var(--primary);
-    color:white;
     border:none;
-    padding:8px 14px;
+    color:white;
+    padding:8px 16px;
     border-radius:999px;
     cursor:pointer;
     font-weight:700;
   }
-  #pagination .page-info{ color:var(--muted); font-weight:600; }
 
-  /* ===== Side panel (slide-in) ===== */
-  .side-panel {
+  .side-panel{
     position:fixed;
     right:0;
     top:0;
-    height:100vh;
     width:0;
-    max-width:950px;
-    background:linear-gradient(180deg,#ffffff,#f9fcff);
-    box-shadow: -18px 0 40px rgba(3,37,61,0.12);
+    height:100vh;
+    background:white;
+    box-shadow:-20px 0 40px rgba(3,37,61,0.1);
     overflow:auto;
-    transition: width .28s cubic-bezier(.2,.9,.2,1), transform .28s cubic-bezier(.2,.9,.2,1);
+    transition:0.25s;
     z-index:9999;
-    display:flex;
-    flex-direction:column;
   }
-  .side-panel.open{ width:min(920px,100%); transform:translateX(0); }
-  .panel-inner{ padding:28px; display:flex; flex-direction:column; gap:18px; flex:1; min-width:350px; }
-  .panel-top{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
-  .panel-title{ font-size:20px; color:var(--primary); font-weight:800; margin:0; }
+  .side-panel.open{ width:min(900px,100%); }
 
+  .panel-inner{ padding:26px; }
+
+  .panel-title{ margin:0; font-size:22px; font-weight:800; color:var(--primary); }
   .close-btn{
     background:transparent;
     border:none;
-    font-size:14px;
-    padding:8px 12px;
-    border-radius:10px;
+    font-size:16px;
     cursor:pointer;
     color:var(--muted);
   }
 
-  .panel-meta{ display:flex; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:14px; }
-  .panel-block{
-    background:#fbfeff;
-    border-radius:12px;
-    padding:18px;
-    box-shadow: inset 0 1px 0 rgba(3,37,61,0.02);
-  }
-
-  .panel-text{
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap:break-word;
-    line-height:1.65;
-    color:#17324d;
-    font-size:15px;
-  }
-
-  .panel-actions{
-    display:flex;
-    gap:12px;
-    margin-top:6px;
-    flex-wrap:wrap;
-  }
-  .btn{ padding:10px 16px; border-radius:999px; border:none; cursor:pointer; font-weight:700; }
+  .btn{ padding:10px 16px; border:none; border-radius:999px; cursor:pointer; font-weight:700; }
   .btn-verify{ background:var(--success); color:white; }
   .btn-approve{ background:var(--primary); color:white; }
   .btn-delete{ background:var(--danger); color:white; }
-
-  @media (max-width:880px){
-    .news-grid{ grid-template-columns: repeat( auto-fill, minmax(260px,1fr) ); }
-    .side-panel.open{ width:100%; }
-  }
-
-  .loading {
-    display:inline-flex;
-    gap:8px;
-    align-items:center;
-    color:var(--muted);
-    font-weight:700;
-  }
-  .dot{ width:8px; height:8px; border-radius:50%; background:var(--primary); opacity:0.85; animation:blink 1.2s infinite; }
-  .dot:nth-child(2){ animation-delay:.12s }
-  .dot:nth-child(3){ animation-delay:.24s }
-  @keyframes blink { 0% {opacity:0.15} 50% {opacity:1} 100% {opacity:0.15} }
-
 </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="brand">
-      <div class="scroll-container">
-        <div class="scroll-text">Welcome to CIEPD Conflict Watch Center</div>
-      </div>
+<div class="header">
+  <div class="brand">
+    <div class="scroll-container">
+      <div class="scroll-text">Welcome to Conflict Watch Center</div>
+    </div>
+  </div>
+  <button onclick="window.location.href='login.html'" class="logout-btn">Logout</button>
+</div>
+
+<div class="nav-bar">
+  <a href="home.html">Home</a>
+  <a href="report.html">Reports</a>
+  <a href="submit.html">Submit</a>
+  <a href="getalert.html">Get Alerts</a>
+  <a href="contact.html">Contact Us</a>
+  <a href="admin-map.html" class="special-btn">Big Map</a>
+</div>
+
+<div class="container">
+
+  <div class="top-row">
+    <h1 id="modeTitle">Manage News</h1>
+
+    <div style="display:flex; gap:10px;">
+      <button id="showNewsBtn" class="btn" style="background:var(--primary);color:white;">View News</button>
+      <button id="showReportsBtn" class="btn" style="background:#ddd;color:#000;">View Reports</button>
     </div>
 
-    <!-- ⭐ FIXED LOGOUT BUTTON -->
-   <button onclick="window.location.href='login.html'" class="logout-btn">
-  Logout
-</button>
-
-
+    <div id="status" class="loading" style="display:none">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>Loading
+    </div>
   </div>
 
-  <!-- NAV -->
-  <div class="nav-bar">
-    <a href="home.html">Home</a>
-    <a href="report.html">Reports</a>
-    <a href="submit.html">Submit Report</a>
-    <a href="getalert.html">Get Alerts</a>
-    <a href="contact.html">Contact Us</a>
-    <a href="admin-map.html" class="special-btn">Big Map</a>
+  <div class="filters">
+    <input id="search" type="text" placeholder="Search…" />
+    <select id="categoryFilter"><option>All Categories</option></select>
+
+    <button id="refreshBtn" class="btn" style="background:#eef6ff;color:var(--primary);">Refresh</button>
   </div>
 
-  <!-- PAGE -->
-  <div class="container">
-    <div class="top-row">
-      <h1>Manage Submitted Reports</h1>
+  <div id="newsGrid" class="news-grid"></div>
+  <div id="pagination"></div>
+</div>
 
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div id="status" class="loading" style="display:none">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Loading</span>
-        </div>
-      </div>
+<aside id="sidePanel" class="side-panel">
+  <div class="panel-inner">
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 id="panelTitle" class="panel-title">Item Title</h2>
+      <button id="panelBack" class="close-btn">Close ✖</button>
     </div>
 
-    <div class="filters">
-      <input id="search" type="text" placeholder="Search title, location or description…" />
-      <select id="categoryFilter"><option value="">All Categories</option></select>
-      <div style="flex:1"></div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <button id="refreshBtn" class="btn" style="background:#eef6ff; color:var(--primary); font-weight:700;">Refresh</button>
-      </div>
+    <div class="panel-meta">
+      <p id="panelDate"></p>
+      <p id="panelLocation"></p>
+      <p id="panelCats"></p>
     </div>
 
-    <div id="newsGrid" class="news-grid"></div>
+    <div class="panel-block">
+      <div id="panelShort" class="panel-text" style="font-weight:700;"></div>
+      <div id="panelContent" class="panel-text"></div>
+    </div>
 
-    <div id="pagination"></div>
+    <div class="panel-actions">
+      <span id="panelVerifiedBadge" class="badge" style="display:none"></span>
+      <span id="panelApprovedBadge" class="badge" style="display:none"></span>
+    </div>
+
+    <div id="panelButtons" class="panel-actions"></div>
+
   </div>
-
-  <!-- SIDE PANEL -->
-  <aside id="sidePanel" class="side-panel" aria-hidden="true">
-    <div class="panel-inner">
-      <div class="panel-top">
-        <div>
-          <h2 id="panelTitle" class="panel-title">Title</h2>
-          <div class="panel-meta">
-            <div id="panelDate">Date</div>
-            <div id="panelLocation">Location</div>
-            <div id="panelCats">Categories</div>
-          </div>
-        </div>
-
-        <div>
-          <button id="panelBack" class="close-btn" title="Back to reports">⬅ Back</button>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <div id="panelShort" class="panel-text" style="font-weight:700;margin-bottom:8px"></div>
-        <div id="panelContent" class="panel-text"></div>
-      </div>
-
-      <div class="panel-block" style="display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex; gap:12px; align-items:center; justify-content:flex-start;">
-          <span id="panelVerifiedBadge" class="badge unverified" style="display:none"></span>
-          <span id="panelApprovedBadge" class="badge" style="display:none"></span>
-        </div>
-
-        <div class="panel-actions" id="panelButtons"></div>
-      </div>
-
-    </div>
-  </aside>
+</aside>
 
 <script>
-/* ---------------------
-   Pagination State
---------------------- */
 let currentPage = 1;
 const pageSize = 40;
 
-/* UI Elements */
-const newsGrid = () => document.getElementById('newsGrid');
-const pagination = () => document.getElementById('pagination');
-const statusIndicator = () => document.getElementById('status');
-const searchInput = () => document.getElementById('search');
-const categorySelect = () => document.getElementById('categoryFilter');
-const refreshBtn = () => document.getElementById('refreshBtn');
+/* ⭐ NEW MODE SWITCH */
+let currentMode = "news"; // "news" or "reports"
 
-/* ---------------------
-   LOAD CATEGORIES
---------------------- */
-async function loadCategories() {
-  try {
+function el(id){ return document.getElementById(id); }
+/***********************
+  MODE SWITCHING
+************************/
+el("showNewsBtn").onclick = () => {
+  currentMode = "news";
+  el("modeTitle").innerText = "Manage News";
+  el("showNewsBtn").style.background = "var(--primary)";
+  el("showNewsBtn").style.color = "white";
+  el("showReportsBtn").style.background = "#ddd";
+  el("showReportsBtn").style.color = "#000";
+  loadItems();
+};
+
+el("showReportsBtn").onclick = () => {
+  currentMode = "reports";
+  el("modeTitle").innerText = "Manage Reports";
+  el("showReportsBtn").style.background = "var(--primary)";
+  el("showReportsBtn").style.color = "white";
+  el("showNewsBtn").style.background = "#ddd";
+  el("showNewsBtn").style.color = "#000";
+  loadItems();
+};
+
+/***********************
+  LOAD CATEGORIES (NEWS ONLY)
+************************/
+async function loadCategories(){
+  try{
     const res = await fetch("/api/news/categories");
     const data = await res.json();
-
-    categorySelect().innerHTML = `<option value="">All Categories</option>`;
-    data.forEach(cat => {
-      categorySelect().innerHTML += `<option value="${cat}">${cat}</option>`;
+    el("categoryFilter").innerHTML = `<option value="">All Categories</option>`;
+    data.forEach(c => {
+      el("categoryFilter").innerHTML += `<option value="${c}">${c}</option>`;
     });
-
-  } catch (err) {
-    console.error("Category load failed", err);
-  }
+  }catch(e){ console.log(e); }
 }
 
-/* ---------------------
-   OPEN DETAILS PANEL 
---------------------- */
-function openPanel(n) {
-  const panel = document.getElementById("sidePanel");
+/***********************
+  OPEN SIDE PANEL
+************************/
+function openPanel(n){
+  el("panelTitle").innerText = n.title || n.incidentType || "Item";
 
-  document.getElementById("panelTitle").innerText = n.title || "";
-  document.getElementById("panelShort").innerText = n.description || "";
-  document.getElementById("panelContent").innerText = n.content || "";
-  document.getElementById("panelDate").innerText = new Date(n.createdAt).toLocaleString();
-  document.getElementById("panelLocation").innerText = n.location || "—";
-  document.getElementById("panelCats").innerText = (n.categories || []).join(", ");
+  el("panelShort").innerText = n.description || n.summary || "No short description";
+  el("panelContent").innerText = n.content || n.details || "";
 
-  /* Verified badge */
-  const verified = document.getElementById("panelVerifiedBadge");
-  if (n.verified) {
-    verified.style.display = "inline-block";
-    verified.className = "badge verified";
-    verified.innerText = "VERIFIED";
+  el("panelDate").innerText = new Date(n.createdAt).toLocaleString();
+  el("panelLocation").innerText = n.location || n.state || "No location";
+
+  el("panelCats").innerText =
+    (n.categories || n.tags || []).join(", ");
+
+  /* VERIFIED badge */
+  const v = el("panelVerifiedBadge");
+  if(n.verified){
+    v.style.display="inline-block";
+    v.className="badge verified";
+    v.innerText="VERIFIED";
   } else {
-    verified.style.display = "inline-block";
-    verified.className = "badge unverified";
-    verified.innerText = "NOT VERIFIED";
+    v.style.display="inline-block";
+    v.className="badge unverified";
+    v.innerText="NOT VERIFIED";
   }
 
-  /* Approved badge */
-  const approved = document.getElementById("panelApprovedBadge");
-  if (n.approved) {
-    approved.style.display = "inline-block";
-    approved.className = "badge approved";
-    approved.innerText = "APPROVED";
+  /* APPROVED badge */
+  const a = el("panelApprovedBadge");
+  if(n.approved){
+    a.style.display="inline-block";
+    a.className="badge approved";
+    a.innerText="APPROVED";
   } else {
-    approved.style.display = "none";
+    a.style.display="none";
   }
 
   /* Buttons */
-  document.getElementById("panelButtons").innerHTML = `
-    <button class="btn btn-verify" 
-        style="display:${n.verified ? "none" : "inline-block"}"
-        onclick="verifyNews('${n._id}')">
-        Verify
-    </button>
+  el("panelButtons").innerHTML = `
+    <button class="btn btn-verify" style="display:${n.verified?'none':''}"
+      onclick="verifyItem('${n._id}')">Verify</button>
 
-    <button class="btn btn-approve" 
-        style="display:${n.approved ? "none" : "inline-block"}"
-        onclick="approveNews('${n._id}')">
-        Approve
-    </button>
+    <button class="btn btn-approve" style="display:${n.approved?'none':''}"
+      onclick="approveItem('${n._id}')">Approve</button>
 
-    <button class="btn btn-delete" onclick="deleteNews('${n._id}')">Delete</button>
+    <button class="btn btn-delete"
+      onclick="deleteItem('${n._id}')">Delete</button>
   `;
 
-  panel.classList.add("open");
+  el("sidePanel").classList.add("open");
 }
 
-/* Close panel */
-document.getElementById("panelBack").onclick = () => {
-  document.getElementById("sidePanel").classList.remove("open");
-};
+el("panelBack").onclick = () =>
+  el("sidePanel").classList.remove("open");
 
-/* ---------------------
-   VERIFY NEWS (Fully Fixed)
---------------------- */
-async function verifyNews(id) {
-  try {
-    const res = await fetch(`/api/news/verify/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" }
-    });
+/***********************
+ VERIFY (works for news + reports)
+************************/
+async function verifyItem(id){
+  const endpoint = currentMode === "news"
+    ? `/api/news/verify/${id}`
+    : `/api/reports/verify/${id}`;
 
+  const res = await fetch(endpoint, { method:"PUT" });
+  const data = await res.json();
 
-    const data = await res.json();
-    if (!data.success) return alert("Verification failed.");
+  if(!data.success) return alert("Verification failed");
 
-    /* Update Side Panel */
-    const badge = document.getElementById("panelVerifiedBadge");
-    badge.className = "badge verified";
-    badge.innerText = "VERIFIED";
+  el("panelVerifiedBadge").className="badge verified";
+  el("panelVerifiedBadge").innerText="VERIFIED";
 
-    /* Hide verify button */
-    const btn = document.querySelector(".btn-verify");
-    if (btn) btn.style.display = "none";
-
-    /* Update card in grid */
-    const card = document.querySelector(`.news-card[data-id="${id}"]`);
-    if (card) {
-      const row = card.querySelector(".badge-row");
-      row.innerHTML = `<span class="badge verified">VERIFIED</span>`;
-    }
-
-  } catch (e) {
-    console.error(e);
-    alert("Server error verifying news.");
+  const card = document.querySelector(`[data-id="${id}"] .badge-row`);
+  if(card){
+    card.innerHTML = `<span class="badge verified">VERIFIED</span>`;
   }
+
+  document.querySelector(".btn-verify").style.display="none";
 }
 
-/* ---------------------
-   Load News 
---------------------- */
-async function loadNews() {
-  try {
-    statusIndicator().style.display = 'inline-flex';
+/***********************
+ APPROVE (works for news + reports)
+************************/
+async function approveItem(id){
+  const endpoint = currentMode === "news"
+    ? `/api/news/approve/${id}`
+    : `/api/reports/approve/${id}`;
 
-    const query = searchInput().value.trim().toLowerCase();
-    const category = categorySelect().value;
+  const res = await fetch(endpoint, { method:"PUT" });
+  const data = await res.json();
 
-    const res = await fetch(
-      `/api/news?page=${currentPage}&limit=${pageSize}&search=${query}&category=${category}`,
-      { method: "GET", credentials: "include" }
-    );
+  if(!data.success) return alert("Approve failed");
 
-    if (!res.ok) throw new Error();
+  el("panelApprovedBadge").style.display="inline-block";
+  el("panelApprovedBadge").className="badge approved";
+  el("panelApprovedBadge").innerText="APPROVED";
 
-    const data = await res.json();
+  document.querySelector(".btn-approve").style.display="none";
+}
 
-    renderNews(data.items);
-    renderPagination(data.totalPages);
+/***********************
+ DELETE (works for news + reports)
+************************/
+async function deleteItem(id){
+  if(!confirm("Delete this item?")) return;
 
-  } catch (e) {
-    console.error(e);
-    alert('Could not load news — check server.');
-  } finally {
-    statusIndicator().style.display = 'none';
+  const endpoint = currentMode === "news"
+    ? `/api/news/${id}`
+    : `/api/reports/${id}`;
+
+  await fetch(endpoint, { method:"DELETE" });
+
+  document.querySelector(`[data-id="${id}"]`)?.remove();
+  el("sidePanel").classList.remove("open");
+}
+
+/***********************
+  LOAD ITEMS (NEWS + REPORTS)
+************************/
+async function loadItems(){
+  el("status").style.display="inline-flex";
+
+  const search = el("search").value.toLowerCase();
+  const category = el("categoryFilter").value;
+
+  let url = "";
+
+  if(currentMode === "news"){
+    url = `/api/news?page=${currentPage}&limit=${pageSize}&search=${search}&category=${category}`;
+  } else {
+    url = `/api/reports?page=${currentPage}&limit=${pageSize}&search=${search}`;
   }
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  renderItems(data.items);
+  renderPagination(data.totalPages);
+
+  el("status").style.display="none";
 }
 
-/* ---------------------
-   Render Cards
---------------------- */
-function renderNews(items) {
-  const grid = newsGrid();
-  grid.innerHTML = '';
+/***********************
+  RENDER CARDS (NEWS + REPORTS)
+************************/
+function renderItems(items){
+  const grid = el("newsGrid");
+  grid.innerHTML = "";
 
-  if (items.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#888;padding:20px;">No reports found.</div>`;
+  if(!items || items.length === 0){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#777;">No items found</div>`;
     return;
   }
 
   items.forEach(n => {
-    const card = document.createElement('article');
-    card.className = 'news-card';
+    const card = document.createElement("div");
+    card.className = "news-card";
     card.setAttribute("data-id", n._id);
 
-    const verifiedBadge = n.verified
+    const verified = n.verified
       ? `<span class="badge verified">VERIFIED</span>`
       : `<span class="badge unverified">NOT VERIFIED</span>`;
 
-    const approvedBadge = n.approved
+    const approved = n.approved
       ? `<span class="badge approved">APPROVED</span>`
-      : ``;
+      : "";
+
+    const title = n.title || n.incidentType || "Untitled";
+    const desc  = n.description || n.summary || n.details || "";
 
     card.innerHTML = `
-      <div class="badge-row">${verifiedBadge}${approvedBadge}</div>
-      <h3 class="news-title">${n.title}</h3>
-      <p class="news-desc">${(n.description || '').slice(0,170)}...</p>
-      <div class="news-meta">
-        <span>${new Date(n.createdAt).toLocaleDateString()}</span>
-        <span>${n.location || ''}</span>
-      </div>
+      <div class="badge-row">${verified}${approved}</div>
+      <h3 class="news-title">${title}</h3>
+      <p class="news-desc">${desc.slice(0,160)}...</p>
     `;
 
     card.onclick = () => openPanel(n);
@@ -530,61 +496,53 @@ function renderNews(items) {
   });
 }
 
-/* ---------------------
-   Pagination UI
---------------------- */
-function renderPagination(totalPages) {
-  const container = pagination();
-  container.innerHTML = '';
+/***********************
+ PAGINATION
+************************/
+function renderPagination(total){
+  const p = el("pagination");
+  p.innerHTML = "";
 
-  const prev = document.createElement('button');
-  prev.textContent = '⬅ Back';
+  if(!total || total < 1) return;
+
+  const prev = document.createElement("button");
+  prev.textContent = "⬅ Back";
   prev.disabled = currentPage === 1;
-  prev.onclick = () => {
-    currentPage--;
-    loadNews();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  prev.onclick = () => { currentPage--; loadItems(); };
 
-  const next = document.createElement('button');
-  next.textContent = 'Next ➡';
-  next.disabled = currentPage === totalPages;
-  next.onclick = () => {
-    currentPage++;
-    loadNews();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const next = document.createElement("button");
+  next.textContent = "Next ➡";
+  next.disabled = currentPage === total;
+  next.onclick = () => { currentPage++; loadItems(); };
 
-  const info = document.createElement('span');
-  info.className = 'page-info';
-  info.textContent = `Page ${currentPage} of ${totalPages}`;
+  const info = document.createElement("span");
+  info.className = "page-info";
+  info.textContent = `Page ${currentPage} of ${total}`;
 
-  container.appendChild(prev);
-  container.appendChild(info);
-  container.appendChild(next);
+  p.append(prev, info, next);
 }
 
-/* Filters & Refresh */
-searchInput().addEventListener('input', () => {
+/***********************
+ EVENTS
+************************/
+el("search").addEventListener("input", () => {
   currentPage = 1;
-  loadNews();
+  loadItems();
 });
-categorySelect().addEventListener('change', () => {
-  currentPage = 1;
-  loadNews();
-});
-refreshBtn().addEventListener('click', loadNews);
 
-/* Start */
+el("categoryFilter").addEventListener("change", () => {
+  currentPage = 1;
+  loadItems();
+});
+
+el("refreshBtn").onclick = loadItems;
+
+/***********************
+ INIT
+************************/
 loadCategories();
-loadNews();
+loadItems();
 </script>
-
-
-
-
-
-
 
 </body>
 </html>

@@ -244,7 +244,7 @@ body {
 
 <div class="header">
   <h1 class="bounce-text">CIEPD Conflict & Peace Watch Center</h1>
-  <p class="bounce-text">Report via WhatsApp/SMS: <strong>09056454523</strong></p>
+  <p class="bounce-text">Report via WhatsApp/SMS: <strong>08034559689</strong></p>
 </div>
 
 <div class="topnav">
@@ -316,8 +316,7 @@ body {
 
     <div class="input-group">
       <label>Location *</label>
-      <input type="text"
- id="location" required>
+      <input type="text" id="location" required>
     </div>
 
     <h3 style="color:var(--primary);margin-top:25px;">Optional Information</h3>
@@ -367,10 +366,10 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  /* BACKEND ROUTE */
+  /* ⭐ FIXED — CORRECT ROUTE: /api/report ⭐ */
   const apiURL = window.location.hostname.includes("localhost")
-    ? "http://localhost:3000/reports"
-    : "https://ciepd-backend.onrender.com/reports";
+    ? "http://localhost:3000/api/report"
+    : "https://ciepd-backend.onrender.com/api/report";
 
   const res = await fetch(apiURL, {
     method: "POST",
@@ -398,7 +397,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ⭐ NEW FIXED AI FUNCTION — MATCHES ALL POSSIBLE OPENAI FORMATS ⭐ */
+/* ⭐ AI FUNCTION — UNCHANGED ⭐ */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -443,7 +442,6 @@ async function generateAI() {
       return;
     }
 
-    /* ⭐ INTELLIGENT PARSER ⭐ */
     let finalText = "";
 
     if (data.analysis) {

@@ -12,6 +12,8 @@ import http from "http";
 import { Server } from "socket.io";
 import csv from "csvtojson";
 import fs from "fs";
+import Report from "./models/report.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
 // EMAIL (Nodemailer)
 import nodemailer from "nodemailer";
@@ -53,6 +55,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/report", reportRoutes);
 
 // ==========================
 // SESSION (REQUIRED ON RENDER)
@@ -129,6 +132,7 @@ const Subscription = mongoose.model("Subscription", SubscriptionSchema);
 // ==========================
 // CSV IMPORTER — FIXED!
 // ==========================
+
 async function importCSV() {
   try {
     const filePath = path.join(__dirname, "news.csv");
@@ -159,7 +163,7 @@ async function importCSV() {
       image: "",
       verified: item["VERIFIED"] === "YES",
       approved: item["APPROVED"] === "YES",
-      createdAt: new Date(item["INCIDENT DATE"]),
+      createdAt: new Date(item["INCIDENT DATE"] || Date.now()),
     }));
 
     for (let row of formatted) {
@@ -249,13 +253,12 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
   }
   const R = 6371;
   const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lat2 - lon1);
+  const dLon = toRad(lon1 - lon2);
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) *
       Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+      Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -457,17 +460,11 @@ Return:
 4. Whether escalation is likely
 `;
 
-
-    // ⭐ REQUIRED — CORRECT 2025 RESPONSE FORMAT
     const response = await openai.responses.create({
       model: "gpt-4o-mini",
       input: prompt,
     });
 
-    // ⭐ DEBUG — SEE EXACT RAW RESPONSE
-    console.log("RAW AI RESPONSE:", JSON.stringify(response, null, 2));
-
-    // ⭐ UNIVERSAL EXTRACTION SYSTEM — handles ALL OpenAI formats
     let text =
       response.output_text ||
       response?.output?.[0]?.content?.[0]?.text ||
@@ -479,11 +476,9 @@ Return:
       text = "AI returned no analysis.";
     }
 
-    // ⭐⭐ REQUIRED FIX — FRONTEND EXPECTS "analysis"
     return res.json({ analysis: text });
-
   } catch (err) {
-    console.error("AI ERROR:", err.response?.data || err.message || err);
+    console.error("AI ERROR:", err.message || err);
     return res.status(500).json({ error: "AI processing failed" });
   }
 });
@@ -501,12 +496,10 @@ app.get("/get-news", async (req, res) => {
   }
 });
 
-// Alias route so frontend works
 app.post("/api/improve", (req, res, next) => {
   req.url = "/api/ai/analyze-report";
   return app._router.handle(req, res, next);
 });
-
 
 /* =========================================================
    NEW: Subscribe alert endpoint
@@ -583,6 +576,7 @@ app.post("/api/submit-report", async (req, res) => {
 /* =========================================================
    EMAIL + WHATSAPP HELPERS
 ========================================================= */
+
 async function sendEmail(to, subject, text) {
   try {
     const host = process.env.SMTP_HOST;
@@ -659,9 +653,6 @@ async function sendWhatsApp(to, message) {
   }
 }
 
-/* =========================================================
-   NOTIFY SUBSCRIBERS
-========================================================= */
 async function notifySubscribers(news) {
   try {
     if (!news || !news.location) return;
@@ -722,11 +713,39 @@ Details: ${news.description || (news.content || "").slice(0, 150)}
   }
 }
 
+/* =========================================================
+   ⭐⭐ NEW: SAVE REPORTS TO SHOW IN admin.html + report.html
+========================================================= */
+
+app.post("/api/report", async (req, res) => {
+  try {
+    const saved = await Report.create(req.body);
+
+    io.emit("new-report", saved); // 🔥 real-time update for admin
+
+    res.json({ success: true, message: "Report submitted" });
+  } catch (err) {
+    console.error("SAVE REPORT ERROR:", err);
+    res.status(500).json({ success: false });
+  }
+});
+
+app.get("/api/reports", async (req, res) => {
+  try {
+    const reports = await Report.find().sort({ date: -1 });
+    res.json(reports);
+  } catch (err) {
+    console.error("GET REPORTS ERROR:", err);
+    res.status(500).json([]);
+  }
+});
+
 /*  
 ===========================================================
   START SERVER
 ===========================================================
 */
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
