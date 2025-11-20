@@ -249,7 +249,7 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
   }
   const R = 6371;
   const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
+  const dLon = toRad(lat2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
@@ -425,6 +425,7 @@ app.get("/api/news/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to load article" });
   }
 });
+
 /*  
 ===========================================================
  ⭐ FIXED — NEW OPENAI RESPONSE API (2025)
@@ -456,6 +457,7 @@ Return:
 4. Whether escalation is likely
 `;
 
+
     // ⭐ REQUIRED — CORRECT 2025 RESPONSE FORMAT
     const response = await openai.responses.create({
       model: "gpt-4o-mini",
@@ -467,16 +469,17 @@ Return:
 
     // ⭐ UNIVERSAL EXTRACTION SYSTEM — handles ALL OpenAI formats
     let text =
-      response.output_text || // newest format
-      response?.output?.[0]?.content?.[0]?.text || // older stable format
-      response?.output?.[0]?.content?.[0]?.message?.text || // message-based format
-      response?.response_text || // fallback
-      ""; // final fallback
+      response.output_text ||
+      response?.output?.[0]?.content?.[0]?.text ||
+      response?.output?.[0]?.content?.[0]?.message?.text ||
+      response?.response_text ||
+      "";
 
     if (!text || text.trim() === "") {
       text = "AI returned no analysis.";
     }
 
+    // ⭐⭐ REQUIRED FIX — FRONTEND EXPECTS "analysis"
     return res.json({ analysis: text });
 
   } catch (err) {
@@ -497,6 +500,13 @@ app.get("/get-news", async (req, res) => {
     res.status(500).json([]);
   }
 });
+
+// Alias route so frontend works
+app.post("/api/improve", (req, res, next) => {
+  req.url = "/api/ai/analyze-report";
+  return app._router.handle(req, res, next);
+});
+
 
 /* =========================================================
    NEW: Subscribe alert endpoint

@@ -316,7 +316,8 @@ body {
 
     <div class="input-group">
       <label>Location *</label>
-      <input type="text" id="location" required>
+      <input type="text"
+ id="location" required>
     </div>
 
     <h3 style="color:var(--primary);margin-top:25px;">Optional Information</h3>
@@ -397,7 +398,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ⭐ FIXED AI FEATURE — MATCH backend routes (/ai/improve & /ai/summarize) ⭐ */
+/* ⭐ NEW FIXED AI FUNCTION — MATCHES ALL POSSIBLE OPENAI FORMATS ⭐ */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -420,10 +421,9 @@ async function generateAI() {
 
   try {
 
-    /* FIXED ROUTE — USE CORRECT BACKEND PATH */
     const apiURL = window.location.hostname.includes("localhost")
-      ? "http://localhost:3000/ai/improve"
-      : "https://ciepd-backend.onrender.com/ai/improve";
+      ? "http://localhost:3000/api/ai/analyze-report"
+      : "https://ciepd-backend.onrender.com/api/ai/analyze-report";
 
     const res = await fetch(apiURL, {
       method: "POST",
@@ -438,9 +438,31 @@ async function generateAI() {
 
     const data = await res.json();
 
-    output.innerHTML = data.output || "AI could not generate a result.";
+    if (data.error) {
+      output.innerHTML = "❌ AI error: " + data.error;
+      return;
+    }
+
+    /* ⭐ INTELLIGENT PARSER ⭐ */
+    let finalText = "";
+
+    if (data.analysis) {
+      finalText = data.analysis;
+    } 
+    else if (data.output_text) {
+      finalText = data.output_text;
+    }
+    else if (data.output && data.output[0]?.content?.[0]?.text) {
+      finalText = data.output[0].content[0].text;
+    }
+    else {
+      finalText = "AI returned no readable analysis.";
+    }
+
+    output.innerHTML = finalText;
 
   } catch (e) {
+    console.log("FRONTEND AI ERROR:", e);
     output.innerHTML = "❌ Error talking to AI service.";
   }
 }
