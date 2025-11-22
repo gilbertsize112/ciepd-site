@@ -45,13 +45,13 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5500",
-      "https://ciepd-backend.onrender.com",
-      "https://ciepd.org",
-      "*",
+      "https://ciepdcwc.onrender.com",
+      "https://ciepd.org"
     ],
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
