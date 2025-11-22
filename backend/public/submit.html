@@ -366,7 +366,7 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  /* ⭐ FIXED — CORRECT ROUTE: /api/report ⭐ */
+  /* ⭐ REAL BACKEND ALWAYS USED (OPTION A) ⭐ */
   const apiURL = window.location.hostname.includes("localhost")
     ? "http://localhost:3000/api/report"
     : "https://ciepd-backend.onrender.com/api/report";
@@ -397,7 +397,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ⭐ AI FUNCTION — UNCHANGED ⭐ */
+/* ⭐ AI FUNCTION — FIXED TO ALWAYS USE BACKEND SERVER ⭐ */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -420,6 +420,7 @@ async function generateAI() {
 
   try {
 
+    /* ⭐ ALWAYS USE BACKEND (OPTION A) ⭐ */
     const apiURL = window.location.hostname.includes("localhost")
       ? "http://localhost:3000/api/ai/analyze-report"
       : "https://ciepd-backend.onrender.com/api/ai/analyze-report";
