@@ -808,7 +808,15 @@ async function scrapeWebsites() {
     let matches = [];
 
     for (let url of FEEDS) {
-      const response = await axios.get(url);
+     const response = await axios.get(url, {
+  headers: {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+  },
+});
+
       const $ = cheerio.load(response.data);
 
       $("item").each(function () {
@@ -844,7 +852,6 @@ async function scrapeWebsites() {
     return [];
   }
 }
-
 // ===========================================================
 // UNIFIED HATE-SPEECH SCRAPER (RSS + Real-time Alerts)
 // ===========================================================
@@ -883,7 +890,17 @@ async function unifiedScraper() {
 
   try {
     for (let feedUrl of FEEDS) {
-      const response = await axios.get(feedUrl);
+
+      // ✅ FIX: Add headers to bypass 403
+      const response = await axios.get(feedUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Accept": "text/xml,application/xml,application/rss+xml,text/html;q=0.9,*/*;q=0.8"
+        }
+      });
+
       const $ = cheerio.load(response.data);
 
       $("item").each(async function () {
@@ -903,6 +920,7 @@ async function unifiedScraper() {
           };
 
           const exists = await HateAlert.findOne({ text: title });
+
           if (!exists) {
             await HateAlert.create(alert);
             io.emit("hate-alert", alert);
@@ -915,9 +933,9 @@ async function unifiedScraper() {
     console.error("❌ Unified scraper error:", err.message);
   }
 
+  // Re-run every 60 seconds
   setTimeout(unifiedScraper, 60 * 1000);
 }
-
 
 /*  
 ===========================================================
