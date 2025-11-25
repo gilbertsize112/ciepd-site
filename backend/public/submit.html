@@ -317,7 +317,22 @@ body {
     <div class="input-group">
       <label>Location *</label>
       <input type="text" id="location" required>
-    </div>
+    </div> 
+
+    <div class="input-group">
+  <label>News Source Link</label>
+  <input type="url" id="newsSource">
+</div>
+
+<div class="input-group">
+  <label>External Video Link</label>
+  <input type="url" id="videoLink">
+</div>
+
+<div class="input-group">
+  <label>Upload Photos</label>
+  <input type="file" id="photos" accept="image/*" multiple>
+</div>
 
     <h3 style="color:var(--primary);margin-top:25px;">Optional Information</h3>
 
@@ -356,7 +371,12 @@ form.addEventListener("submit", async (e) => {
   const firstName = document.getElementById("firstName").value.trim();
   const lastName = document.getElementById("lastName").value.trim();
   const email = document.getElementById("email").value.trim();
-  
+
+  // ⭐ FIXED IDs ⭐
+  const newsSource = document.getElementById("newsSource").value.trim();
+  const videoLink = document.getElementById("videoLink").value.trim();
+  const photos = document.getElementById("photos").files;
+
   const categories = Array.from(
     document.querySelectorAll('input[name="category"]:checked')
   ).map(c => c.value);
@@ -366,25 +386,30 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  /* ⭐ REAL BACKEND ALWAYS USED (OPTION A) ⭐ */
+  /* ⭐⭐ PREPARE FORM DATA FOR FILE UPLOAD ⭐⭐ */
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("content", content);
+  formData.append("location", location);
+  formData.append("firstName", firstName);
+  formData.append("lastName", lastName);
+  formData.append("email", email);
+  formData.append("newsSource", newsSource);
+  formData.append("videoLink", videoLink);
+  categories.forEach(c => formData.append("category", c));
+
+  // append all selected photos
+  for (let i = 0; i < photos.length; i++) {
+    formData.append("photos", photos[i]);
+  }
+
   const apiURL = window.location.hostname.includes("localhost")
     ? "http://localhost:3000/api/report"
     : "https://ciepd-backend.onrender.com/api/report";
 
   const res = await fetch(apiURL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      title,
-      content,
-      category: categories,
-      location,
-      firstName,
-      lastName,
-      email
-    })
+    body: formData   // ⭐ removed JSON — now supports photos
   });
 
   const data = await res.json();
@@ -397,7 +422,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ⭐ AI FUNCTION — FIXED TO ALWAYS USE BACKEND SERVER ⭐ */
+/* ⭐ AI FUNCTION — unchanged (but can use new IDs if needed) ⭐ */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -419,8 +444,6 @@ async function generateAI() {
   output.innerHTML = "⏳ AI is generating…";
 
   try {
-
-    /* ⭐ ALWAYS USE BACKEND (OPTION A) ⭐ */
     const apiURL = window.location.hostname.includes("localhost")
       ? "http://localhost:3000/api/ai/analyze-report"
       : "https://ciepd-backend.onrender.com/api/ai/analyze-report";
@@ -438,34 +461,19 @@ async function generateAI() {
 
     const data = await res.json();
 
-    if (data.error) {
-      output.innerHTML = "❌ AI error: " + data.error;
-      return;
-    }
-
-    let finalText = "";
-
-    if (data.analysis) {
-      finalText = data.analysis;
-    } 
-    else if (data.output_text) {
-      finalText = data.output_text;
-    }
-    else if (data.output && data.output[0]?.content?.[0]?.text) {
-      finalText = data.output[0].content[0].text;
-    }
-    else {
-      finalText = "AI returned no readable analysis.";
-    }
+    let finalText = data.analysis || data.output_text || 
+      data.output?.[0]?.content?.[0]?.text || 
+      "AI returned no readable analysis.";
 
     output.innerHTML = finalText;
 
   } catch (e) {
-    console.log("FRONTEND AI ERROR:", e);
     output.innerHTML = "❌ Error talking to AI service.";
   }
 }
 </script>
+
+
 
 </body>
 </html>

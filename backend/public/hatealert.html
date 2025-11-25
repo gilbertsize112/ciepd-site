@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Niger-Delta Hate-Speech Alerts</title>
+
+<!-- Socket.io client -->
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+  :root{
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --accent:#0a5f7a;
+    --muted:#6b7280;
+    --danger:#d64545;
+    --glass: rgba(255,255,255,0.7);
+  }
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,Arial,Helvetica;color:#042033;margin:0;background:var(--bg)}
+  header{background:linear-gradient(90deg,#e8f9fb,#f2fbff);padding:18px 20px;border-bottom:1px solid #e2eef1}
+  header h1{margin:0;font-size:18px}
+  .wrap{max-width:1100px;margin:18px auto;padding:12px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(10,18,24,0.04)}
+  button{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+  button.ghost{background:#eef6f8;color:var(--accent);border:1px solid #d8eef0}
+  input[type="text"], textarea, input[type="number"]{padding:8px;border-radius:8px;border:1px solid #dbe9ec}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  #results{margin-top:12px;display:grid;grid-template-columns:1fr;gap:8px}
+  .result{padding:12px;border-radius:8px;background:#fff;border-left:4px solid #f0f5f6}
+  .result h3{margin:0 0 8px 0;font-size:15px}
+  .meta{font-size:12px;color:var(--muted)}
+  .badge{display:inline-block;background:#e6fbff;color:#0b6372;padding:4px 8px;border-radius:999px;font-weight:700;font-size:12px;margin-left:8px}
+  .controls-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .small{font-size:13px}
+  .danger{color:var(--danger)}
+  footer{padding:10px 20px;color:var(--muted);font-size:13px;text-align:center;margin-top:18px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .col{flex:1;min-width:220px}
+  .muted{color:var(--muted)}
+  .top-actions{display:flex;gap:8px;align-items:center}
+  .tiny{font-size:12px;padding:6px 8px}
+  @media(min-width:900px){ #results{grid-template-columns:repeat(2,1fr)} }
+
+  /* ================================
+   MOBILE RESPONSIVE IMPROVEMENTS
+   ================================ */
+
+@media(max-width: 700px){
+
+  header h1{
+    font-size: 15px;
+  }
+
+  .badge{
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .wrap{
+    padding: 10px;
+  }
+
+  /* stack all form controls vertically */
+  .controls{
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .col{
+    min-width: 100% !important;
+    width: 100%;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea{
+    width: 100% !important;
+    font-size: 15px;
+  }
+
+  .top-actions{
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  button{
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* results become a single column */
+  #results{
+    grid-template-columns: 1fr !important;
+  }
+
+  .result h3{
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .meta{
+    font-size: 11px;
+  }
+}
+
+/* Slightly larger screens (tablets) */
+@media(max-width: 500px){
+
+  header{
+    padding: 14px;
+  }
+
+  header h1{
+    font-size: 14px;
+  }
+
+  button.tiny{
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .controls{
+    gap: 14px;
+  }
+}
+
+
+  /* subtle highlight for server-origin alerts */
+  .from-server { border-left-color: #0a7 !important; box-shadow: 0 4px 12px rgba(10,120,100,0.04); }
+</style>
+</head>
+<body>
+<header>
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px">
+    <h1>Niger-Delta Hate-Speech Alerts</h1>
+    <div class="badge">Auto monitor</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card controls" role="region" aria-label="Monitoring controls">
+    <div class="col">
+      <label>Monitoring keywords (comma separated)</label>
+      <input id="keywords" type="text" value="hate speech,racist,racism,ethnic slur,hate crime" />
+      <div class="muted small" style="margin-top:6px">Tip: include place names like <strong>Port Harcourt, Warri, Yenagoa, Bayelsa, Delta State, Rivers</strong> to focus on Niger-Delta.</div>
+    </div>
+
+    <div class="col">
+      <label>Region keywords (Niger-Delta)</label>
+      <input id="regionKeys" type="text" value="niger delta,port harcourt,warri,yenagoa,bayelsa,rivers,akwa ibom,delta state,edo,uyo" />
+    </div>
+
+    <div style="min-width:260px" class="col">
+      <label>Poll interval (seconds)</label>
+      <input id="interval" type="number" value="45" min="10" style="width:110px" />
+      <div class="top-actions" style="margin-top:10px">
+        <button id="startBtn">Start</button>
+        <button id="stopBtn" class="ghost tiny">Stop</button>
+        <button id="testNotif" class="ghost tiny">Test</button>
+        <button id="clearSeen" class="ghost tiny" title="Clear seen matches">Clear Seen</button>
+      </div>
+      <div style="margin-top:8px" class="muted small">When running, page will poll feeds and alert on new matches. Starting will also instruct server to start scraping (admin only).</div>
+    </div>
+
+    <div class="controls-right" style="min-width:240px">
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <label>Options</label>
+        <div style="display:flex;gap:8px">
+          <button id="notifToggle" class="ghost tiny">Notifications: Off</button>
+          <button id="soundToggle" class="ghost tiny">Sound: Off</button>
+        </div>
+        <div style="margin-top:8px;text-align:right">
+          <div class="muted small">Matches found</div>
+          <div style="font-weight:700;font-size:18px" id="matchCount">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <label>RSS / News feed sources (one per line)</label>
+    <textarea id="feeds" rows="5" style="width:100%;padding:8px;border-radius:8px;border:1px solid #dbe9ec">
+https://www.bbc.co.uk/africa/rss.xml
+https://www.guardian.ng/feed/
+https://punchng.com/feed/
+https://thenationonlineng.net/feed/
+    </textarea>
+    <div class="status muted" style="margin-top:8px">Use local Niger-Delta news RSS if possible. If a feed fails due to CORS, try another feed or run your own proxy.</div>
+  </div>
+
+  <div class="card" style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:320px">
+      <label>Twitter quick-search link</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="twitterLink" type="text" style="min-width:0;flex:1;padding:8px;border-radius:8px;border:1px solid #dbe9ec" readonly>
+        <button id="openTwitter" class="tiny">Open Twitter Search</button>
+      </div>
+      <div class="muted small" style="margin-top:6px">This opens Twitter/X search with your keywords + region words so you can inspect tweets manually.</div>
+    </div>
+
+    <div style="min-width:170px;display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+      <label>Persisted settings</label>
+      <div style="display:flex;gap:6px">
+        <button id="saveBtn" class="ghost tiny">Save</button>
+        <button id="resetBtn" class="ghost tiny">Reset</button>
+      </div>
+      <div class="muted small" style="margin-top:8px">Settings are saved to localStorage for this browser.</div>
+    </div>
+  </div>
+
+  <div id="results" aria-live="polite" style="margin-top:12px"></div>
+
+  <footer>
+    This runs mostly in the browser. For best reliability (no CORS issues) you can host a small server endpoint to fetch feeds and avoid client-side proxy limits. Server scraping will run only when you press Start (admin).
+  </footer>
+</div>
+
+<script>
+
+    // Socket.IO client
+let socket = null;
+
+/* hatealert.html
+   Features implemented:
+   1) Browser notifications (toggle + test)
+   2) Sound alerts (toggle) using WebAudio
+   3) Twitter search link auto-generated
+   4) RSS monitoring (polling) with CORS proxy
+   5) Matches list + count + Read / Open Twitter button
+   6) Save settings to localStorage + Start/Stop
+   7) Socket.IO integration: start/stop server scraping & receive server alerts
+*/
+
+// ---------- Config & state ----------
+const PROXY = (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`; // public proxy (may be rate-limited)
+const parser = new DOMParser();
+
+const LS_KEYS = {
+  keywords: "hate_alert_keywords_v1",
+  region: "hate_alert_region_v1",
+  feeds: "hate_alert_feeds_v1",
+  interval: "hate_alert_interval_v1",
+  notif: "hate_alert_notif_v1",
+  sound: "hate_alert_sound_v1",
+  seen: "hate_alert_seen_v1"
+};
+
+let running = false;
+let pollTimer = null;
+let seen = new Set();
+let notifEnabled = false;
+let soundEnabled = false;
+let matchCount = 0;
+
+
+
+// WebAudio beep
+let audioCtx = null;
+function playBeep(duration = 200, freq = 720){
+  try {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq;
+    g.gain.value = 0.08;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    setTimeout(()=>{ try{ o.stop(); o.disconnect(); g.disconnect(); }catch(e){} }, duration);
+  } catch(e){ console.warn("Audio error", e) }
+}
+
+// ---------- DOM helpers ----------
+const $ = id => document.getElementById(id);
+
+// ---------- Persistence ----------
+function saveSettings(){
+  localStorage.setItem(LS_KEYS.keywords, $("keywords").value);
+  localStorage.setItem(LS_KEYS.region, $("regionKeys").value);
+  localStorage.setItem(LS_KEYS.feeds, $("feeds").value);
+  localStorage.setItem(LS_KEYS.interval, $("interval").value);
+  localStorage.setItem(LS_KEYS.notif, JSON.stringify(notifEnabled));
+  localStorage.setItem(LS_KEYS.sound, JSON.stringify(soundEnabled));
+  indicateSaved();
+}
+
+function loadSettings(){
+  const k = localStorage.getItem(LS_KEYS.keywords);
+  const r = localStorage.getItem(LS_KEYS.region);
+  const f = localStorage.getItem(LS_KEYS.feeds);
+  const i = localStorage.getItem(LS_KEYS.interval);
+  const n = localStorage.getItem(LS_KEYS.notif);
+  const s = localStorage.getItem(LS_KEYS.sound);
+  if(k) $("keywords").value = k;
+  if(r) $("regionKeys").value = r;
+  if(f) $("feeds").value = f;
+  if(i) $("interval").value = i;
+  if(n) { notifEnabled = JSON.parse(n); updateNotifUI(); }
+  if(s) { soundEnabled = JSON.parse(s); updateSoundUI(); }
+  const seenStr = localStorage.getItem(LS_KEYS.seen);
+  if(seenStr){
+    try{ JSON.parse(seenStr).forEach(id => seen.add(id)); }catch(e){}
+  }
+}
+
+function resetSettings(){
+  localStorage.removeItem(LS_KEYS.keywords);
+  localStorage.removeItem(LS_KEYS.region);
+  localStorage.removeItem(LS_KEYS.feeds);
+  localStorage.removeItem(LS_KEYS.interval);
+  localStorage.removeItem(LS_KEYS.notif);
+  localStorage.removeItem(LS_KEYS.sound);
+  location.reload();
+}
+
+function indicateSaved(){
+  const b = $("saveBtn");
+  b.textContent = "Saved ✓";
+  setTimeout(()=> b.textContent = "Save", 1400);
+}
+
+// ---------- UI functions ----------
+function updateTwitterLink(){
+  const kws = $("keywords").value.trim();
+  const region = $("regionKeys").value.trim();
+  const joinTerms = (s) => s.split(",").map(x=>x.trim()).filter(Boolean).join(" ");
+  const q = `${joinTerms(kws)} ${joinTerms(region)}`.trim();
+  const url = `https://twitter.com/search?q=${encodeURIComponent(q)}&src=typed_query`;
+  $("twitterLink").value = url;
+}
+
+function updateNotifUI(){
+  $("notifToggle").innerText = notifEnabled ? "Notifications: On" : "Notifications: Off";
+  if(notifEnabled && Notification.permission !== "granted"){
+    Notification.requestPermission().then(p=> {
+      if(p !== "granted"){
+        notifEnabled = false;
+        updateNotifUI();
+        alert("Notifications blocked. Please allow notifications in your browser settings if you want them.");
+      }
+    });
+  }
+}
+
+function updateSoundUI(){
+  $("soundToggle").innerText = soundEnabled ? "Sound: On" : "Sound: Off";
+}
+
+// ---------- Event wiring ----------
+$("keywords").addEventListener("input", () => { updateTwitterLink(); });
+$("regionKeys").addEventListener("input", () => { updateTwitterLink(); });
+$("saveBtn").addEventListener("click", saveSettings);
+$("resetBtn").addEventListener("click", ()=> {
+  if(confirm("Reset all saved settings to defaults?")) resetSettings();
+});
+$("openTwitter").addEventListener("click", ()=> {
+  const url = $("twitterLink").value;
+  if(url) window.open(url, "_blank");
+});
+$("notifToggle").addEventListener("click", async () => {
+  if (!("Notification" in window)) { alert("This browser does not support notifications."); return; }
+  if (Notification.permission === "granted") {
+    notifEnabled = !notifEnabled;
+    updateNotifUI();
+    saveSettings();
+  } else {
+    const p = await Notification.requestPermission();
+    notifEnabled = (p === "granted");
+    updateNotifUI();
+    saveSettings();
+  }
+});
+$("soundToggle").addEventListener("click", ()=>{
+  soundEnabled = !soundEnabled;
+  updateSoundUI();
+  saveSettings(); // persist sound choice
+});
+$("testNotif").addEventListener("click", testNotification);
+$("clearSeen").addEventListener("click", ()=> {
+  if(confirm("Clear seen matches? This will allow previously-seen items to alert again.")){
+    seen.clear();
+    localStorage.removeItem(LS_KEYS.seen);
+    updateMatchCount();
+    alert("Seen cleared.");
+  }
+});
+
+// ---------- Core: RSS fetching & matching ----------
+function findKeywordsInText(text, keywords){
+  if(!text) return false;
+  text = text.toLowerCase();
+  return keywords.some(k => k && text.includes(k.trim().toLowerCase()));
+}
+
+async function fetchFeed(feedUrl){
+  try {
+    const res = await fetch(PROXY(feedUrl), {cache:"no-store"});
+    if(!res.ok) throw new Error("Fetch failed: " + res.status);
+    const txt = await res.text();
+    const doc = parser.parseFromString(txt, "text/xml");
+    const items = Array.from(doc.querySelectorAll("item, entry")).slice(0, 40);
+    return items.map(it => {
+      const title = it.querySelector("title")?.textContent?.trim() || "";
+      // link may be an element or an attribute (atom)
+      let link = "";
+      const linkEl = it.querySelector("link");
+      if(linkEl){
+        link = linkEl.getAttribute("href") || linkEl.textContent || "";
+      } else {
+        link = it.querySelector("guid")?.textContent || "";
+      }
+      const pub = it.querySelector("pubDate")?.textContent || it.querySelector("updated")?.textContent || "";
+      const desc = it.querySelector("description")?.textContent || it.querySelector("summary")?.textContent || "";
+      return { title, link, pub, desc };
+    });
+  } catch(err){
+    console.warn("Feed fetch failed for", feedUrl, err && err.message);
+    return [];
+  }
+}
+
+async function pollFeedsOnce(){
+  const feedText = $("feeds").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const kwList = $("keywords").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const regionList = $("regionKeys").value.split(",").map(s=>s.trim()).filter(Boolean);
+
+  let matches = [];
+  for(const f of feedText){
+    const items = await fetchFeed(f);
+    for(const it of items){
+      const combined = `${it.title}\n${it.desc}`.trim();
+      const hasKW = findKeywordsInText(combined, kwList);
+      const hasRegion = findKeywordsInText(combined, regionList);
+      if(hasKW || hasRegion){
+        const id = (it.link || it.title).slice(0,220);
+        if(!seen.has(id)){
+          seen.add(id);
+          matches.push({...it, matchedKW: hasKW, matchedRegion: hasRegion, id});
+        }
+      }
+    }
+  }
+
+  if(matches.length) handleMatches(matches);
+  updateMatchCount();
+  // persist seen for this browser session (optional)
+  try { localStorage.setItem(LS_KEYS.seen, JSON.stringify(Array.from(seen))); } catch(e){}
+  return matches;
+}
+
+function handleMatches(matches, opts = { fromServer:false }){
+  const results = $("results");
+  for(const m of matches){
+    const el = document.createElement("div");
+    el.className = "result" + (opts.fromServer ? " from-server" : "");
+    const title = m.title || (m.desc || "").slice(0,120) || "Untitled";
+    const pub = m.pub ? new Date(m.pub).toLocaleString() : (m.timestamp ? new Date(m.timestamp).toLocaleString() : "");
+    const readLink = m.link || m.url || "#";
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+        <h3>${escapeHtml(title)}</h3>
+        <div class="meta">${pub}</div>
+      </div>
+      <div class="meta">${escapeHtml((m.desc||"").slice(0,300))}${(m.desc||"").length>300?"...":""}</div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <a href="${readLink}" target="_blank" class="small">Read article / Open</a>
+        <button class="ghost small openTwitter" data-title="${encodeURIComponent(m.title||"")}" style="margin-left:6px">Open Twitter</button>
+        <div style="margin-left:auto" class="meta small">${m.matchedKW? "Matched keyword":""} ${m.matchedRegion? "Matched region":""}</div>
+      </div>
+    `;
+    results.prepend(el);
+    // attach twitter button
+    el.querySelector(".openTwitter").addEventListener("click", (ev)=>{
+      const title = decodeURIComponent(ev.currentTarget.dataset.title || "");
+      const q = encodeURIComponent(`${$("keywords").value} ${$("regionKeys").value} ${title}`);
+      const url = `https://twitter.com/search?q=${q}&src=typed_query`;
+      window.open(url, "_blank");
+    });
+  }
+
+  // notification & sound (grouped)
+  if(matches.length && notifEnabled){
+    const first = matches[0];
+    const nTitle = (first.title || (first.desc||"").slice(0,80)).slice(0,100);
+    const nBody = (first.desc||"").slice(0,120);
+    try {
+      const n = new Notification("Hate-speech alert — Niger Delta", { body: nBody ? (nTitle + " — " + nBody) : nTitle });
+      n.onclick = () => window.focus();
+    } catch(e){}
+  }
+  if(matches.length && soundEnabled){
+    playBeep(220, 700);
+  }
+}
+
+// ---------- Start / Stop ----------
+// This function starts BOTH client-side RSS polling and instructs server to start scraping.
+function startMonitoring(){
+  if(running) return;
+  running = true;
+  $("startBtn").disabled = true;
+  $("stopBtn").disabled = false;
+  $("startBtn").textContent = "Running...";
+
+  socket = io();
+
+  const results = document.getElementById("results");
+  const keywordBox = document.getElementById("keywords");
+  const regionBox = document.getElementById("regionKeys");
+
+  // Helper to display alerts
+  function addAlert(alert, fromServer = false) {
+    const div = document.createElement("div");
+    div.className = "result" + (fromServer ? " from-server" : "");
+
+    div.innerHTML = `
+      <h3>${alert.text}</h3>
+      <div class="meta">
+        <a href="${alert.url}" target="_blank">Open Source</a>
+        &nbsp;•&nbsp; ${new Date(alert.timestamp).toLocaleString()}
+      </div>
+    `;
+
+    results.prepend(div);
+  }
+
+  // 🔥 Unified scraper alerts
+  socket.on("hate-alert", (data) => {
+    console.log("🔥 hate-alert received:", data);
+    addAlert(data, true);
+  });
+
+  // 🔥 RSS / website match from server
+  socket.on("newServerMatch", (data) => {
+    console.log("🔥 newServerMatch:", data);
+    addAlert(data, true);
+  });
+
+  // 🔥 Twitter / other realtime feeds
+  socket.on("new-hate-alert", (data) => {
+    console.log("🔥 new-hate-alert:", data);
+    addAlert(data, false);
+  });
+
+  // START / STOP SERVER SCRAPER
+  document.getElementById("startBtn")?.addEventListener("click", () => {
+    socket.emit("start-scraper");
+  });
+
+  document.getElementById("stopBtn")?.addEventListener("click", () => {
+    socket.emit("stop-scraper");
+  });
+
+
+  // start client polling as before
+  pollNowAndSchedule();
+  // also request server to start scraping (admin-only assumed)
+  const sec = Math.max(10, parseInt($("interval").value, 10) || 45);
+  try {
+    if(socket && socket.connected){
+      socket.emit("start-hate-scan", sec);
+    }
+  } catch(e){ console.warn("Socket emit start failed", e); }
+}
+
+function stopMonitoring(){
+  running = false;
+  $("startBtn").disabled = false;
+  $("stopBtn").disabled = true;
+  $("startBtn").textContent = "Start";
+  if(pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
+  // also tell server to stop
+  try {
+    if(socket && socket.connected){
+      socket.emit("stop-hate-scan");
+    }
+  } catch(e){ console.warn("Socket emit stop failed", e); }
+}
+
+async function pollNowAndSchedule(){
+  await pollFeedsOnce();
+  if(!running) return;
+  const sec = Math.max(10, parseInt($("interval").value, 10) || 45);
+  pollTimer = setTimeout(pollNowAndSchedule, sec*1000);
+}
+
+// ---------- Utilities ----------
+function updateMatchCount(){
+  matchCount = seen.size;
+  $("matchCount").innerText = matchCount;
+}
+
+function testNotification(){
+  if(!("Notification" in window)){ alert("Browser doesn't support notifications"); return; }
+  Notification.requestPermission().then(p => {
+    if(p !== "granted"){ alert("Please allow notifications to test."); return; }
+    if(soundEnabled) playBeep(220, 700);
+    new Notification("Test alert", { body: "This is a test from your Niger-Delta monitor." });
+  });
+}
+
+function escapeHtml(s){ if(!s) return ""; return s.replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
+
+// ---------- Socket.IO integration ----------
+function initSocket(){
+  try {
+    socket = io();
+
+    socket.on("connect", () => {
+      console.log("Socket connected to server");
+    });
+
+    socket.on("scan-started", () => {
+      // server acknowledged start
+      console.log("Server scraping started");
+      // visual feedback
+      $("startBtn").textContent = "Running (server)";
+    });
+
+    socket.on("scan-stopped", () => {
+      console.log("Server scraping stopped");
+      $("startBtn").textContent = "Start";
+    });
+
+    // server sends alerts with event 'hate-alert'
+    socket.on("hate-alert", (payload) => {
+      // payload expected: { text, url, timestamp }
+      if(!payload) return;
+      const id = (payload.url || payload.text || "").slice(0,220);
+      if(seen.has(id)) return;
+      seen.add(id);
+      try { localStorage.setItem(LS_KEYS.seen, JSON.stringify(Array.from(seen))); } catch(e){}
+      // normalize to match display format used by handleMatches
+      const normalized = {
+        title: payload.text?.slice(0,120) || "",
+        desc: payload.text || "",
+        url: payload.url || payload.link || "",
+        timestamp: payload.timestamp || payload.createdAt || Date.now()
+      };
+      handleMatches([normalized], { fromServer: true });
+      updateMatchCount();
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
+  } catch(e){
+    console.warn("Socket init error", e);
+  }
+}
+
+// ---------- Load persisted alerts from server (if available) ----------
+async function loadPersistedAlerts(){
+  try {
+    const res = await fetch("/api/alerts");
+    if(!res.ok) return;
+    const arr = await res.json();
+    if(Array.isArray(arr) && arr.length){
+      // filter out already-seen by url/text
+      const toShow = [];
+      for(const a of arr){
+        const id = (a.url || a.text || "").slice(0,220);
+        if(!seen.has(id)){
+          seen.add(id);
+          toShow.push({ title: a.text?.slice(0,120) || "", desc: a.text || "", url: a.url, timestamp: a.timestamp || a.createdAt });
+        }
+      }
+      if(toShow.length) handleMatches(toShow, { fromServer: true });
+      updateMatchCount();
+    }
+  } catch(e){
+    // server may not have /api/alerts — that's fine
+    // console.warn("Could not load persisted alerts", e);
+  }
+}
+
+// ---------- Init ----------
+(function init(){
+  loadSettings();
+  updateTwitterLink();
+  updateNotifUI();
+  updateSoundUI();
+  updateMatchCount();
+  // stop button disabled by default
+  $("stopBtn").disabled = true;
+
+  // init socket (so server-sent alerts are received even if admin didn't start server scrape)
+  initSocket();
+
+  // load persisted alerts from server into UI (optional)
+  loadPersistedAlerts();
+  // auto-save small UI convenience
+  ["keywords","regionKeys","feeds","interval"].forEach(id=>{
+    $(id).addEventListener("blur", saveSettings);
+  });
+})();  // <--- this closes the IIFE safely
+
+
+// ---------- Start / Stop ----------
+// This MUST be right after the IIFE, not inside anything else
+function startMonitoring(){
+  if(running) return;
+  running = true;
+  $("startBtn").disabled = true;
+  $("stopBtn").disabled = false;
+  $("startBtn").textContent = "Running...";
+  pollNowAndSchedule();
+
+  // instruct server to start scraping (admin panel only)
+  fetch("/start-scraping", { method: "POST" })
+    .catch(err => console.warn("Failed to send start command:", err));
+}
+
+
+
+// START button
+$("startBtn").onclick = () => {
+  console.log("▶️ Starting scraper...");
+  socket.emit("start-scraper");
+};
+
+// STOP button
+$("stopBtn").onclick = () => {
+  console.log("⛔ Stopping scraper...");
+  socket.emit("stop-scraper");
+};
+
+
+
+</script>
+</body>
+</html>

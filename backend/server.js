@@ -21,6 +21,15 @@ import nodemailer from "nodemailer";
 // ⭐ NEW — AI IMPORT
 import OpenAI from "openai";
 
+
+// ⭐ NEW — SCRAPER
+import axios from "axios";
+import * as cheerio from "cheerio";
+
+
+let scraperRunning = false;
+let scraperInterval = null;
+
 dotenv.config();
 console.log("🔑 OPENAI KEY LOADED?", process.env.OPENAI_API_KEY ? "YES" : "NO");
 
@@ -56,6 +65,14 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/report", reportRoutes);
+
+app.use("/api/reports", reportRoutes);
+
+// ⭐ FIX 404 ERROR — ADD THIS HERE
+app.get("/api/alerts", (req, res) => {
+  res.json({ message: "Alerts endpoint working!" });
+});
+
 
 // ==========================
 // SESSION (REQUIRED ON RENDER)
@@ -128,6 +145,17 @@ const SubscriptionSchema = new mongoose.Schema({
 });
 
 const Subscription = mongoose.model("Subscription", SubscriptionSchema);
+
+
+// ==========================
+// ⭐ NEW — HATE ALERT SCHEMA
+// ==========================
+const HateAlertSchema = new mongoose.Schema({
+  text: String,
+  url: String,
+  timestamp: { type: Date, default: Date.now },
+});
+const HateAlert = mongoose.model("HateAlert", HateAlertSchema);
 
 // ==========================
 // CSV IMPORTER — FIXED!
@@ -726,7 +754,7 @@ app.post("/api/report", async (req, res) => {
     res.json({ success: true, message: "Report submitted" });
   } catch (err) {
     console.error("SAVE REPORT ERROR:", err);
-    res.status(500).json({ success: false });
+    res.status(500).json({ success: false })
   }
 });
 
@@ -739,6 +767,157 @@ app.get("/api/reports", async (req, res) => {
     res.status(500).json([]);
   }
 });
+
+
+// ==========================
+// SOCKET.IO — ADMIN SCRAPER CONTROL
+// ==========================
+io.on("connection", (socket) => {
+  console.log("admin connected");
+
+socket.on("start-scraper", () => {
+  scraperRunning = true;
+  unifiedScraper();  // Only this exists
+});
+
+  socket.on("stop-scraper", () => {
+    scraperRunning = false;
+  });
+});
+
+
+
+// =========================================
+// HATE-SPEECH SCRAPER (SERVER SIDE)
+// =========================================
+
+async function scrapeWebsites() {
+  try {
+    const FEEDS = [
+      "https://www.vanguardngr.com/feed/",
+      "https://punchng.com/feed/",
+      "https://www.icirnigeria.org/feed/",
+    ];
+
+    const KEYWORDS = [
+      "kill", "attack", "hate", "violence", "threat",
+      "clash", "fight", "herder", "conflict", "riot",
+      "militant", "beheaded",
+    ];
+
+    let matches = [];
+
+    for (let url of FEEDS) {
+      const response = await axios.get(url);
+      const $ = cheerio.load(response.data);
+
+      $("item").each(function () {
+        const title = $(this).find("title").text();
+        const link = $(this).find("link").text();
+        const desc = $(this).find("description").text();
+
+        const combined = (title + " " + desc).toLowerCase();
+
+        const found = KEYWORDS.some(k => combined.includes(k.toLowerCase()));
+
+        if (found) {
+          const alert = {
+            text: title,
+            url: link,
+            timestamp: new Date(),
+          };
+
+          matches.push(alert);
+
+          HateAlert.create(alert);
+
+          io.emit("newServerMatch", alert);
+
+          console.log("🔥 SERVER MATCH:", title);
+        }
+      });
+    }
+
+    return matches;
+  } catch (err) {
+    console.error("❌ SCRAPER ERROR:", err);
+    return [];
+  }
+}
+
+// ===========================================================
+// UNIFIED HATE-SPEECH SCRAPER (RSS + Real-time Alerts)
+// ===========================================================
+
+async function unifiedScraper() {
+  if (!scraperRunning) return;
+
+  console.log("🔎 Running unified scraper...");
+
+  const FEEDS = [
+    "https://www.vanguardngr.com/feed/",
+    "https://punchng.com/feed/",
+    "https://www.icirnigeria.org/feed/",
+  ];
+
+  const KEYWORDS = [
+    "niger delta",
+    "militant",
+    "pipeline",
+    "oil bunkering",
+    "attack",
+    "kidnap",
+    "kill",
+    "conflict",
+    "hate",
+    "gunmen",
+    "riverine",
+    "hostage",
+    "herder",
+    "clash",
+    "violence",
+    "bomb",
+    "explosion",
+    "cultists"
+  ];
+
+  try {
+    for (let feedUrl of FEEDS) {
+      const response = await axios.get(feedUrl);
+      const $ = cheerio.load(response.data);
+
+      $("item").each(async function () {
+        const title = $(this).find("title").text().trim();
+        const link = $(this).find("link").text().trim();
+        const desc = $(this).find("description").text().trim();
+
+        const combined = `${title} ${desc}`.toLowerCase();
+
+        const found = KEYWORDS.some(k => combined.includes(k.toLowerCase()));
+
+        if (found) {
+          const alert = {
+            text: title,
+            url: link,
+            timestamp: new Date(),
+          };
+
+          const exists = await HateAlert.findOne({ text: title });
+          if (!exists) {
+            await HateAlert.create(alert);
+            io.emit("hate-alert", alert);
+            console.log("🔥 Niger Delta Alert:", title);
+          }
+        }
+      });
+    }
+  } catch (err) {
+    console.error("❌ Unified scraper error:", err.message);
+  }
+
+  setTimeout(unifiedScraper, 60 * 1000);
+}
+
 
 /*  
 ===========================================================
