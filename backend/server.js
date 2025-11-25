@@ -13,7 +13,12 @@ import { Server } from "socket.io";
 import csv from "csvtojson";
 import fs from "fs";
 import Report from "./models/report.js";
+import HateAlert from "./models/HateAlert.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import hateAlertRoutes from "./routes/hateAlertRoutes.js";
+
+
+
 
 // EMAIL (Nodemailer)
 import nodemailer from "nodemailer";
@@ -67,6 +72,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/report", reportRoutes);
 
 app.use("/api/reports", reportRoutes);
+app.use("/api", hateAlertRoutes);
+
 
 // ⭐ FIX 404 ERROR — ADD THIS HERE
 app.get("/api/alerts", (req, res) => {
@@ -147,15 +154,7 @@ const SubscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model("Subscription", SubscriptionSchema);
 
 
-// ==========================
-// ⭐ NEW — HATE ALERT SCHEMA
-// ==========================
-const HateAlertSchema = new mongoose.Schema({
-  text: String,
-  url: String,
-  timestamp: { type: Date, default: Date.now },
-});
-const HateAlert = mongoose.model("HateAlert", HateAlertSchema);
+
 
 // ==========================
 // CSV IMPORTER — FIXED!
@@ -786,10 +785,11 @@ socket.on("start-scraper", () => {
 });
 
 
-
 // =========================================
 // HATE-SPEECH SCRAPER (SERVER SIDE)
 // =========================================
+
+
 
 async function scrapeWebsites() {
   try {
@@ -808,45 +808,56 @@ async function scrapeWebsites() {
     let matches = [];
 
     for (let url of FEEDS) {
-     const response = await axios.get(url, {
-  headers: {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-  },
-});
+      try {
+        const response = await axios.get(url, {
+          maxRedirects: 5,
+          timeout: 15000,
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept": "application/rss+xml, application/xml;q=0.9, */*;q=0.8",
+          },
+        });
 
-      const $ = cheerio.load(response.data);
+        const $ = cheerio.load(response.data);
 
-      $("item").each(function () {
-        const title = $(this).find("title").text();
-        const link = $(this).find("link").text();
-        const desc = $(this).find("description").text();
+        $("item").each(function () {
+          const title = $(this).find("title").text();
+          const link = $(this).find("link").text();
+          const desc = $(this).find("description").text();
 
-        const combined = (title + " " + desc).toLowerCase();
+          const combined = (title + " " + desc).toLowerCase();
 
-        const found = KEYWORDS.some(k => combined.includes(k.toLowerCase()));
+          const found = KEYWORDS.some((k) =>
+            combined.includes(k.toLowerCase())
+          );
 
-        if (found) {
-          const alert = {
-            text: title,
-            url: link,
-            timestamp: new Date(),
-          };
+          if (found) {
+            const alert = {
+              text: title,
+              url: link,
+              timestamp: new Date(),
+            };
 
-          matches.push(alert);
+            matches.push(alert);
 
-          HateAlert.create(alert);
+            // Save to DB
+            HateAlert.create(alert);
 
-          io.emit("newServerMatch", alert);
+            // Emit to frontend
+            io.emit("newServerMatch", alert);
 
-          console.log("🔥 SERVER MATCH:", title);
-        }
-      });
+            console.log("🔥 SERVER MATCH:", title);
+          }
+        });
+      } catch (err) {
+        console.log(`⚠️ Feed failed (${url}):`, err.message);
+      }
     }
 
     return matches;
+
   } catch (err) {
     console.error("❌ SCRAPER ERROR:", err);
     return [];
@@ -919,7 +930,8 @@ async function unifiedScraper() {
             timestamp: new Date(),
           };
 
-          const exists = await HateAlert.findOne({ text: title });
+          const exists = await HateAlert.findOne({ url: link });
+
 
           if (!exists) {
             await HateAlert.create(alert);
@@ -936,6 +948,20 @@ async function unifiedScraper() {
   // Re-run every 60 seconds
   setTimeout(unifiedScraper, 60 * 1000);
 }
+
+// ===============================
+// GET ALL HATE ALERTS (History)
+// ===============================
+app.get("/api/hatealert-history", async (req, res) => {
+  try {
+    const all = await HateAlert.find().sort({ timestamp: -1 });
+    res.json(all);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load hate alert history" });
+  }
+});
+
+
 
 /*  
 ===========================================================
