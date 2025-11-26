@@ -784,133 +784,51 @@ socket.on("start-scraper", () => {
   });
 });
 
-
-// =========================================
-// HATE-SPEECH SCRAPER (SERVER SIDE)
-// =========================================
-
-
-
-async function scrapeWebsites() {
-  try {
-    const FEEDS = [
-      "https://www.vanguardngr.com/feed/",
-      "https://punchng.com/feed/",
-      "https://www.icirnigeria.org/feed/",
-    ];
-
-    const KEYWORDS = [
-      "kill", "attack", "hate", "violence", "threat",
-      "clash", "fight", "herder", "conflict", "riot",
-      "militant", "beheaded",
-    ];
-
-    let matches = [];
-
-    for (let url of FEEDS) {
-      try {
-        const response = await axios.get(url, {
-          maxRedirects: 5,
-          timeout: 15000,
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Accept": "application/rss+xml, application/xml;q=0.9, */*;q=0.8",
-          },
-        });
-
-        const $ = cheerio.load(response.data);
-
-        $("item").each(function () {
-          const title = $(this).find("title").text();
-          const link = $(this).find("link").text();
-          const desc = $(this).find("description").text();
-
-          const combined = (title + " " + desc).toLowerCase();
-
-          const found = KEYWORDS.some((k) =>
-            combined.includes(k.toLowerCase())
-          );
-
-          if (found) {
-            const alert = {
-              text: title,
-              url: link,
-              timestamp: new Date(),
-            };
-
-            matches.push(alert);
-
-            // Save to DB
-            HateAlert.create(alert);
-
-            // Emit to frontend
-            io.emit("newServerMatch", alert);
-
-            console.log("🔥 SERVER MATCH:", title);
-          }
-        });
-      } catch (err) {
-        console.log(`⚠️ Feed failed (${url}):`, err.message);
-      }
-    }
-
-    return matches;
-
-  } catch (err) {
-    console.error("❌ SCRAPER ERROR:", err);
-    return [];
-  }
-}
 // ===========================================================
-// UNIFIED HATE-SPEECH SCRAPER (RSS + Real-time Alerts)
+// UNIFIED NIGER DELTA EARLY WARNING SCRAPER
 // ===========================================================
 
 async function unifiedScraper() {
-  if (!scraperRunning) return;
+ if (!scraperRunning) {
+  console.log("⛔ Scraper stopped.");
+  return;
+}
 
-  console.log("🔎 Running unified scraper...");
 
-  const FEEDS = [
-    "https://www.vanguardngr.com/feed/",
-    "https://punchng.com/feed/",
-    "https://www.icirnigeria.org/feed/",
-  ];
+  console.log("🔎 Checking news sources for Niger Delta alerts...");
+const FEEDS = [
+  "https://www.vanguardngr.com/feed/",
+  "https://punchng.com/feed/",
+  "https://www.icirnigeria.org/feed/",
+  "https://www.premiumtimesng.com/feed/",
+  "https://guardian.ng/feed/",
+  "https://dailypost.ng/feed/",
+  "https://leadership.ng/feed/",
+  "https://tribuneonlineng.com/feed/",
+  "https://independent.ng/feed/"
+];
+
 
   const KEYWORDS = [
-    "niger delta",
-    "militant",
-    "pipeline",
-    "oil bunkering",
-    "attack",
-    "kidnap",
-    "kill",
-    "conflict",
-    "hate",
-    "gunmen",
-    "riverine",
-    "hostage",
-    "herder",
-    "clash",
-    "violence",
-    "bomb",
-    "explosion",
-    "cultists"
+    "niger delta", "militant", "militancy", "pipeline", "oil", "bunkering",
+    "attack", "kidnap", "kidnapped", "abducted", "gunmen", "gunfire",
+    "kill", "killed", "killing", "hostage", "cult", "cultists", "shooting",
+    "bomb", "explosion", "riot", "violence", "conflict", "clash",
+    "herder", "farmer", "rival groups", "community clash", "riverine",
+    "protest", "youths", "mob", "hate", "ethnic tension"
   ];
 
   try {
     for (let feedUrl of FEEDS) {
+const response = await axios.get(feedUrl, {
+  headers: {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept": "application/rss+xml,text/xml",
+  },
+});
 
-      // ✅ FIX: Add headers to bypass 403
-      const response = await axios.get(feedUrl, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
-          "Accept-Language": "en-US,en;q=0.9",
-          "Accept": "text/xml,application/xml,application/rss+xml,text/html;q=0.9,*/*;q=0.8"
-        }
-      });
 
       const $ = cheerio.load(response.data);
 
@@ -921,33 +839,40 @@ async function unifiedScraper() {
 
         const combined = `${title} ${desc}`.toLowerCase();
 
-        const found = KEYWORDS.some(k => combined.includes(k.toLowerCase()));
+        const found = KEYWORDS.some(k => combined.includes(k));
 
         if (found) {
-          const alert = {
-            text: title,
-            url: link,
-            timestamp: new Date(),
-          };
-
           const exists = await HateAlert.findOne({ url: link });
 
-
           if (!exists) {
-            await HateAlert.create(alert);
-            io.emit("hate-alert", alert);
-            console.log("🔥 Niger Delta Alert:", title);
-          }
+  const alert = {
+    text: title,
+    desc: desc || title,
+    url: link,
+    timestamp: new Date(),
+  };
+
+  await HateAlert.create(alert);
+  io.emit("hate-alert", alert);
+
+  console.log("🔥 Niger Delta Alert:", title);
+}
+
         }
       });
+
+      
+  // ⭐ Add this delay (IMPORTANT)
+  await new Promise(r => setTimeout(r, 1000));
+
     }
   } catch (err) {
-    console.error("❌ Unified scraper error:", err.message);
+    console.error("❌ Scraper error:", err.message);
   }
 
-  // Re-run every 60 seconds
-  setTimeout(unifiedScraper, 60 * 1000);
+  setTimeout(unifiedScraper, 60000);
 }
+
 
 // ===============================
 // GET ALL HATE ALERTS (History)
