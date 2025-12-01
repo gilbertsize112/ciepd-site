@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIEPD – Submit Report</title>
+
+<style>
+:root {
+  --primary: #0077b6;
+  --secondary: #0096c7;
+  --dark: #023e8a;
+  --light: #e8f5ff;
+  --white: #ffffff;
+}
+
+/* Background */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: url("background.jpg") no-repeat center center fixed;
+  background-size: cover;
+  color: #333;
+}
+
+/* ===== BOUNCE ANIMATION ===== */
+@keyframes bounceSmooth {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-12px); }
+  60% { transform: translateY(0); }
+  80% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.bounce-text {
+  display:inline-block;
+  animation: bounceSmooth 2.3s infinite ease-in-out;
+}
+
+/* ===== IMPROVED HEADER ===== */
+.header {
+  background: rgba(0,0,0,0.55);
+  padding: 60px 20px;
+  text-align: center;
+  color: white;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.header p {
+  margin-top: 12px;
+  font-size: 1.1rem;
+  background: rgba(255,255,255,0.15);
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* ===== IMPROVED NAVIGATION ===== */
+.topnav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 14px;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+  border-bottom: 2px solid #0077b6;
+}
+
+.topnav a {
+  text-decoration: none;
+  padding: 10px 22px;
+  margin: 5px;
+  background: #f0faff;
+  color: var(--dark);
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1.5px solid #bcdfff;
+  transition: 0.25s ease-in-out;
+}
+
+.topnav a:hover {
+  background: var(--secondary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+/* Main Form Area */
+.wrapper {
+  width: 92%;
+  max-width: 900px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(6px);
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* Floating Input Group */
+.input-group {
+  margin: 20px 0;
+  position: relative;
+}
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid #bddcff;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  background: #f9fcff;
+  transition: 0.2s;
+}
+.input-group input:focus,
+.input-group textarea:focus {
+  border-color: var(--primary);
+  background: white;
+}
+.input-group label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: white;
+  padding: 0 6px;
+  font-size: 0.8rem;
+  color: var(--dark);
+  font-weight: 600;
+}
+
+/* Checkboxes */
+.category-box {
+  margin-top: 10px;
+  padding-left: 5px;
+}
+.category-box label {
+  display: block;
+  padding: 6px 0;
+  font-size: 0.95rem;
+}
+
+/* Buttons */
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+.btn-submit:hover {
+  background: var(--secondary);
+  transform: translateY(-2px);
+}
+
+.btn-back {
+  width: 100%;
+  padding: 12px;
+  background: #999;
+  color: white;
+  border: none;
+  margin-top: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-back:hover {
+  background: #777;
+}
+
+/* Success Animation */
+.success-popup {
+  display: none;
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 25px 40px;
+  border-radius: 15px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+  font-size: 1.2rem;
+  color: var(--primary);
+  animation: popFade 0.4s ease;
+}
+
+@keyframes popFade {
+  from { transform: translate(-50%, -45%) scale(0.9); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* ===== AI Box Styling ===== */
+.ai-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f0faff;
+  border-left: 4px solid var(--primary);
+  border-radius: 10px;
+}
+
+.ai-btn {
+  background: var(--secondary);
+  padding: 10px 16px;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.ai-btn:hover {
+  background: var(--primary);
+}
+
+.ai-output {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  display: none;
+  border: 1.5px solid #cfe8ff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1 class="bounce-text">CIEPD Conflict & Peace Watch Center</h1>
+  <p class="bounce-text">Report via WhatsApp/SMS: <strong>08034559689</strong></p>
+</div>
+
+<div class="topnav">
+  <a href="index.html">Home</a>
+  <a href="report.html">Reports</a>
+  <a href="submit.html">Submit Report</a>
+  <a href="getalert.html">Get Alerts</a>
+  <a href="contact.html">Contact</a>
+  <a href="admin-map.html">Big Map</a>
+</div>
+
+<div class="wrapper">
+  <h2 style="text-align:center;color:var(--dark);margin-bottom:20px;">Submit a New Report</h2>
+
+  <form id="reportForm">
+
+    <div class="input-group">
+      <label>Report Title *</label>
+      <input type="text" id="title" required>
+    </div>
+
+    <div class="input-group">
+      <label>Description *</label>
+      <textarea id="content" rows="5" required></textarea>
+    </div>
+
+    <!-- ⭐⭐⭐ AI Assistant ⭐⭐⭐ -->
+    <div class="ai-box">
+      <button type="button" class="ai-btn" onclick="generateAI()">✨ AI Improve / Summarize Description</button>
+      <div id="aiOutput" class="ai-output"></div>
+    </div>
+
+    <!-- ⭐⭐⭐ CATEGORIES ⭐⭐⭐ -->
+    <div>
+      <label style="font-weight:600;color:var(--dark);">Categories *</label>
+
+      <div class="category-box">
+
+        <strong>Incidences of Violent Conflicts</strong>
+        <label><input type="checkbox" name="category" value="Kidnapping"> Kidnapping</label>
+        <label><input type="checkbox" name="category" value="WASH Related Conflict"> WASH Related Conflict</label>
+        <label><input type="checkbox" name="category" value="Intra-Communial Conflict"> Intra-Communial Conflict</label>
+        <label><input type="checkbox" name="category" value="Inter-Communial Conflicts"> Inter-Communial Conflicts</label>
+        <label><input type="checkbox" name="category" value="Religious Conflicts"> Religious Conflicts</label>
+        <label><input type="checkbox" name="category" value="Resource Conflict"> Resource Conflict</label>
+        <label><input type="checkbox" name="category" value="Others"> Others</label>
+
+        <br><strong>Kidnapping — Sub Categories</strong>
+        <label><input type="checkbox" name="category" value="Early Warning Signal"> Early Warning Signal</label>
+        <label><input type="checkbox" name="category" value="Uncategorized Reports"> Uncategorized Reports</label>
+        <label><input type="checkbox" name="category" value="Electoral Violence"> Electoral Violence</label>
+        <label><input type="checkbox" name="category" value="Pre-Electoral Violence"> Pre-Electoral Violence</label>
+        <label><input type="checkbox" name="category" value="During"> During</label>
+        <label><input type="checkbox" name="category" value="Post Electoral Violence"> Post Electoral Violence</label>
+
+        <br><strong>Peace Initiatives</strong>
+        <label><input type="checkbox" name="category" value="NGO"> NGO</label>
+        <label><input type="checkbox" name="category" value="CBOs/Communities"> CBOs/Communities</label>
+        <label><input type="checkbox" name="category" value="Government Initiative"> Government Initiative</label>
+
+        <br><strong>Hate Speech</strong>
+        <label><input type="checkbox" name="category" value="Hate Speech"> Hate Speech</label>
+
+        <br><strong>Violence Against Women and Girls (VAWG)</strong>
+        <label><input type="checkbox" name="category" value="VAWG"> VAWG</label>
+
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Location *</label>
+      <input type="text" id="location" required>
+    </div> 
+
+    <div class="input-group">
+  <label>News Source Link</label>
+  <input type="url" id="newsSource">
+</div>
+
+<div class="input-group">
+  <label>External Video Link</label>
+  <input type="url" id="videoLink">
+</div>
+
+<div class="input-group">
+  <label>Upload Photos</label>
+  <input type="file" id="photos" accept="image/*" multiple>
+</div>
+
+    <h3 style="color:var(--primary);margin-top:25px;">Optional Information</h3>
+
+    <div class="input-group">
+      <label>First Name</label>
+      <input type="text" id="firstName">
+    </div>
+
+    <div class="input-group">
+      <label>Last Name</label>
+      <input type="text" id="lastName">
+    </div>
+
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" id="email">
+    </div>
+
+    <button type="submit" class="btn-submit">Submit Report</button>
+
+  </form>
+</div>
+
+<div id="successPopup" class="success-popup">Report Submitted Successfully!</div>
+
+<script>
+const form = document.getElementById("reportForm");
+const popup = document.getElementById("successPopup");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const title = document.getElementById("title").value.trim();
+  const content = document.getElementById("content").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  // ⭐ FIXED IDs ⭐
+  const newsSource = document.getElementById("newsSource").value.trim();
+  const videoLink = document.getElementById("videoLink").value.trim();
+  const photos = document.getElementById("photos").files;
+
+  const categories = Array.from(
+    document.querySelectorAll('input[name="category"]:checked')
+  ).map(c => c.value);
+
+  if (!title || !content || !location || categories.length === 0) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  /* ⭐⭐ PREPARE FORM DATA FOR FILE UPLOAD ⭐⭐ */
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("content", content);
+  formData.append("location", location);
+  formData.append("firstName", firstName);
+  formData.append("lastName", lastName);
+  formData.append("email", email);
+  formData.append("newsSource", newsSource);
+  formData.append("videoLink", videoLink);
+  categories.forEach(c => formData.append("category", c));
+
+  // append all selected photos
+  for (let i = 0; i < photos.length; i++) {
+    formData.append("photos", photos[i]);
+  }
+
+  const apiURL = window.location.hostname.includes("localhost")
+    ? "http://localhost:3000/api/report"
+    : "https://ciepd-backend.onrender.com/api/report";
+
+  const res = await fetch(apiURL, {
+    method: "POST",
+    body: formData   // ⭐ removed JSON — now supports photos
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    popup.style.display = "block";
+    setTimeout(() => { popup.style.display = "none"; form.reset(); }, 2000);
+  } else {
+    alert("Error submitting report: " + (data.message || "Unknown error"));
+  }
+});
+
+/* ⭐ AI FUNCTION — unchanged (but can use new IDs if needed) ⭐ */
+async function generateAI() {
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("content").value.trim();
+  const location = document.getElementById("location").value.trim();
+
+  const categories = Array.from(
+    document.querySelectorAll('input[name="category"]:checked')
+  ).map(c => c.value);
+
+  const output = document.getElementById("aiOutput");
+
+  if (!description) {
+    output.style.display = "block";
+    output.innerHTML = "⚠️ Please type a description first.";
+    return;
+  }
+
+  output.style.display = "block";
+  output.innerHTML = "⏳ AI is generating…";
+
+  try {
+    const apiURL = window.location.hostname.includes("localhost")
+      ? "http://localhost:3000/api/ai/analyze-report"
+      : "https://ciepd-backend.onrender.com/api/ai/analyze-report";
+
+    const res = await fetch(apiURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title,
+        description,
+        location,
+        categories
+      })
+    });
+
+    const data = await res.json();
+
+    let finalText = data.analysis || data.output_text || 
+      data.output?.[0]?.content?.[0]?.text || 
+      "AI returned no readable analysis.";
+
+    output.innerHTML = finalText;
+
+  } catch (e) {
+    output.innerHTML = "❌ Error talking to AI service.";
+  }
+}
+</script>
+
+
+
+</body>
+</html>
