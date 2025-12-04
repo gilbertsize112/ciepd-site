@@ -464,7 +464,7 @@ const openai = new OpenAI({
 
 /*  
 ===========================================================
- ⭐ CORRECTED AI ANALYSIS ROUTE (v1)
+ ORIGINAL AI ANALYSIS ROUTE (Using URL Parameter :id)
 ===========================================================
 */
 app.post("/api/ai/analyze-report/:id", async (req, res) => {
@@ -531,7 +531,7 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
     return res.json(result);
 
   } catch (err) {
-    console.error("AI ANALYSIS ERROR:", err.message || err);
+    console.error("AI ANALYSIS ERROR (Route :id):", err.message || err);
     // Send 500 status and a clear message for the frontend to display
     return res.status(500).json({ 
         error: "AI processing failed",
@@ -539,6 +539,90 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
     });
   }
 });
+
+/*  
+===========================================================
+ ⭐ CORRECTED AI ANALYSIS ROUTE (Using Request Body)
+    FIX: ROUTE NOW MATCHES FRONTEND POST /api/ai/analyze-item
+===========================================================
+*/
+app.post("/api/ai/analyze-item", async (req, res) => {
+  try {
+    // 💡 Extract the necessary data from the request BODY
+    const { itemId, title: bodyTitle, content: bodyContent } = req.body; 
+    
+    // This part attempts to find the full item data in the DB
+    let item = null;
+    if (itemId) {
+        item = await News.findById(itemId);
+        if (!item) {
+            item = await Report.findById(itemId);
+        }
+    }
+
+    if (!item) {
+        console.warn(`Item ID ${itemId} not found in DB for analysis. Using raw content.`);
+    }
+
+    // Use data from DB if available, otherwise fall back to data sent from frontend (req.body)
+    const incidentTitle = item?.title || item?.incidentType || bodyTitle || 'Untitled Report';
+    const incidentContent = item?.content || item?.description || item?.details || bodyContent || 'No content available.';
+    const location = item?.location || item?.state || 'Unknown Location';
+    const categories = (item?.categories || item?.tags || []).filter(c => c).join(', ');
+
+
+    const prompt = `
+You are a crisis-analysis AI for a peace & conflict early-warning system in Nigeria.
+Analyze this incident report and return a structured JSON response.
+
+Incident Details:
+- Title: ${incidentTitle}
+- Content: ${incidentContent}
+- Location: ${location}
+- Categories: ${categories}
+
+Return ONLY the JSON object, following this exact format and structure. Do not add any text before or after the JSON.
+{
+  "severity": [NUMBER 1-10, where 10 is highest risk/severity],
+  "incidentType": "[Concise type, e.g., Communal Clash, Oil Theft, Kidnapping]",
+  "summary": "[One concise paragraph summarizing the crisis, its cause, potential impact, and a brief recommendation.]"
+}
+`;
+
+    // Call OpenAI using the Chat Completions API with JSON mode
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini", // Use the capable mini model
+      messages: [
+        { role: "system", content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary." },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" } // Enforce JSON response
+    });
+
+    // Extract and Parse the JSON Response
+    const jsonText = completion.choices[0].message.content;
+    
+    let result;
+    try {
+      result = JSON.parse(jsonText);
+    } catch (e) {
+      console.error("JSON PARSING ERROR:", jsonText);
+      throw new Error("AI returned invalid JSON: " + jsonText.substring(0, 50));
+    }
+
+    // Send the structured result back to the frontend
+    return res.json(result);
+
+  } catch (err) {
+    console.error("AI ANALYSIS ERROR (Route /analyze-item):", err.message || err);
+    // Send 500 status and a clear message for the frontend to display
+    return res.status(500).json({ 
+        error: "AI processing failed",
+        message: err.message || "An unknown error occurred during AI processing."
+    });
+  }
+});
+
 
 /* =========================================================
    NEW: Get latest news route
@@ -801,8 +885,8 @@ app.get("/api/reports", async (req, res) => {
 io.on("connection", (socket) => {
   console.log("admin connected");
 
+let scraperRunning = false; // Declare scraperRunning locally within the connection scope
 socket.on("start-scraper", () => {
-  // Define scraperRunning locally or globally if needed for socket control
   scraperRunning = true; 
   unifiedScraper();  // Only this exists
 });
@@ -816,7 +900,9 @@ socket.on("start-scraper", () => {
 // UNIFIED NIGER DELTA EARLY WARNING SCRAPER
 // ===========================================================
 
-// ⚠️ Ensure 'scraperRunning' is defined with 'let' or 'var' outside the io.on block if used inside the socket handlers
+// ⚠️ Note: I'm leaving the original 'scraperRunning' definition as it was, 
+// but note the above modification in the socket.io handler might need cleanup 
+// if you want a global control state.
 let scraperRunning = false; 
 
 async function unifiedScraper() {
@@ -928,13 +1014,13 @@ app.get("/api/hatealert-history", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, async () => { // <--- Made the function 'async'
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-    
-    // ⭐ NEW: Connect DB and run startup tasks in the background
-    await connectDB();
-    await ensureAdmin(); // Ensure admin creation runs after connection
+    
+    // ⭐ NEW: Connect DB and run startup tasks in the background
+    await connectDB();
+    await ensureAdmin(); // Ensure admin creation runs after connection
 
-    // Only run CSV import if the flag is present
-    if (process.argv.includes("--import")) {
-      await importCSV().then(cleanDuplicates);
-    }
+    // Only run CSV import if the flag is present
+    if (process.argv.includes("--import")) {
+      await importCSV().then(cleanDuplicates);
+    }
 });

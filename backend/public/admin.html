@@ -1,7 +1,9 @@
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+<meta charset="utf-8" /> 
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>CIEPD Admin Dashboard – Manage News/Reports</title>
 
@@ -26,6 +28,7 @@
         --bg-light: #f8feff;
         --radius: 12px;
         --border-light: #e6eef6;
+        --text-dark: #333; /* Added for consistency */
     }
 
     * { box-sizing: border-box; }
@@ -194,7 +197,8 @@
     #showNewsBtn, #showReportsBtn {
         border-radius: 999px !important;
     }
-    #showReportsBtn[style*="#ddd"] {
+    /* Updated selector for inactive button style */
+    .btn-viewmode.inactive {
         background: var(--border-light) !important;
         color: var(--accent) !important;
     }
@@ -240,6 +244,7 @@
         transition:0.2s;
         display: flex;
         flex-direction: column;
+        min-height: 180px; /* Ensure visual consistency */
     }
     .news-card:hover{ 
         transform: translateY(-8px); 
@@ -271,6 +276,7 @@
         font-weight:700;
         color:white;
         text-transform: uppercase;
+        white-space: nowrap;
     }
     .verified{ background:var(--success); }
     .unverified{ background:var(--danger); }
@@ -345,6 +351,7 @@
         cursor:pointer;
         color:var(--muted);
         transition: color 0.2s;
+        padding: 5px;
     }
     .close-btn:hover { color: var(--danger); }
 
@@ -366,6 +373,7 @@
     .panel-actions {
         display: flex;
         gap: 15px;
+        flex-wrap: wrap; /* Added for responsiveness */
         align-items: center;
         margin-top: 20px;
         padding-top: 15px;
@@ -374,12 +382,13 @@
 
     .btn-verify{ background:var(--success); color:white; }
     .btn-approve{ background:var(--primary); color:white; }
+    .btn-analyze{ background:var(--accent); color:white; } /* New color for Analyze */
     .btn-delete{ background:var(--danger); color:white; }
 </style>
 </head>
 <body>
 
-<div class="header">
+<header class="header">
     <div class="brand">
         <i class="fas fa-shield-alt"></i> CIEPD Admin
     </div>
@@ -389,9 +398,9 @@
     <button onclick="window.location.href='login.html'" class="logout-btn">
         <i class="fas fa-sign-out-alt"></i> Logout
     </button>
-</div>
+</header>
 
-<div class="nav-bar">
+<nav class="nav-bar">
     <a href="home.html"><i class="fas fa-home"></i> Home</a>
     <a href="report.html"><i class="fas fa-file-alt"></i> Reports</a>
     <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
@@ -399,22 +408,22 @@
     <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
     <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
     <a href="admin-map.html" class="special-btn"><i class="fas fa-map-marked-alt"></i> Big Map</a>
-</div>
+</nav>
 
-<div class="container">
+<main class="container">
 
     <div class="top-row">
         <h1 id="modeTitle">Manage News</h1>
 
         <div style="display:flex; gap:10px;">
-            <button id="showNewsBtn" class="btn"><i class="fas fa-newspaper"></i> View News</button>
-            <button id="showReportsBtn" class="btn"><i class="fas fa-clipboard-list"></i> View Reports</button>
+            <button id="showNewsBtn" class="btn btn-viewmode"><i class="fas fa-newspaper"></i> View News</button>
+            <button id="showReportsBtn" class="btn btn-viewmode"><i class="fas fa-clipboard-list"></i> View Reports</button>
         </div>
     </div>
 
     <div class="filters">
         <input id="search" type="text" placeholder="Search by Title, Description, or Content…" />
-        <select id="categoryFilter"><option value="">All Categories</option></select>
+        <select id="categoryFilter" style="display:none;"><option value="">All Categories</option></select>
 
         <button id="refreshBtn" class="btn">
             <i class="fas fa-sync-alt"></i> Refresh
@@ -426,15 +435,16 @@
     </div>
 
     <div id="newsGrid" class="news-grid"></div>
+    
     <div id="pagination"></div>
-</div>
+</main>
 
 <aside id="sidePanel" class="side-panel">
     <div class="panel-inner">
 
         <div class="panel-header">
             <h2 id="panelTitle" class="panel-title">Item Title</h2>
-            <button id="panelBack" class="close-btn"><i class="fas fa-times-circle"></i></button>
+            <button id="panelBack" class="close-btn" aria-label="Close Panel"><i class="fas fa-times-circle"></i></button>
         </div>
 
         <div class="panel-meta">
@@ -443,7 +453,7 @@
             <p id="panelCats"><i class="fas fa-tags"></i> Categories: N/A</p>
         </div>
 
-        <div class="panel-actions">
+        <div class="panel-actions" style="border-top:none; padding-top: 0;">
             <span id="panelVerifiedBadge" class="badge" style="display:none"></span>
             <span id="panelApprovedBadge" class="badge" style="display:none"></span>
         </div>
@@ -459,75 +469,87 @@
         </div>
         
         <div id="panelButtons" class="panel-actions">
-            </div>
+        </div>
 
     </div>
 </aside>
+
 <script>
 // =================================================================
-// 🚨 CRITICAL: YOUR JAVASCRIPT LOGIC IS PRESERVED BELOW
-// ...
+// 🚀 CIEPD ADMIN DASHBOARD JAVASCRIPT LOGIC
 // =================================================================
 
-// 🛑 CRITICAL FIX: DEFINE BASE_URL HERE
+// Helper function to get element by ID
+const el = (id) => document.getElementById(id);
+
+// ⭐ FIX: Add helper function to escape strings for use in HTML onclick attributes
+function escapeHtmlAttribute(str) {
+    if (str === null || str === undefined) return '';
+    // Escapes single quotes ('), backslashes (\), newlines (\n), and carriage returns (\r)
+    return String(str).replace(/'/g, "\\'").replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '');
+}
+// ⭐ END FIX
+
 const BASE_URL = 
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
         ? "http://localhost:3000"
-        : "https://your-deployed-backend.onrender.com"; // **<<< Update this if you are deployed!**
-// ----------------------------------------------------
+        : ""; // Use relative path for deployed service
 
 let currentPage = 1;
 const pageSize = 40;
-/* ⭐ NEW MODE SWITCH */
 let currentMode = "news"; // "news" or "reports"
 
-function el(id){ return document.getElementById(id); }
-
 /***********************
-    MODE SWITCHING
+    HELPER: MODE SWITCHING
 ************************/
-el("showNewsBtn").onclick = () => {
-    currentMode = "news";
-    el("modeTitle").innerText = "Manage News";
-    // Apply Active State
-    el("showNewsBtn").style.background = "var(--primary)";
-    el("showNewsBtn").style.color = "white";
-    el("showReportsBtn").style.background = "var(--border-light)";
-    el("showReportsBtn").style.color = "var(--accent)";
-    loadItems();
-    loadCategories(); // Only load categories when in news mode
-};
+function setMode(mode) {
+    currentMode = mode;
+    currentPage = 1;
 
-el("showReportsBtn").onclick = () => {
-    currentMode = "reports";
-    el("modeTitle").innerText = "Manage Reports";
-    // Apply Active State
-    el("showReportsBtn").style.background = "var(--primary)";
-    el("showReportsBtn").style.color = "white";
-    el("showNewsBtn").style.background = "var(--border-light)";
-    el("showNewsBtn").style.color = "var(--accent)";
-    loadItems();
-    // Hide category filter for reports mode
-    el("categoryFilter").style.display = 'none'; 
-};
+    // Update Title
+    el("modeTitle").innerText = mode === "news" ? "Manage News" : "Manage Reports";
 
-// Initial state setup (must run after defining the click handlers)
-el("showReportsBtn").style.background = "var(--border-light)";
-el("showReportsBtn").style.color = "var(--accent)";
+    // Update Button Active State
+    const newsBtn = el("showNewsBtn");
+    const reportsBtn = el("showReportsBtn");
+
+    newsBtn.classList.toggle('inactive', mode !== 'news');
+    newsBtn.style.background = mode === 'news' ? 'var(--primary)' : '';
+    newsBtn.style.color = mode === 'news' ? 'white' : '';
+
+    reportsBtn.classList.toggle('inactive', mode !== 'reports');
+    reportsBtn.style.background = mode === 'reports' ? 'var(--primary)' : '';
+    reportsBtn.style.color = mode === 'reports' ? 'white' : '';
+    
+    // Toggle Category Filter
+    if (mode === 'news') {
+        loadCategories();
+    } else {
+        el("categoryFilter").style.display = 'none';
+        el("categoryFilter").value = ""; // Reset filter
+    }
+
+    loadItems();
+}
+
+el("showNewsBtn").onclick = () => setMode("news");
+el("showReportsBtn").onclick = () => setMode("reports");
 
 
 /***********************
     LOAD CATEGORIES (NEWS ONLY)
 ************************/
 async function loadCategories(){
-    el("categoryFilter").style.display = 'block'; // Show filter
+    el("categoryFilter").style.display = 'block';
     try{
-        const res = await fetch("/api/news/categories");
+        const res = await fetch(`${BASE_URL}/api/news/categories`);
         const data = await res.json();
-        el("categoryFilter").innerHTML = `<option value="">All Categories</option>`;
+        
+        const filter = el("categoryFilter");
+        filter.innerHTML = `<option value="">All Categories</option>`;
         data.forEach(c => {
-            el("categoryFilter").innerHTML += `<option value="${c}">${c}</option>`;
+            filter.innerHTML += `<option value="${c}">${c}</option>`;
         });
     }catch(e){ console.error("Error loading categories:", e); }
 }
@@ -536,6 +558,10 @@ async function loadCategories(){
     OPEN SIDE PANEL
 ************************/
 function openPanel(n){
+    // Reset side panel scroll
+    el("sidePanel").scrollTop = 0;
+    
+    // Set content
     el("panelTitle").innerText = n.title || n.incidentType || "Item Details";
     el("panelShort").innerText = n.description || n.summary || "No short description provided.";
     el("panelContent").innerText = n.content || n.details || "No full content provided.";
@@ -547,12 +573,11 @@ function openPanel(n){
 
     /* VERIFIED badge */
     const v = el("panelVerifiedBadge");
+    v.style.display="inline-block";
     if(n.verified){
-        v.style.display="inline-block";
         v.className="badge verified";
         v.innerText="VERIFIED";
     } else {
-        v.style.display="inline-block";
         v.className="badge unverified";
         v.innerText="NOT VERIFIED";
     }
@@ -567,49 +592,60 @@ function openPanel(n){
         a.style.display="none";
     }
 
-    /* Buttons */
+    // ⭐ FIX: Escape the variables before inserting them into the HTML string
+    const escapedId = escapeHtmlAttribute(n._id);
+    const escapedTitle = escapeHtmlAttribute(n.title || n.incidentType);
+    const escapedContent = escapeHtmlAttribute(n.content || n.details);
+
+    /* Action Buttons */
     el("panelButtons").innerHTML = `
         <button class="btn btn-verify" style="display:${n.verified?'none':''}"
-            onclick="verifyItem('${n._id}')"><i class="fas fa-check"></i> Verify</button>
+            onclick="verifyItem('${escapedId}')"><i class="fas fa-check"></i> Verify</button>
 
         <button class="btn btn-approve" style="display:${n.approved?'none':''}"
-            onclick="approveItem('${n._id}')"><i class="fas fa-thumbs-up"></i> Approve</button>
+            onclick="approveItem('${escapedId}')"><i class="fas fa-thumbs-up"></i> Approve</button>
         
-        <button class="btn btn-analyze" onclick="analyzeItem('${n._id}')"><i class="fas fa-brain"></i> AI Analyze</button>
-
+        <button class="btn btn-analyze" onclick="analyzeItem(this, '${escapedId}', '${escapedTitle}', '${escapedContent}')"><i class="fas fa-brain"></i> AI Analyze</button>
+        
         <button class="btn btn-delete"
-            onclick="deleteItem('${n._id}')"><i class="fas fa-trash"></i> Delete</button>
+            onclick="deleteItem('${escapedId}')"><i class="fas fa-trash"></i> Delete</button>
     `;
 
     el("sidePanel").classList.add("open");
 }
 
-el("panelBack").onclick = () =>
-    el("sidePanel").classList.remove("open");
+el("panelBack").onclick = () => el("sidePanel").classList.remove("open");
 
 // ----------------------------------------------------
-// AI Analyze Function (Improved)
+// AI Analyze Function (Refined)
 // ----------------------------------------------------
-async function analyzeItem(id) {
-    const analysisBlock = document.getElementById('panelContent');
-    const analyzeBtn = document.querySelector('.btn-analyze');
+async function analyzeItem(analyzeBtn, id, title, content) {
+    const contentBlock = el('panelContent');
+    // Removed document.querySelector('.btn-analyze'); as the button is now passed.
+    
+    // Save original content for restoration
+    const originalContent = contentBlock.innerText;
     
     // 1. Set Loading State
-    const originalContent = analysisBlock.innerHTML;
-    analysisBlock.innerHTML = `<p style="text-align:center; color: var(--primary); font-weight: 600;">
-        <i class="fas fa-spinner fa-spin"></i> Sending report to AI for analysis...
+    contentBlock.innerHTML = `<p style="text-align:center; color: var(--primary); font-weight: 600;">
+        <i class="fas fa-spinner fa-spin"></i> Sending to AI for analysis...
     </p>`;
+    // Use the passed button element
     analyzeBtn.disabled = true;
     analyzeBtn.innerHTML = `<i class="fas fa-cog fa-spin"></i> Analyzing...`;
     
     try {
         // 2. Send Request to Backend AI Endpoint
-        const response = await fetch(`${BASE_URL}/api/ai/analyze-report/${id}`, {
-            method: 'POST', // Use POST as it performs an action
+        const response = await fetch(`${BASE_URL}/api/ai/analyze-item`, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // If you need to send the whole object, fetch the object first. 
-            // For now, sending ID is fine since the backend can look it up.
-            body: JSON.stringify({ itemId: id })
+            // Send necessary data for the AI to analyze
+            body: JSON.stringify({ 
+                itemId: id, 
+                mode: currentMode,
+                title: title, 
+                content: content 
+            })
         });
 
         if (!response.ok) {
@@ -619,108 +655,91 @@ async function analyzeItem(id) {
         const result = await response.json();
         
         // 3. Display Results
-        analysisBlock.innerHTML = `
-            <div style="background: #e6f7ff; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary);">
+        const severityColor = 
+            (result.severity > 7 ? 'var(--danger)' : 
+             result.severity > 4 ? 'var(--warning)' : 
+             'var(--success)');
+        
+        contentBlock.innerHTML = `
+            <div style="background: #e6f7ff; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px;">
                 <h4 style="margin-top: 0; color: var(--primary);">🤖 AI Analysis Result</h4>
-                <p><strong>Severity:</strong> <span style="font-weight: 700; color: ${result.severity > 7 ? 'var(--danger)' : result.severity > 4 ? 'var(--warning)' : 'var(--success)'}">${result.severity || 'N/A'}</span></p>
+                <p><strong>Severity:</strong> <span style="font-weight: 700; color: ${severityColor}">${result.severity || 'N/A'}</span></p>
                 <p><strong>Type:</strong> ${result.incidentType || 'N/A'}</p>
                 <p style="white-space: pre-wrap;"><strong>Summary:</strong> ${result.summary || 'No summary provided.'}</p>
             </div>
-            ${originalContent}
+            <h4>Original Content/Details</h4>
+            <div style="white-space: pre-wrap; font-size: 0.9em;">${originalContent}</div>
         `;
         
     } catch (error) {
         // 4. Handle Errors
-        analysisBlock.innerHTML = `
-            <div style="background: #fde7e7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--danger);">
+        contentBlock.innerHTML = `
+            <div style="background: #fde7e7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--danger); margin-bottom: 20px;">
                 <h4 style="margin-top: 0; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Analysis Error</h4>
                 <p>Could not reach AI service or received an invalid response.</p>
-                <p style="font-size: 0.8em;">${error.message}</p>
+                <p style="font-size: 0.8em; white-space: pre-wrap;">Details: ${error.message}</p>
             </div>
-            ${originalContent}
+            <h4>Original Content/Details</h4>
+            <div style="white-space: pre-wrap; font-size: 0.9em;">${originalContent}</div>
         `;
         console.error("AI Analysis Error:", error);
     } finally {
         // 5. Reset Button State
+        // Use the passed button element
         analyzeBtn.disabled = false;
         analyzeBtn.innerHTML = `<i class="fas fa-brain"></i> AI Analyze`;
     }
 }
 
+const verifyItem = (id) => performAction(id, 'verify');
+const approveItem = (id) => performAction(id, 'approve');
+const deleteItem = (id) => performAction(id, 'delete', 'DELETE');
+
 /***********************
-    VERIFY (works for news + reports)
+    ACTION HANDLERS (Verify, Approve, Delete)
 ************************/
-async function verifyItem(id){
-    const endpoint = currentMode === "news"
-        ? `/api/news/verify/${id}`
-        : `/api/reports/verify/${id}`;
+async function performAction(id, action, method = 'PUT', successMessage) {
+    const modeEndpoint = currentMode === "news" ? "news" : "reports";
+    const endpoint = `/api/${modeEndpoint}/${action === 'delete' ? '' : action}/${id}`;
+    
+    try {
+        if (action === 'delete' && !confirm("Are you sure you want to permanently delete this item?")) return;
 
-    const res = await fetch(endpoint, { method:"PUT" });
-    const data = await res.json();
+        const res = await fetch(`${BASE_URL}${endpoint}`, { method: method });
+        const data = await res.json();
 
-    if(!data.success) return alert("Verification failed");
+        if (!data.success) throw new Error(`${action} failed.`);
 
-    // Update panel
-    el("panelVerifiedBadge").className="badge verified";
-    el("panelVerifiedBadge").innerText="VERIFIED";
-    document.querySelector(".btn-verify").style.display="none";
+        if (action === 'verify') {
+            el("panelVerifiedBadge").className = "badge verified";
+            el("panelVerifiedBadge").innerText = "VERIFIED";
+            // Use querySelector from panel to be safer, but global is fine here since panel is open
+            document.querySelector(".btn-verify").style.display = "none"; 
+        } else if (action === 'approve') {
+            el("panelApprovedBadge").style.display = "inline-block";
+            el("panelApprovedBadge").className = "badge approved";
+            el("panelApprovedBadge").innerText = "APPROVED";
+            document.querySelector(".btn-approve").style.display = "none";
+        } else if (action === 'delete') {
+            el("sidePanel").classList.remove("open");
+            document.querySelector(`[data-id="${id}"]`)?.remove();
+        }
 
-    // Update card in the grid
-    const cardBadgeRow = document.querySelector(`[data-id="${id}"] .badge-row`);
-    if(cardBadgeRow){
-        cardBadgeRow.innerHTML = `<span class="badge verified">VERIFIED</span> ${document.querySelector(`[data-id="${id}"] .approved`)?.outerHTML || ''}`;
+        // Re-render item card to update badges in the grid
+        loadItems();
+    } catch (error) {
+        alert(error.message);
+        console.error(`Error during ${action}:`, error);
     }
 }
 
-/***********************
-    APPROVE (works for news + reports)
-************************/
-async function approveItem(id){
-    const endpoint = currentMode === "news"
-        ? `/api/news/approve/${id}`
-        : `/api/reports/approve/${id}`;
-
-    const res = await fetch(endpoint, { method:"PUT" });
-    const data = await res.json();
-
-    if(!data.success) return alert("Approve failed");
-
-    // Update panel
-    el("panelApprovedBadge").style.display="inline-block";
-    el("panelApprovedBadge").className="badge approved";
-    el("panelApprovedBadge").innerText="APPROVED";
-    document.querySelector(".btn-approve").style.display="none";
-
-    // Update card in the grid
-    const cardBadgeRow = document.querySelector(`[data-id="${id}"] .badge-row`);
-    if(cardBadgeRow){
-        const verifiedBadge = document.querySelector(`[data-id="${id}"] .verified`)?.outerHTML || `<span class="badge unverified">NOT VERIFIED</span>`;
-        cardBadgeRow.innerHTML = `${verifiedBadge} <span class="badge approved">APPROVED</span>`;
-    }
-}
-
-/***********************
-    DELETE (works for news + reports)
-************************/
-async function deleteItem(id){
-    if(!confirm("Are you sure you want to permanently delete this item?")) return;
-
-    const endpoint = currentMode === "news"
-        ? `/api/news/${id}`
-        : `/api/reports/${id}`;
-
-    await fetch(endpoint, { method:"DELETE" });
-
-    document.querySelector(`[data-id="${id}"]`)?.remove();
-    el("sidePanel").classList.remove("open");
-}
 
 /***********************
     LOAD ITEMS (NEWS + REPORTS)
 ************************/
 async function loadItems(){
     const statusEl = el("status");
-    statusEl.style.display="flex"; // Show loading status
+    statusEl.style.display="flex";
 
     const search = el("search").value.toLowerCase();
     const category = el("categoryFilter").value;
@@ -734,7 +753,7 @@ async function loadItems(){
     }
 
     try {
-        const res = await fetch(url);
+        const res = await fetch(`${BASE_URL}${url}`);
         const data = await res.json();
 
         renderItems(data.items);
@@ -744,9 +763,10 @@ async function loadItems(){
         el("newsGrid").innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--danger);padding:30px;">
             <i class="fas fa-exclamation-triangle"></i> Failed to load data from the server.
         </div>`;
+        renderPagination(0);
     }
 
-    statusEl.style.display="none"; // Hide loading status
+    statusEl.style.display="none";
 }
 
 /***********************
@@ -777,13 +797,14 @@ function renderItems(items){
             : "";
 
         const title = n.title || n.incidentType || "Untitled Incident";
-        const desc  = n.description || n.summary || n.details || "No description provided.";
+        const desc = n.description || n.summary || n.details || "No description provided.";
+        const displayDesc = desc.length > 120 ? desc.slice(0, 117) + '...' : desc;
 
         card.innerHTML = `
             <div class="badge-row">${verified}${approved}</div>
             <h3 class="news-title">${title}</h3>
-            <p class="news-desc">${desc.slice(0,120)}...</p>
-            <div style="font-size: 0.8rem; color: #aaa;">${new Date(n.createdAt).toLocaleDateString()}</div>
+            <p class="news-desc">${displayDesc}</p>
+            <div style="font-size: 0.8rem; color: var(--muted); margin-top: auto;">${new Date(n.createdAt).toLocaleDateString()}</div>
         `;
 
         card.onclick = () => openPanel(n);
@@ -818,7 +839,7 @@ function renderPagination(total){
 }
 
 /***********************
-    EVENTS
+    EVENTS & INIT
 ************************/
 el("search").addEventListener("input", () => {
     currentPage = 1;
@@ -832,11 +853,8 @@ el("categoryFilter").addEventListener("change", () => {
 
 el("refreshBtn").onclick = loadItems;
 
-/***********************
-    INIT
-************************/
-loadCategories();
-loadItems();
+// Initial Setup
+setMode("news"); // Start in 'news' mode
 </script>
 
 </body>
