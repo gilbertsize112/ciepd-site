@@ -21,7 +21,7 @@
         --muted: #6b7280;
         --danger: #e63946;
         --success: #06d6a0;
-        --warning: #ffb703;
+        --warning: #ffb703; /* Used for Escalate Button */
         --card: #ffffff;
         --bg-light: #f8feff;
         --radius: 12px;
@@ -418,14 +418,35 @@
         border-top: 1px dashed var(--border-light);
         transition: border-top 0.3s;
     }
-
+    
+    /* Panel Action Button Styles (updated with btn-escalate) */
     .btn-verify{ background:var(--success); color:white; }
     .btn-approve{ background:var(--primary); color:white; }
     .btn-analyze{ background:var(--accent); color:white; } /* New color for Analyze */
     .btn-delete{ background:var(--danger); color:white; }
 
+    /* ⭐ NEW ESCALATE BUTTON STYLE ⭐ */
+    .btn-escalate{ 
+        background: var(--warning); 
+        color: var(--accent); /* Dark text for high contrast on warning background */
+        font-weight: 800;
+        box-shadow: 0 4px 10px rgba(255, 183, 3, 0.4);
+        animation: pulse-escalate 1.5s infinite; /* Added a subtle animation */
+    }
+    .btn-escalate:hover {
+        background: #e6a800; /* Slightly darker on hover */
+        animation: none;
+    }
+    @keyframes pulse-escalate {
+        0% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0.6); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 183, 3, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0); }
+    }
+    /* ⭐ END NEW ESCALATE BUTTON STYLE ⭐ */
+
+
     /* ---------------------------------------------------- */
-    /* 9. MEDIA QUERIES FOR MOBILE RESPONSIVENESS (NEW) */
+    /* 9. MEDIA QUERIES FOR MOBILE RESPONSIVENESS (EXISTING) */
     /* ---------------------------------------------------- */
 
     @media (max-width: 1200px) {
@@ -573,6 +594,7 @@
     <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
     <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
     <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
+    <a href="urgent-queue.html" class="special-btn" style="background: var(--danger);"><i class="fas fa-fire"></i> Urgent Queue</a>
     <a href="admin-map.html" class="special-btn"><i class="fas fa-map-marked-alt"></i> Big Map</a>
 </nav>
 
@@ -799,8 +821,11 @@ function openPanel(n){
     const escapedTitle = escapeHtmlAttribute(n.title || n.incidentType);
     const escapedContent = escapeHtmlAttribute(n.content || n.details);
 
-    /* Action Buttons */
+    /* Action Buttons (Updated to include Escalate) */
     el("panelButtons").innerHTML = `
+        <button class="btn btn-escalate"
+            onclick="escalateItem('${escapedId}')"><i class="fas fa-exclamation-triangle"></i> Escalate</button>
+
         <button class="btn btn-verify" style="display:${n.verified?'none':''}"
             onclick="verifyItem('${escapedId}')"><i class="fas fa-check"></i> Verify</button>
 
@@ -893,19 +918,31 @@ async function analyzeItem(analyzeBtn, id, title, content) {
     }
 }
 
+
+// ----------------------------------------------------
+// ⭐ NEW ESCALATE ACTION HANDLER ⭐
+// ----------------------------------------------------
+const escalateItem = (id) => performAction(id, 'escalate', 'PUT', 'Item successfully escalated to the Urgent queue!');
+
 const verifyItem = (id) => performAction(id, 'verify');
 const approveItem = (id) => performAction(id, 'approve');
 const deleteItem = (id) => performAction(id, 'delete', 'DELETE');
 
+
 /***********************
-    ACTION HANDLERS (Verify, Approve, Delete)
+    ACTION HANDLERS (Verify, Approve, Delete, Escalate)
 ************************/
 async function performAction(id, action, method = 'PUT', successMessage) {
     const modeEndpoint = currentMode === "news" ? "news" : "reports";
-    const endpoint = `/api/${modeEndpoint}/${action === 'delete' ? '' : action}/${id}`;
+    // For general actions, the path is /action/:id. For delete, it's just /:id
+    const endpoint = action === 'delete' 
+        ? `/api/${modeEndpoint}/${id}`
+        : `/api/${modeEndpoint}/${action}/${id}`;
 
     try {
         if (action === 'delete' && !confirm("Are you sure you want to permanently delete this item?")) return;
+        
+        // This is where the prompt code was. It is now gone.
 
         const res = await fetch(`${BASE_URL}${endpoint}`, { method: method });
         const data = await res.json();
@@ -915,7 +952,6 @@ async function performAction(id, action, method = 'PUT', successMessage) {
         if (action === 'verify') {
             el("panelVerifiedBadge").className = "badge verified";
             el("panelVerifiedBadge").innerText = "VERIFIED";
-            // Use querySelector from panel to be safer, but global is fine here since panel is open
             document.querySelector(".btn-verify").style.display = "none";
         } else if (action === 'approve') {
             el("panelApprovedBadge").style.display = "inline-block";
@@ -926,8 +962,13 @@ async function performAction(id, action, method = 'PUT', successMessage) {
             el("sidePanel").classList.remove("open");
             document.querySelector(`[data-id="${id}"]`)?.remove();
         }
+        
+        // Alert on success for critical actions like escalation
+        if (successMessage && action === 'escalate') {
+            alert(successMessage);
+        }
 
-        // Re-render item card to update badges in the grid
+        // Re-render item card to update badges/status in the grid (important for escalation too)
         loadItems();
     } catch (error) {
         alert(error.message);
@@ -989,6 +1030,11 @@ function renderItems(items){
         const card = document.createElement("div");
         card.className = "news-card";
         card.setAttribute("data-id", n._id);
+        
+        // Optional: Add a visual cue to the card if it is escalated 
+        // if(n.status === 'Escalated') {
+        //     card.style.borderLeft = '5px solid var(--warning)';
+        // }
 
         const verified = n.verified
             ? `<span class="badge verified">VERIFIED</span>`
@@ -997,6 +1043,10 @@ function renderItems(items){
         const approved = n.approved
             ? `<span class="badge approved">APPROVED</span>`
             : "";
+            
+        // You could add an "Escalated" badge here too if your backend returns the status
+        // const escalated = n.status === 'Escalated' ? `<span class="badge" style="background:var(--warning); color:var(--accent);">URGENT</span>` : '';
+
 
         const title = n.title || n.incidentType || "Untitled Incident";
         const desc = n.description || n.summary || n.details || "No description provided.";

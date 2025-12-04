@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Urgent Queue - CIEPD Admin</title>
+    
+    <style>
+        /* --- GLOBAL STYLES --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            background-color: #007bff; /* Primary Blue */
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            margin-left: 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        nav a:hover {
+            background-color: #0056b3;
+        }
+        nav a.active {
+            background-color: #0056b3;
+            font-weight: bold;
+        }
+        #logout-btn {
+            background-color: #dc3545; /* Danger Red */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 20px;
+            transition: background-color 0.2s;
+        }
+        #logout-btn:hover {
+            background-color: #c82333;
+        }
+        
+        /* --- MAIN CONTENT & CONTAINER --- */
+        .container {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 30px;
+        }
+        h2 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        /* --- TABLE STYLES --- */
+        #urgent-news-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 30px;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners work */
+        }
+        #urgent-news-table th, #urgent-news-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        #urgent-news-table th {
+            background-color: #e9ecef;
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        #urgent-news-list tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        /* Status Tag */
+        .status-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .status-escalated {
+            background-color: #28a745; /* Success Green */
+            color: white;
+        }
+
+        /* Action Link */
+        #urgent-news-list a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        #urgent-news-list a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Loading/Empty Message */
+        #loading-message {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CIEPD Admin Dashboard</h1>
+        <nav>
+            <a href="admin.html">All News & Reports</a>
+            <a href="urgent-queue.html" class="active">Urgent Queue</a> 
+            <button id="logout-btn">Logout</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>🔥 Urgent Escalated Items</h2>
+        <p>This queue shows all news items that have been **approved** and **verified** (escalated to the urgent status).</p>
+        
+        <table id="urgent-news-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Categories</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="urgent-news-list">
+                </tbody>
+        </table>
+        
+        <p id="loading-message">Loading urgent items...</p>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urgentNewsList = document.getElementById('urgent-news-list');
+            const loadingMessage = document.getElementById('loading-message');
+
+            function createNewsRow(item) {
+                const row = document.createElement('tr');
+                const itemId = item._id || item.id; 
+                const categories = Array.isArray(item.categories) ? item.categories.join(', ') : 'N/A';
+                
+                // Use the new class for styling the status tag
+                const statusHtml = '<span class="status-tag status-escalated">ESCALATED</span>';
+
+                row.innerHTML = `
+                    <td>${item.title.substring(0, 70)}${item.title.length > 70 ? '...' : ''}</td>
+                    <td>${item.location}</td>
+                    <td>${categories}</td>
+                    <td>${new Date(item.createdAt).toLocaleDateString()}</td>
+                    <td>${statusHtml}</td>
+                    <td>
+                        <a href="news-details.html?id=${itemId}" target="_blank">View Details</a>
+                    </td>
+                `;
+                return row;
+            }
+
+            function fetchUrgentNews() {
+                fetch('/api/news')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server returned an error status.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        loadingMessage.style.display = 'none';
+
+                        // 1. FILTER: Select items that meet the 'Escalated' criteria
+                        const urgentItems = data.items.filter(
+                            item => item.approved === true && item.verified === true
+                        );
+                        
+                        urgentNewsList.innerHTML = '';
+                        
+                        if (urgentItems.length === 0) {
+                            // Display a cleaner message when the queue is empty
+                            urgentNewsList.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #6c757d;">🥳 The Urgent Queue is clear! All critical items have been handled.</td></tr>';
+                            return;
+                        }
+
+                        // 2. RENDER: Display the filtered items
+                        urgentItems.forEach(item => {
+                            const row = createNewsRow(item);
+                            urgentNewsList.appendChild(row);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading urgent news:', error);
+                        loadingMessage.textContent = '❌ Error loading data. Please check the network and server status.';
+                        loadingMessage.style.color = '#dc3545'; /* Red error color */
+                    });
+            }
+
+            // --- Authentication and Initialization ---
+            
+            // NOTE: Add your authentication check here (e.g., check session cookie or token)
+            // Example:
+            /*
+            if (!localStorage.getItem('userToken')) {
+                window.location.href = 'login.html'; 
+                return;
+            }
+            */
+
+            fetchUrgentNews();
+        });
+    </script>
+</body>
+</html>
