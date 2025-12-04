@@ -2,56 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CIEPD Conflict/Peace Watch Center</title>
-    <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIEPD Get Alerts – Real-Time Safety Notifications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
+        /* ---------------------------------------------------- */
+        /* 1. PROFESSIONAL COLOR PALETTE & GLOBAL RESET */
+        /* ---------------------------------------------------- */
+        :root {
+            --primary: #0066cc; /* Deep Blue - Strong Primary */
+            --secondary: #00aaff; /* Light Blue - Accent */
+            --bg-light: #f5f7fa;
+            --bg-card: #ffffff;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e0e4e8;
+            --radius: 10px;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Basic Reset */
+        * { box-sizing: border-box; }
         body { 
-            margin:0; 
-            font-family: 'PT Sans Narrow', sans-serif; 
-            background-color: #e9f4ff; 
-            color: #333; 
+            margin: 0; 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: var(--bg-light); 
+            color: var(--text-dark); 
+            line-height: 1.6;
         }
 
         a { 
             text-decoration: none; 
-            color: #007acc; 
+            color: var(--primary); 
+            transition: color 0.2s;
         }
-
         a:hover { 
+            color: var(--secondary); 
             text-decoration: underline; 
         }
 
-        /* HEADER */
+        /* ---------------------------------------------------- */
+        /* 2. HEADER AND NAVIGATION */
+        /* ---------------------------------------------------- */
         #header {
-            background: linear-gradient(to right, #007acc, #005f99);
-            padding: 35px 20px;
+            background: var(--primary);
+            padding: 25px 20px;
             text-align: center;
             color: white;
-            border-bottom: 4px solid #003f66;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
 
         #header h1 {
-            font-size: 2.6em;
-            margin: 0;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-size: 2.2em;
+            margin: 0 0 5px 0;
+            font-weight: 800;
         }
 
         #header span {
-            font-size: 1.2em;
+            font-size: 0.95em;
             opacity: 0.9;
-            font-weight: bold;
         }
 
-        /* NAVIGATION */
         #nav {
-            background-color: #ffffff;
-            border-bottom: 2px solid #007acc;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            padding: 0;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
 
         #nav ul {
@@ -63,64 +80,163 @@
         }
 
         #nav li {
-            margin: 0 10px;
+            margin: 0;
         }
 
         #nav a {
-            color: #007acc;
-            font-weight: bold;
-            padding: 15px 14px;
-            display: block;
-            font-size: 1.1em;
-            transition: 0.3s;
-            border-radius: 5px;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+            transition: background-color 0.2s, color 0.2s;
         }
 
         #nav a:hover {
-            background-color: #e6f2ff;
+            background-color: var(--bg-light);
+            text-decoration: none;
         }
 
         #nav a.active {
-            background-color: #007acc;
-            color: white;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            background-color: var(--bg-light);
+        }
+        
+        /* ---------------------------------------------------- */
+        /* 3. MAIN CONTAINER & LAYOUT */
+        /* ---------------------------------------------------- */
+        .container { 
+            max-width: 1200px; /* Wider container for better professional look */
+            margin: 40px auto; 
+            padding: 0 20px;
         }
 
-        /* MAIN CONTAINER */
-        .container { 
-            max-width: 1000px; 
-            margin: 40px auto; 
-            background: white; 
-            padding: 35px; 
-            border-radius: 12px; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15); 
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Alerts form on left, Map/Reports on right */
+            gap: 30px;
         }
 
         h2 { 
-            color: #005f99; 
-            margin-bottom: 15px; 
-            font-size: 1.7em; 
+            color: var(--primary); 
+            margin-bottom: 20px; 
+            font-size: 1.8em; 
+            font-weight: 700;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
         }
-
-        p {
+        
+        .section-intro {
             font-size: 1.1em;
+            color: var(--text-muted);
+            margin-bottom: 25px;
         }
 
-        /* MAP */
+        /* ---------------------------------------------------- */
+        /* 4. ALERT SUBSCRIPTION FORM (Left Column) */
+        /* ---------------------------------------------------- */
+        .alert-box {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border-top: 5px solid var(--secondary); /* Highlight the form */
+        }
+
+        .alert-box h3 {
+            margin-top: 0;
+            color: var(--text-dark);
+            font-size: 1.6em;
+            font-weight: 700;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .alert-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .alert-box input, 
+        .alert-box select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            background: #ffffff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .alert-box input:focus, 
+        .alert-box select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+        }
+
+        .alert-btn {
+            margin-top: 25px;
+            background-color: var(--secondary);
+            color: white;
+            padding: 15px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            width: 100%;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .alert-btn:hover {
+            background-color: #0099e6;
+            box-shadow: var(--shadow);
+        }
+
+        /* ---------------------------------------------------- */
+        /* 5. MAP AND REPORTS (Right Column) */
+        /* ---------------------------------------------------- */
         .map-wrapper { 
-            height: 420px; 
+            height: 350px; 
             margin-bottom: 25px; 
-            border: 3px solid #007acc; 
-            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius); 
             overflow: hidden; 
+            box-shadow: var(--shadow);
         }
 
-        /* REPORT LIST */
-        .report-list { 
-            margin-top: 35px; 
+        .map-wrapper img {
+             width:100%; 
+             height:100%; 
+             object-fit: cover;
+             display: block;
+        }
+
+        .report-list-container {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
         .report-item { 
-            border-bottom: 1px solid #ccc; 
+            border-bottom: 1px dashed var(--border-color); 
             padding: 15px 0; 
         }
 
@@ -129,9 +245,22 @@
         }
 
         .report-title { 
-            font-weight: bold; 
-            color: #005f99; 
-            font-size: 1.2em; 
+            font-weight: 700; 
+            color: var(--primary); 
+            font-size: 1.1em; 
+            margin-bottom: 5px;
+        }
+        
+        .report-content {
+            font-size: 0.95em;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .report-date {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            font-style: italic;
         }
 
         /* PAGINATION */
@@ -139,184 +268,159 @@
             display: flex;
             justify-content: center;
             margin-top: 25px;
-            gap: 20px;
+            gap: 15px;
         }
 
         .pagination button {
-            padding: 12px 22px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
-            background: #007acc;
+            background: var(--primary);
             color: white;
-            font-size: 1.1em;
+            font-size: 1em;
+            font-weight: 600;
             transition: 0.3s;
         }
 
-        .pagination button:hover {
+        .pagination button:hover:not(:disabled) {
             background: #005f99;
         }
 
         .pagination button:disabled {
             background: #cccccc;
             cursor: not-allowed;
-        }
-
-        /* ALERT SUBSCRIPTION FORM */
-        .alert-box {
-            padding: 25px;
-            border: 2px solid #007acc;
-            border-radius: 12px;
-            margin-bottom: 35px;
-            background: #f4faff;
-        }
-
-        .alert-box h3 {
-            margin-top: 0;
-            color: #005f99;
-            font-size: 1.5em;
-        }
-
-        .alert-box label {
-            display: block;
-            margin-top: 12px;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #004c75;
-        }
-
-        .alert-box input, 
-        .alert-box select {
-            width: 100%;
-            padding: 12px;
-            margin-top: 6px;
-            border-radius: 8px;
-            border: 1px solid #007acc;
-            font-size: 1em;
-            background: #ffffff;
-        }
-
-        .alert-btn {
-            margin-top: 18px;
-            background-color: #007acc;
-            color: white;
-            padding: 14px 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2em;
-            font-weight: bold;
-            width: 100%;
-            transition: 0.3s;
-        }
-
-        .alert-btn:hover {
-            background-color: #005f99;
+            color: #7f8c8d;
         }
 
         /* FOOTER */
         footer { 
             text-align: center; 
-            padding: 25px; 
-            font-size: 1em; 
-            color: #444; 
+            padding: 30px; 
+            font-size: 0.9em; 
+            color: var(--text-muted); 
             margin-top: 40px; 
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-card);
         }
 
-        footer a { color: #007acc; }
+        /* Responsive Adjustments */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+            }
+            .container {
+                margin: 20px auto;
+            }
+            #nav ul {
+                flex-wrap: wrap;
+            }
+            #nav a {
+                padding: 12px 10px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
     <div id="header">
-        <h1>CIEPD Conflict/Peace Watch Center</h1>
-        <span>Send Reports via SMS/Whatsapp: <strong>09056454523</strong></span>
+        <h1>CIEPD Watch Center</h1>
+        <span>Submit Reports via: <strong>09056454523</strong> | <i class="fab fa-whatsapp"></i> WhatsApp/SMS</span>
     </div>
 
-    <!-- NAVIGATION -->
     <nav id="nav">
         <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="reports.html">Reports</a></li>
-            <li><a href="submit.html">Submit a Report</a></li>
-            <li><a href="get_alert.html" class="active">Get Alerts</a></li>
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="admin-map.html">Big Map</a></li>
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
+            <li><a href="submit.html"><i class="fas fa-plus-circle"></i> Submit Report</a></li>
+            <li><a href="get_alert.html" class="active"><i class="fas fa-bell"></i> Get Alerts</a></li>
+            <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+            <li><a href="admin-map.html"><i class="fas fa-map-marked-alt"></i> Big Map</a></li>
         </ul>
     </nav>
 
-    <!-- MAIN CONTENT -->
     <div class="container">
+        <h2 style="text-align: center;"><i class="fas fa-bell"></i> Real-Time Alert Subscription</h2>
+        <p class="section-intro" style="text-align: center;">Get instant notifications about conflict and peace events in your locality. Your safety is our priority. You will receive alerts when a report is submitted within a 20km radius of your chosen location.</p>
 
-        <h2>Get Alerts</h2>
-        <p>Select your location or set a point on the map. You will receive notifications when a report is submitted within a 20km radius.</p>
+        <div class="main-grid">
+            <div class="alert-box">
+                <h3><i class="fas fa-cogs"></i> Setup Your Alert Profile</h3>
+                
+                <form id="alertForm">
+                    <div class="form-group">
+                        <label for="alertPhone"><i class="fas fa-phone"></i> Your Phone Number (SMS / WhatsApp)</label>
+                        <input id="alertPhone" type="text" placeholder="e.g. 09012345678" required>
+                    </div>
 
-        <!-- ALERT FORM -->
-        <div class="alert-box">
-            <h3>Subscribe for Alerts</h3>
+                    <div class="form-group">
+                        <label for="alertEmail"><i class="fas fa-at"></i> Your Email (Optional for Email Alerts)</label>
+                        <input id="alertEmail" type="email" placeholder="example@mail.com">
+                    </div>
 
-            <label>Your Phone Number (SMS / WhatsApp)</label>
-            <input id="alertPhone" type="text" placeholder="e.g. 09012345678">
+                    <div class="form-group">
+                        <label for="alertLocation"><i class="fas fa-map-marker-alt"></i> Select Your Location (State/LGA)</label>
+                        <select id="alertLocation" required>
+                            <option value="">-- Select Location --</option>
+                            <option>Rivers State</option>
+                            <option>Akwaibom State</option>
+                            <option>Edo State</option>
+                            <option>Bayelsa State</option>
+                            <option>Imo State</option>
+                            <option>Ondo State</option>
+                            <option>Delta State</option>
+                            <option>Cross Rivers State</option>
+                            <option>Abia State</option>
+                        </select>
+                    </div>
 
-            <label>Your Email (Optional)</label>
-            <input id="alertEmail" type="email" placeholder="example@mail.com">
+                    <div class="form-group">
+                        <label for="alertMethod"><i class="fas fa-inbox"></i> Preferred Alert Method</label>
+                        <select id="alertMethod">
+                            <option>WhatsApp</option>
+                            <option>SMS</option>
+                            <option>Email</option>
+                        </select>
+                    </div>
 
-            <label>Select Your Location (City/LGA)</label>
-            <select id="alertLocation">
-                <option value="">-- Select Location --</option>
-                <option>Rivers State</option>
-                <option>Akwaibom State</option>
-                <option>Edo State</option>
-                <option>Bayelsa State</option>
-                <option>Imo State</option>
-                <option>Ondo State</option>
-                <option>Delta State</option>
-                <option>Cross Rivers State</option>
-                <option>Abia State</option>
-            </select>
+                    <button type="submit" class="alert-btn"><i class="fas fa-paper-plane"></i> Subscribe Now</button>
+                    <p id="subscriptionMessage" style="margin-top: 15px; text-align: center; font-weight: 600;"></p>
+                </form>
+            </div>
+            
+            <div>
+                <h2><i class="fas fa-globe-africa"></i> Alert Zone Visualizer</h2>
+                <div class="map-wrapper" id="divMap">
+                    <img src="Nigerdelta.jpg" alt="Map of the Niger Delta Region">
+                </div>
+                <p style="text-align: center; font-size: 0.9em; color: var(--text-muted);">The map visually represents the 20km radius alert zone you selected.</p>
 
-            <label>Preferred Alert Method</label>
-            <select id="alertMethod">
-                <option>WhatsApp</option>
-                <option>SMS</option>
-                <option>Email</option>
-            </select>
+                <div class="report-list-container" style="margin-top: 30px;">
+                    <h2><i class="fas fa-clipboard-list"></i> Latest Field Reports</h2>
+                    <div class="report-list" id="reportList">
+                        <p>Loading reports...</p>
+                    </div>
 
-            <button class="alert-btn" onclick="subscribeAlert()">Subscribe for Alerts</button>
+                    <div class="pagination">
+                        <button id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+                        <button id="nextBtn" onclick="nextPage()" disabled>Next</button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- MAP -->
-        <div class="map-wrapper" id="divMap">
-            <img src="Nigerdelta.jpg" alt="" style="width:100%; height:100%; object-fit: cover;">
-        </div>
-
-        <!-- REPORT LIST -->
-        <div class="report-list" id="reportList">
-            <h2>Latest Reports</h2>
-            <p>Loading reports...</p>
-        </div>
-
-        <!-- PAGINATION BUTTONS -->
-        <div class="pagination">
-            <button id="prevBtn" onclick="prevPage()" disabled>Previous</button>
-            <button id="nextBtn" onclick="nextPage()" disabled>Next</button>
-        </div>
-
     </div>
 
-    <!-- FOOTER -->
-    <footer>
-        Powered by <a href="http://www.ushahidi.com/">SammyTech</a> Platform. All rights reserved.
+    <footer> 
+        &copy; 2025 CIEPD Conflict/Peace Watch Center. Powered by <a href="http://www.ushahidi.com/">SammyTech</a> Platform.
     </footer>
 
-    <!-- FETCH + ALERT SCRIPT -->
     <script>
+        const el = (id) => document.getElementById(id);
 
         /* ------------- REPORT PAGINATION SETTINGS ------------- */
         let currentPage = 1;
-        const pageSize = 20;
+        const pageSize = 5; // Reduced page size for a cleaner look
         let allReports = [];
 
         /* ---------------- FETCH LATEST REPORTS ---------------- */
@@ -325,19 +429,21 @@
                 const response = await fetch('http://localhost:3000/get-news');
                 const reports = await response.json();
 
-                allReports = reports;
+                // Sort reports by date (most recent first)
+                allReports = reports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 renderPage();
 
             } catch (err) {
-                document.getElementById('reportList').innerHTML = '<p>No reports available.</p>';
+                el('reportList').innerHTML = '<p style="color: red; text-align: center;">Could not load reports. Please check the backend server.</p>';
             }
         }
 
         function renderPage() {
-            const container = document.getElementById('reportList');
+            const container = el('reportList');
+            const messageEl = el('subscriptionMessage');
 
             if (allReports.length === 0) {
-                container.innerHTML = "<p>No reports available.</p>";
+                container.innerHTML = "<p>No reports available at this time.</p>";
                 return;
             }
 
@@ -345,19 +451,19 @@
             const end = start + pageSize;
             const pageItems = allReports.slice(start, end);
 
-            container.innerHTML = "<h2>Latest Reports</h2>";
+            container.innerHTML = ""; // Clear existing content
 
             pageItems.forEach(report => {
                 const div = document.createElement('div');
                 div.className = 'report-item';
 
                 div.innerHTML = `
-                    <div class="report-title">${report.title}</div>
-                    <div class="report-content">${report.content}</div>
-                    <div class="report-location"><strong>Location:</strong> ${report.location || 'N/A'}</div>
-                    <div class="report-categories"><strong>Categories:</strong> ${Array.isArray(report.categories) ? report.categories.join(', ') : 'None'}</div>
-                    <div class="report-author"><strong>Submitted by:</strong> ${report.firstName || ''} ${report.lastName || ''} ${report.email ? '(' + report.email + ')' : ''}</div>
-                    <div class="report-date"><strong>Date:</strong> ${new Date(report.createdAt).toLocaleString()}</div>
+                    <div class="report-title">${report.title || 'Untitled Report'}</div>
+                    <div class="report-content">${report.content ? report.content.substring(0, 150) + '...' : 'No summary provided.'}</div>
+                    <div class="report-date">
+                        <i class="fas fa-calendar-alt"></i> ${new Date(report.createdAt).toLocaleString()} 
+                        | <i class="fas fa-map-pin"></i> ${report.location || 'N/A'}
+                    </div>
                 `;
 
                 container.appendChild(div);
@@ -369,36 +475,44 @@
         function updatePaginationButtons() {
             const totalPages = Math.ceil(allReports.length / pageSize);
 
-            document.getElementById("prevBtn").disabled = currentPage === 1;
-            document.getElementById("nextBtn").disabled = currentPage === totalPages;
+            el("prevBtn").disabled = currentPage === 1;
+            el("nextBtn").disabled = currentPage >= totalPages;
         }
 
         function nextPage() {
             currentPage++;
             renderPage();
+            window.scrollTo(0, el('reportList').offsetTop - 50); // Scroll to the list
         }
 
         function prevPage() {
             currentPage--;
             renderPage();
+            window.scrollTo(0, el('reportList').offsetTop - 50); // Scroll to the list
         }
 
-        fetchReports();
-
-
         /* ---------------- ALERT SUBSCRIPTION ---------------- */
-        async function subscribeAlert() {
-            let phone = document.getElementById("alertPhone").value.trim();
-            const email = document.getElementById("alertEmail").value.trim();
-            const location = document.getElementById("alertLocation").value.trim();
-            const method = document.getElementById("alertMethod").value.trim();
+        el('alertForm').addEventListener('submit', subscribeAlert);
+
+        async function subscribeAlert(event) {
+            event.preventDefault();
+            const messageEl = el('subscriptionMessage');
+            
+            let phone = el("alertPhone").value.trim();
+            const email = el("alertEmail").value.trim();
+            const location = el("alertLocation").value.trim();
+            const method = el("alertMethod").value.trim();
 
             if (!phone || !location) {
-                alert("Phone number and location are required.");
+                messageEl.textContent = "Phone number and location are required.";
+                messageEl.style.color = 'red';
                 return;
             }
+            
+            messageEl.textContent = "Subscribing...";
+            messageEl.style.color = 'var(--primary)';
 
-            /* ---- Auto-add +234 for WhatsApp/SMS ---- */
+            /* ---- Auto-add +234 for WhatsApp/SMS (Replaced alert() with in-page messaging) ---- */
             if (!phone.startsWith("+")) {
                 if (phone.startsWith("0")) {
                     phone = "+234" + phone.substring(1);
@@ -406,7 +520,7 @@
                     phone = "+234" + phone;
                 }
             }
-
+            
             try {
                 const response = await fetch("http://localhost:3000/subscribe-alert", {
                     method: "POST",
@@ -417,16 +531,22 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert("✔ Subscription successful! You will now receive alerts.");
+                    messageEl.textContent = `✔ Success! You are subscribed for alerts in ${location} via ${method}.`;
+                    messageEl.style.color = 'green';
+                    document.getElementById("alertForm").reset(); // Clear form on success
                 } else {
-                    alert("Subscription failed: " + data.message);
+                    messageEl.textContent = "Subscription failed: " + (data.message || "Server Error.");
+                    messageEl.style.color = 'red';
                 }
 
             } catch (error) {
-                alert("Network error. Please try again.");
+                messageEl.textContent = "Network error. Please try again later.";
+                messageEl.style.color = 'red';
+                console.error(error);
             }
         }
 
+        fetchReports(); // Initial load
     </script>
 
 </body>

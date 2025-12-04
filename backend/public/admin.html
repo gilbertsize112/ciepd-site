@@ -361,7 +361,8 @@
         transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, box-shadow 0.3s;
         z-index:9999;
     }
-    .side-panel.open{ width:min(700px, 95%); }
+    /* Default desktop width */
+    .side-panel.open{ width:min(700px, 95%); } 
 
     .panel-inner{ padding:30px; }
 
@@ -422,6 +423,128 @@
     .btn-approve{ background:var(--primary); color:white; }
     .btn-analyze{ background:var(--accent); color:white; } /* New color for Analyze */
     .btn-delete{ background:var(--danger); color:white; }
+
+    /* ---------------------------------------------------- */
+    /* 9. MEDIA QUERIES FOR MOBILE RESPONSIVENESS (NEW) */
+    /* ---------------------------------------------------- */
+
+    @media (max-width: 1200px) {
+        /* Adjust news grid to slightly smaller cards on large tablets */
+        .news-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        /* A. HEADER and NAVIGATION */
+        .header {
+            /* Enable wrapping or stacking for smaller screens */
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 15px 20px;
+            gap: 10px;
+        }
+        .header > div { 
+            order: 3; /* Move scroll and dark mode toggle down */
+            width: 100%;
+            justify-content: space-between;
+            display: flex;
+        }
+        .brand {
+            font-size: 20px;
+            order: 1;
+        }
+        .logout-btn {
+            order: 2;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        .scroll-container {
+            width: 70%; /* Give scroll text more room */
+        }
+        .nav-bar {
+            flex-wrap: wrap; /* Allow links to wrap */
+            justify-content: flex-start;
+            gap: 8px;
+            padding: 10px 20px;
+        }
+        .nav-bar a {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        /* B. MAIN CONTENT */
+        .container {
+            padding: 20px;
+            margin: 15px auto;
+        }
+        .top-row {
+            flex-direction: column; /* Stack H1 and view mode buttons */
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .filters {
+            flex-direction: column; /* Stack filters vertically */
+            gap: 10px;
+        }
+        .filters input, .filters select {
+            min-width: 100%; /* Full width for filters */
+        }
+
+        /* C. NEWS GRID */
+        .news-grid {
+            grid-template-columns: 1fr; /* Single column for better readability */
+        }
+
+        /* D. DETAIL PANEL */
+        /* Force side panel to full width on mobile/tablet */
+        .side-panel.open { 
+            width: 100%; 
+        } 
+        .panel-inner { 
+            padding: 20px; 
+        }
+        .panel-title {
+            font-size: 22px;
+        }
+        .panel-actions button {
+            width: 100%; /* Full width buttons for easy tap */
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 500px) {
+        /* Further adjustments for narrow phones */
+        .header > div {
+             /* Stack scroll and dark mode toggle */
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .scroll-container {
+            width: 100%; /* Full width */
+            margin-bottom: 10px;
+        }
+        #darkModeToggle {
+            margin-left: 0;
+            position: absolute; /* Float toggle button top right */
+            top: 15px;
+            right: 15px;
+        }
+        .logout-btn {
+            margin-top: 10px;
+        }
+        .top-row > div {
+            flex-direction: column; /* Stack View News/View Reports buttons */
+            width: 100%;
+        }
+        .top-row > div button {
+             width: 100%;
+             justify-content: center;
+        }
+        #pagination {
+            flex-wrap: wrap; /* Allow pagination to wrap */
+        }
+    }
 </style>
 </head>
 <body>
