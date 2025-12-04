@@ -1,9 +1,7 @@
-HTML
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" /> 
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>CIEPD Admin Dashboard – Manage News/Reports</title>
 
@@ -28,7 +26,19 @@ HTML
         --bg-light: #f8feff;
         --radius: 12px;
         --border-light: #e6eef6;
-        --text-dark: #333; /* Added for consistency */
+        --text-dark: #333;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 1.5. DARK MODE VARIABLES */
+    /* ---------------------------------------------------- */
+    .dark {
+        --accent: #e6f7ff; /* Light text for dark mode */
+        --muted: #a0a8b9;
+        --card: #1f2a37; /* Darker background for cards/panels */
+        --bg-light: #121820; /* Very dark main background */
+        --border-light: #2c3e50;
+        --text-dark: #e6f7ff; /* Text is light */
     }
 
     * { box-sizing: border-box; }
@@ -39,8 +49,9 @@ HTML
         color: var(--accent);
         min-height:100vh;
         line-height: 1.6;
+        transition: background-color 0.3s, color 0.3s; /* Smooth transition for theme change */
     }
-    
+
     /* ---------------------------------------------------- */
     /* 2. HEADER AND NAVIGATION */
     /* ---------------------------------------------------- */
@@ -55,17 +66,37 @@ HTML
         position: sticky;
         top: 0;
         z-index: 1000;
+        transition: background-color 0.3s, border-bottom 0.3s, box-shadow 0.3s;
     }
 
-    .brand { 
-        font-weight:800; 
-        color:var(--primary); 
-        font-size:22px; 
+    .brand {
+        font-weight:800;
+        color:var(--primary);
+        font-size:22px;
         display: flex;
         align-items: center;
         gap: 10px;
     }
     .brand i { color: var(--secondary); }
+
+    /* ⭐ DARK MODE TOGGLE BUTTON STYLES ⭐ */
+    #darkModeToggle {
+        background: var(--primary);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        transition: background 0.2s, transform 0.2s;
+        margin-left: 20px;
+    }
+    #darkModeToggle:hover {
+        background: var(--secondary);
+        transform: rotate(15deg);
+    }
+    /* --------------------------------------- */
 
     .logout-btn{
         background:var(--danger);
@@ -86,6 +117,7 @@ HTML
         padding:12px;
         background: rgba(0, 119, 182, 0.05);
         border-bottom: 1px solid var(--border-light);
+        transition: background-color 0.3s, border-bottom 0.3s;
     }
     .nav-bar a{
         text-decoration:none;
@@ -140,6 +172,7 @@ HTML
         border-radius:var(--radius);
         padding:30px;
         box-shadow: 0 10px 30px rgba(3,37,61,0.08);
+        transition: background-color 0.3s, box-shadow 0.3s;
     }
 
     .top-row{
@@ -149,20 +182,20 @@ HTML
         align-items:center;
         margin-bottom: 20px;
     }
-    h1{ 
-        margin:0; 
-        color:var(--accent); 
-        font-size:24px; 
-        font-weight: 800; 
+    h1{
+        margin:0;
+        color:var(--accent);
+        font-size:24px;
+        font-weight: 800;
     }
 
     /* ---------------------------------------------------- */
     /* 5. FILTERS AND BUTTONS */
     /* ---------------------------------------------------- */
-    .filters{ 
-        display:flex; 
-        gap:15px; 
-        flex-wrap:wrap; 
+    .filters{
+        display:flex;
+        gap:15px;
+        flex-wrap:wrap;
         margin-bottom: 25px;
     }
     .filters input, .filters select{
@@ -171,7 +204,7 @@ HTML
         border:1px solid var(--border-light);
         min-width:250px;
         background:var(--bg-light);
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, background-color 0.3s, color 0.3s;
         font-size: 15px;
         color: var(--text-dark);
     }
@@ -180,13 +213,13 @@ HTML
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
     }
-    
-    .btn{ 
-        padding:12px 18px; 
-        border:none; 
-        border-radius:8px; 
-        cursor:pointer; 
-        font-weight:700; 
+
+    .btn{
+        padding:12px 18px;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+        font-weight:700;
         transition: 0.2s;
         display: flex;
         align-items: center;
@@ -235,7 +268,8 @@ HTML
         margin-top:20px;
     }
     .news-card{
-        background:linear-gradient(180deg,#ffffff,#fcfdff);
+        /* Use card variable for background */
+        background: var(--card);
         padding:20px;
         border-radius:var(--radius);
         border-left:5px solid var(--primary);
@@ -245,27 +279,28 @@ HTML
         display: flex;
         flex-direction: column;
         min-height: 180px; /* Ensure visual consistency */
+        border: 1px solid var(--border-light); /* Added border for definition in dark mode */
     }
-    .news-card:hover{ 
-        transform: translateY(-8px); 
+    .news-card:hover{
+        transform: translateY(-8px);
         box-shadow: 0 12px 30px rgba(3,37,61,0.15);
     }
-    
+
     .badge-row {
         margin-bottom: 10px;
         display: flex;
         gap: 8px;
     }
-    .news-title{ 
-        font-weight:700; 
-        color:var(--accent); 
-        margin:0 0 5px 0; 
-        font-size:18px; 
+    .news-title{
+        font-weight:700;
+        color:var(--accent);
+        margin:0 0 5px 0;
+        font-size:18px;
     }
-    .news-desc{ 
-        color:var(--muted); 
-        margin:0 0 10px 0; 
-        font-size:14px; 
+    .news-desc{
+        color:var(--muted);
+        margin:0 0 10px 0;
+        font-size:14px;
         flex-grow: 1;
     }
 
@@ -323,7 +358,7 @@ HTML
         background:var(--card);
         box-shadow:-10px 0 30px rgba(3,37,61,0.2);
         overflow-y:auto;
-        transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, box-shadow 0.3s;
         z-index:9999;
     }
     .side-panel.open{ width:min(700px, 95%); }
@@ -331,18 +366,18 @@ HTML
     .panel-inner{ padding:30px; }
 
     .panel-header {
-        display:flex; 
-        justify-content:space-between; 
+        display:flex;
+        justify-content:space-between;
         align-items:flex-start;
         border-bottom: 1px solid var(--border-light);
         padding-bottom: 15px;
         margin-bottom: 15px;
     }
-    .panel-title{ 
-        margin:0; 
-        font-size:26px; 
-        font-weight:800; 
-        color:var(--primary); 
+    .panel-title{
+        margin:0;
+        font-size:26px;
+        font-weight:800;
+        color:var(--primary);
     }
     .close-btn{
         background:transparent;
@@ -360,9 +395,11 @@ HTML
         padding: 10px;
         background: var(--bg-light);
         border-radius: 8px;
+        border: 1px solid var(--border-light); /* Added border for dark mode contrast */
         font-size: 14px;
         font-weight: 500;
         color: var(--muted);
+        transition: background-color 0.3s;
     }
     .panel-meta p { margin: 5px 0; display: flex; align-items: center; gap: 8px;}
     .panel-meta i { color: var(--primary); }
@@ -378,6 +415,7 @@ HTML
         margin-top: 20px;
         padding-top: 15px;
         border-top: 1px dashed var(--border-light);
+        transition: border-top 0.3s;
     }
 
     .btn-verify{ background:var(--success); color:white; }
@@ -392,8 +430,13 @@ HTML
     <div class="brand">
         <i class="fas fa-shield-alt"></i> CIEPD Admin
     </div>
-    <div class="scroll-container">
-        <div class="scroll-text">Conflict Watch Center: Stay alert, stay informed.</div>
+    <div style="display: flex; align-items: center;">
+        <div class="scroll-container">
+            <div class="scroll-text">Conflict Watch Center: Stay alert, stay informed.</div>
+        </div>
+        <button id="darkModeToggle" aria-label="Toggle Dark Mode">
+            <i class="fas fa-sun"></i>
+        </button>
     </div>
     <button onclick="window.location.href='login.html'" class="logout-btn">
         <i class="fas fa-sign-out-alt"></i> Logout
@@ -428,14 +471,14 @@ HTML
         <button id="refreshBtn" class="btn">
             <i class="fas fa-sync-alt"></i> Refresh
         </button>
-        
+
         <div id="status" style="display:none">
             <span class="dot"></span><span class="dot"></span><span class="dot"></span>Loading...
         </div>
     </div>
 
     <div id="newsGrid" class="news-grid"></div>
-    
+
     <div id="pagination"></div>
 </main>
 
@@ -457,17 +500,17 @@ HTML
             <span id="panelVerifiedBadge" class="badge" style="display:none"></span>
             <span id="panelApprovedBadge" class="badge" style="display:none"></span>
         </div>
-        
+
         <div class="panel-block">
             <h3 style="margin-top: 0;">Summary/Description</h3>
             <div id="panelShort" class="panel-text" style="font-weight:600; font-style: italic; color: var(--accent);"></div>
         </div>
-        
+
         <div class="panel-block">
             <h3>Full Content/Details</h3>
             <div id="panelContent" class="panel-text" style="white-space: pre-wrap;"></div>
         </div>
-        
+
         <div id="panelButtons" class="panel-actions">
         </div>
 
@@ -490,7 +533,7 @@ function escapeHtmlAttribute(str) {
 }
 // ⭐ END FIX
 
-const BASE_URL = 
+const BASE_URL =
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
         ? "http://localhost:3000"
@@ -499,6 +542,42 @@ const BASE_URL =
 let currentPage = 1;
 const pageSize = 40;
 let currentMode = "news"; // "news" or "reports"
+
+/***********************
+    HELPER: DARK/LIGHT MODE TOGGLE
+************************/
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark');
+    const toggleButton = el('darkModeToggle');
+
+    if (isDark) {
+        localStorage.setItem('theme', 'dark');
+        toggleButton.innerHTML = '<i class="fas fa-moon"></i>'; // Change icon to moon
+    } else {
+        localStorage.setItem('theme', 'light');
+        toggleButton.innerHTML = '<i class="fas fa-sun"></i>'; // Change icon to sun
+    }
+}
+
+// Function to apply the saved theme on load
+function applyTheme() {
+    const savedTheme = localStorage.getItem('theme');
+
+    // Check localStorage first, then check system preference
+    if (savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.body.classList.add('dark');
+        el('darkModeToggle').innerHTML = '<i class="fas fa-moon"></i>';
+    } else {
+        document.body.classList.remove('dark');
+        el('darkModeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+    }
+}
+
+// Attach event listener to the toggle button
+document.addEventListener('DOMContentLoaded', () => {
+    applyTheme(); // Apply theme immediately on load
+    el('darkModeToggle').addEventListener('click', toggleDarkMode);
+});
 
 /***********************
     HELPER: MODE SWITCHING
@@ -521,7 +600,7 @@ function setMode(mode) {
     reportsBtn.classList.toggle('inactive', mode !== 'reports');
     reportsBtn.style.background = mode === 'reports' ? 'var(--primary)' : '';
     reportsBtn.style.color = mode === 'reports' ? 'white' : '';
-    
+
     // Toggle Category Filter
     if (mode === 'news') {
         loadCategories();
@@ -545,7 +624,7 @@ async function loadCategories(){
     try{
         const res = await fetch(`${BASE_URL}/api/news/categories`);
         const data = await res.json();
-        
+
         const filter = el("categoryFilter");
         filter.innerHTML = `<option value="">All Categories</option>`;
         data.forEach(c => {
@@ -560,7 +639,7 @@ async function loadCategories(){
 function openPanel(n){
     // Reset side panel scroll
     el("sidePanel").scrollTop = 0;
-    
+
     // Set content
     el("panelTitle").innerText = n.title || n.incidentType || "Item Details";
     el("panelShort").innerText = n.description || n.summary || "No short description provided.";
@@ -604,9 +683,9 @@ function openPanel(n){
 
         <button class="btn btn-approve" style="display:${n.approved?'none':''}"
             onclick="approveItem('${escapedId}')"><i class="fas fa-thumbs-up"></i> Approve</button>
-        
+
         <button class="btn btn-analyze" onclick="analyzeItem(this, '${escapedId}', '${escapedTitle}', '${escapedContent}')"><i class="fas fa-brain"></i> AI Analyze</button>
-        
+
         <button class="btn btn-delete"
             onclick="deleteItem('${escapedId}')"><i class="fas fa-trash"></i> Delete</button>
     `;
@@ -622,10 +701,10 @@ el("panelBack").onclick = () => el("sidePanel").classList.remove("open");
 async function analyzeItem(analyzeBtn, id, title, content) {
     const contentBlock = el('panelContent');
     // Removed document.querySelector('.btn-analyze'); as the button is now passed.
-    
+
     // Save original content for restoration
     const originalContent = contentBlock.innerText;
-    
+
     // 1. Set Loading State
     contentBlock.innerHTML = `<p style="text-align:center; color: var(--primary); font-weight: 600;">
         <i class="fas fa-spinner fa-spin"></i> Sending to AI for analysis...
@@ -633,18 +712,18 @@ async function analyzeItem(analyzeBtn, id, title, content) {
     // Use the passed button element
     analyzeBtn.disabled = true;
     analyzeBtn.innerHTML = `<i class="fas fa-cog fa-spin"></i> Analyzing...`;
-    
+
     try {
         // 2. Send Request to Backend AI Endpoint
         const response = await fetch(`${BASE_URL}/api/ai/analyze-item`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             // Send necessary data for the AI to analyze
-            body: JSON.stringify({ 
-                itemId: id, 
+            body: JSON.stringify({
+                itemId: id,
                 mode: currentMode,
-                title: title, 
-                content: content 
+                title: title,
+                content: content
             })
         });
 
@@ -653,15 +732,15 @@ async function analyzeItem(analyzeBtn, id, title, content) {
         }
 
         const result = await response.json();
-        
+
         // 3. Display Results
-        const severityColor = 
-            (result.severity > 7 ? 'var(--danger)' : 
-             result.severity > 4 ? 'var(--warning)' : 
+        const severityColor =
+            (result.severity > 7 ? 'var(--danger)' :
+             result.severity > 4 ? 'var(--warning)' :
              'var(--success)');
-        
+
         contentBlock.innerHTML = `
-            <div style="background: #e6f7ff; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px;">
+            <div style="background: var(--bg-light); padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px;">
                 <h4 style="margin-top: 0; color: var(--primary);">🤖 AI Analysis Result</h4>
                 <p><strong>Severity:</strong> <span style="font-weight: 700; color: ${severityColor}">${result.severity || 'N/A'}</span></p>
                 <p><strong>Type:</strong> ${result.incidentType || 'N/A'}</p>
@@ -670,11 +749,11 @@ async function analyzeItem(analyzeBtn, id, title, content) {
             <h4>Original Content/Details</h4>
             <div style="white-space: pre-wrap; font-size: 0.9em;">${originalContent}</div>
         `;
-        
+
     } catch (error) {
         // 4. Handle Errors
         contentBlock.innerHTML = `
-            <div style="background: #fde7e7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--danger); margin-bottom: 20px;">
+            <div style="background: var(--bg-light); padding: 15px; border-radius: 8px; border-left: 5px solid var(--danger); margin-bottom: 20px;">
                 <h4 style="margin-top: 0; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Analysis Error</h4>
                 <p>Could not reach AI service or received an invalid response.</p>
                 <p style="font-size: 0.8em; white-space: pre-wrap;">Details: ${error.message}</p>
@@ -701,7 +780,7 @@ const deleteItem = (id) => performAction(id, 'delete', 'DELETE');
 async function performAction(id, action, method = 'PUT', successMessage) {
     const modeEndpoint = currentMode === "news" ? "news" : "reports";
     const endpoint = `/api/${modeEndpoint}/${action === 'delete' ? '' : action}/${id}`;
-    
+
     try {
         if (action === 'delete' && !confirm("Are you sure you want to permanently delete this item?")) return;
 
@@ -714,7 +793,7 @@ async function performAction(id, action, method = 'PUT', successMessage) {
             el("panelVerifiedBadge").className = "badge verified";
             el("panelVerifiedBadge").innerText = "VERIFIED";
             // Use querySelector from panel to be safer, but global is fine here since panel is open
-            document.querySelector(".btn-verify").style.display = "none"; 
+            document.querySelector(".btn-verify").style.display = "none";
         } else if (action === 'approve') {
             el("panelApprovedBadge").style.display = "inline-block";
             el("panelApprovedBadge").className = "badge approved";
