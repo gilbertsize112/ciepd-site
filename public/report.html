@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIEPD Conflict/Peace Watch Center - Reports</title>
+
+<style>
+    /* GLOBAL STYLING */
+    body {
+        margin: 0;
+        font-family: "Inter", "Segoe UI", sans-serif;
+        background: #eef3ff;
+        overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+        background: linear-gradient(135deg, #0d47a1, #1a237e);
+        color: white;
+        padding: 45px 20px;
+        text-align: center;
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+        border-bottom-left-radius: 25px;
+        border-bottom-right-radius: 25px;
+        animation: fadeDown 0.9s ease-out;
+    }
+
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+        width: 95%;
+        max-width: 1300px;
+        margin: 40px auto;
+    }
+
+    /* STATS SECTION */
+    .stats {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+        animation: fadeUp 1s ease-out;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-box {
+        flex: 1;
+        min-width: 250px;
+        padding: 22px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a237e;
+        transition: 0.25s;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.18);
+    }
+
+    /* FILTERS */
+    .filters {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+        animation: fadeUp 1.2s ease-out;
+    }
+
+    .filters input, .filters select {
+        padding: 16px;
+        border-radius: 12px;
+        border: none;
+        font-size: 16px;
+        width: 100%;
+        max-width: 350px;
+        background: white;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        outline: none;
+        transition: 0.25s;
+    }
+
+    .filters input:focus, .filters select:focus {
+        box-shadow: 0 0 0 3px #1a237e44;
+        transform: scale(1.02);
+    }
+
+    /* REPORT GRID */
+    .report-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        animation: fadeUp 1.4s ease-out;
+    }
+
+    /* CARD */
+    .report-card {
+        background: #ffffff;
+        padding: 22px;
+        border-radius: 20px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+        transition: 0.25s;
+        position: relative;
+        overflow: hidden;
+        animation: fadeUpSmall 0.5s ease;
+    }
+
+    @keyframes fadeUpSmall {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .report-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.18);
+    }
+
+    .report-card::after {
+        content: "";
+        position: absolute;
+        top: -40%;
+        right: -40%;
+        width: 150px;
+        height: 150px;
+        background: #1a237e22;
+        border-radius: 50%;
+        transition: 0.35s;
+    }
+
+    .report-card:hover::after {
+        transform: scale(1.4);
+        background: #0d47a133;
+    }
+
+    .report-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0d47a1;
+        margin-bottom: 10px;
+        display: block;
+        text-decoration: none;
+        transition: 0.2s;
+        line-height: 1.3;
+    }
+
+    .report-title:hover {
+        color: #002171;
+    }
+
+    .report-location {
+        font-size: 16px;
+        color: #424242;
+        margin-bottom: 6px;
+    }
+
+    .report-date {
+        color: #616161;
+        font-size: 15px;
+        margin-bottom: 12px;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 7px 14px;
+        border-radius: 25px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        letter-spacing: 0.3px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .verified { background: #2e7d32; }
+    .unverified { background: #c62828; }
+
+    /* PAGINATION */
+    .pagination {
+        text-align: center;
+        margin-top: 35px;
+        animation: fadeUp 1.6s ease-out;
+    }
+
+    .pagination button {
+        padding: 12px 18px;
+        background: #1a237e;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        margin: 5px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: 0.25s;
+    }
+
+    .pagination button:hover {
+        background: #0d47a1;
+        transform: translateY(-3px);
+    }
+</style>
+</head>
+<body>
+
+<header>CIEPD Conflict/Peace Watch Center - Reports</header>
+
+<div class="container">
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat-box" id="total-count">Total: 0</div>
+        <div class="stat-box" id="verified-count">Verified: 0</div>
+        <div class="stat-box" id="unverified-count">Unverified: 0</div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+        <input id="search-input" type="text" placeholder="🔍 Search reports...">
+        <select id="category-filter">
+            <option value="">All Categories</option>
+        </select>
+    </div>
+
+    <!-- GRID -->
+    <div class="report-grid" id="report-grid"></div>
+
+    <div class="pagination" id="pagination"></div>
+
+</div>
+
+<script>
+let allReports = [];
+let currentPage = 1;
+const perPage = 12;
+
+/* LOAD DATA */
+loadReports();
+setInterval(loadReports, 30000);
+
+/* FETCH REPORTS */
+async function loadReports() {
+    try {
+        const res = await fetch("/api/news?limit=5000&page=1");
+        const data = await res.json();
+
+        if (!data.items) return;
+
+        const seen = new Set();
+        allReports = data.items.filter(r => {
+            const key = r._id || r.id;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+
+        allReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        updateStats(allReports);
+        populateCategoryDropdown(allReports);
+        displayReports();
+
+    } catch (e) {
+        console.error(e);
+        alert("Failed to load reports.");
+    }
+}
+
+/* UPDATE STATS */
+function updateStats(data) {
+    let verified = data.filter(n => n.verified).length;
+    let unverified = data.length - verified;
+
+    document.getElementById("total-count").innerText = "Total: " + data.length;
+    document.getElementById("verified-count").innerText = "Verified: " + verified;
+    document.getElementById("unverified-count").innerText = "Unverified: " + unverified;
+}
+
+/* CATEGORY DROPDOWN */
+function populateCategoryDropdown(data) {
+    const categories = new Set();
+    data.forEach(r => {
+        if (Array.isArray(r.categories)) {
+            r.categories.forEach(c => categories.add(c));
+        }
+    });
+
+    const dropdown = document.getElementById("category-filter");
+    dropdown.innerHTML = `<option value="">All Categories</option>`;
+
+    categories.forEach(c => {
+        dropdown.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+}
+
+/* FILTERING */
+function applyFilters() {
+    const search = document.getElementById("search-input").value.toLowerCase();
+    const category = document.getElementById("category-filter").value;
+
+    return allReports.filter(r => {
+        const titleMatch = r.title?.toLowerCase().includes(search);
+        const descMatch = (r.description || "").toLowerCase().includes(search);
+        const categoryMatch = category === "" || (Array.isArray(r.categories) && r.categories.includes(category));
+        return (titleMatch || descMatch) && categoryMatch;
+    });
+}
+
+/* DISPLAY REPORTS */
+function displayReports() {
+    const grid = document.getElementById("report-grid");
+    grid.innerHTML = "";
+
+    const filtered = applyFilters();
+    const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+    paginated.forEach(report => {
+        const isVerified = report.verified;
+        const id = report._id || report.id;
+
+        grid.innerHTML += `
+            <div class="report-card">
+                <a class="report-title" href="news-details.html?id=${id}">
+                    ${report.title}
+                </a>
+                <div class="report-location">
+                    📍 ${report.location || "Unknown"}
+                </div>
+                <div class="report-date">
+                    📅 ${report.createdAt ? new Date(report.createdAt).toLocaleDateString() : "Unknown"}
+                </div>
+                <div>
+                    <span class="status ${isVerified ? "verified" : "unverified"}">
+                        ${isVerified ? "Verified" : "Unverified"}
+                    </span>
+                </div>
+            </div>
+        `;
+    });
+
+    renderPagination(filtered.length);
+}
+
+/* 🚀 UPDATED PAGINATION (Prev + Page X of Y + Next) */
+function renderPagination(total) {
+    const pages = Math.ceil(total / perPage);
+    const pag = document.getElementById("pagination");
+
+    pag.innerHTML = "";
+
+    if (currentPage > 1) {
+        pag.innerHTML += `<button onclick="gotoPrev()">⬅ Previous</button>`;
+    }
+
+    pag.innerHTML += `
+        <span style="margin:0 10px;font-size:16px;color:#333;">
+            Page ${currentPage} of ${pages}
+        </span>
+    `;
+
+    if (currentPage < pages) {
+        pag.innerHTML += `<button onclick="gotoNext()">Next ➡</button>`;
+    }
+}
+
+function gotoPrev() {
+    if (currentPage > 1) {
+        currentPage--;
+        displayReports();
+    }
+}
+
+function gotoNext() {
+    const filtered = applyFilters();
+    const pages = Math.ceil(filtered.length / perPage);
+
+    if (currentPage < pages) {
+        currentPage++;
+        displayReports();
+    }
+}
+
+/* EVENT LISTENERS */
+document.getElementById("search-input").addEventListener("input", displayReports);
+document.getElementById("category-filter").addEventListener("change", displayReports);
+</script>
+
+</body>
+</html>

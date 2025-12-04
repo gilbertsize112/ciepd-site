@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hate Alert History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      text-align: center;
+      padding: 15px;
+      background: #1b4b72;
+      color: white;
+      margin: 0;
+    }
+
+    #controls {
+      max-width: 900px;
+      margin: 10px auto;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    button {
+      background: #1b4b72;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #163957;
+    }
+
+    #historyContainer {
+      padding: 15px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .alert-item {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    .alert-item a {
+      color: #1b4b72;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .timestamp {
+      font-size: 13px;
+      color: gray;
+      margin-top: 5px;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* PAGINATION */
+    #pagination {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .page-btn {
+      padding: 8px 15px;
+      margin: 0 5px;
+      background: #1b4b72;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .page-btn:disabled {
+      background: #999;
+      cursor: default;
+    }
+
+      /* ---- MOBILE RESPONSIVE ---- */
+    @media (max-width: 600px) {
+      .alert-item {
+        padding: 12px;
+      }
+      .alert-title {
+        font-size: 16px;
+      }
+      .alert-desc {
+        font-size: 13px;
+      }
+      .header {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Hate Alert History</h2>
+
+<!-- TOOLS -->
+<div id="controls">
+
+  <input type="text" id="searchInput" placeholder="Search alerts...">
+
+  <select id="keywordFilter">
+    <option value="">Filter by keyword</option>
+    <option value="kill">kill</option>
+    <option value="attack">attack</option>
+    <option value="gunmen">gunmen</option>
+    <option value="kidnap">kidnap</option>
+    <option value="conflict">conflict</option>
+    <option value="militant">militant</option>
+    <option value="delta">delta</option>
+  </select>
+
+  <button onclick="exportToCSV()">Export CSV</button>
+
+</div>
+
+<div id="historyContainer">Loading alerts...</div>
+
+<div id="pagination"></div>
+
+<script>
+  let allAlerts = [];
+  let currentPage = 1;
+  const perPage = 8;
+
+  async function loadHistory(autoRefresh = false) {
+    try {
+      const res = await fetch("http://localhost:3000/api/hatealert-history");
+      const data = await res.json();
+
+      allAlerts = data;
+
+      if (!autoRefresh) console.log("Loaded alert history.");
+      renderList();
+
+    } catch (err) {
+      console.error("History load failed:", err);
+      document.getElementById("historyContainer").innerHTML =
+        "<p style='color:red;'>Failed to load history.</p>";
+    }
+  }
+
+  function renderList() {
+    const container = document.getElementById("historyContainer");
+    container.innerHTML = "";
+
+    let filtered = [...allAlerts];
+
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const keyword = document.getElementById("keywordFilter").value.toLowerCase();
+
+    if (search) {
+      filtered = filtered.filter(a => a.text.toLowerCase().includes(search));
+    }
+
+    if (keyword) {
+      filtered = filtered.filter(a => a.text.toLowerCase().includes(keyword));
+    }
+
+    // PAGINATION
+    const totalPages = Math.ceil(filtered.length / perPage);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+
+    const start = (currentPage - 1) * perPage;
+    const pageItems = filtered.slice(start, start + perPage);
+
+    pageItems.forEach(alert => {
+      const div = document.createElement("div");
+      div.className = "alert-item";
+
+      div.innerHTML = `
+        <a href="${alert.url}" target="_blank">${alert.text}</a>
+        <div class="timestamp">${new Date(alert.timestamp).toLocaleString()}</div>
+        <button class="delete-btn" onclick="deleteAlert('${alert._id}')">Delete</button>
+      `;
+
+      container.appendChild(div);
+    });
+
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    const pag = document.getElementById("pagination");
+    pag.innerHTML = "";
+
+    if (totalPages <= 1) return;
+
+    pag.innerHTML = `
+      <button class="page-btn" onclick="prevPage()" ${currentPage === 1 ? "disabled" : ""}>Prev</button>
+      <span> Page ${currentPage} of ${totalPages} </span>
+      <button class="page-btn" onclick="nextPage()" ${currentPage === totalPages ? "disabled" : ""}>Next</button>
+    `;
+  }
+
+  function prevPage() {
+    currentPage--;
+    renderList();
+  }
+
+  function nextPage() {
+    currentPage++;
+    renderList();
+  }
+
+  // DELETE ALERT
+  async function deleteAlert(id) {
+    if (!confirm("Delete this alert?")) return;
+
+    await fetch(`http://localhost:3000/api/hatealert/${id}`, {
+      method: "DELETE"
+    });
+
+    allAlerts = allAlerts.filter(a => a._id !== id);
+    renderList();
+  }
+
+  // EXPORT CSV
+  function exportToCSV() {
+    let csv = "Title,URL,Timestamp\n";
+
+    allAlerts.forEach(a => {
+      csv += `"${a.text}","${a.url}","${new Date(a.timestamp).toLocaleString()}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "hatealert-history.csv";
+    link.click();
+  }
+
+  // LIVE AUTO-REFRESH EVERY 30 SECONDS
+  setInterval(() => loadHistory(true), 30000);
+
+  // Live search and filter
+  document.getElementById("searchInput").addEventListener("input", renderList);
+  document.getElementById("keywordFilter").addEventListener("change", renderList);
+
+  loadHistory();
+</script>
+
+</body>
+</html>

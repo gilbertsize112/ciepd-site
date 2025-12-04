@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIEPD Conflict/Peace Watch Center</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom, #87CEFA, #ffffff);
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+    .header {
+        background-color: #4682B4;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #fff;
+    }
+    .nav-bar {
+        background-color: #ADD8E6;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+    }
+    .nav-bar a {
+        text-decoration: none;
+        color: #333;
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid #4682B4;
+        background-color: #E0F0FF;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        font-size: 14px;
+    }
+    .nav-bar a:hover {
+        background-color: #B0D4FF;
+    }
+
+    .top-bar {
+        background-color: #ADD8E6;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .top-bar a {
+        color: #333;
+        text-decoration: none;
+        padding: 8px 16px;
+        border: 1px solid #4682B4;
+        border-radius: 6px;
+        background-color: #E0F0FF;
+        transition: background-color 0.3s ease;
+        font-size: 14px;
+    }
+    .top-bar a:hover {
+        background-color: #B0D4FF;
+    }
+
+    .status-bar {
+        background-color: #B0E0E6;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: #333;
+    }
+    .status-left, .status-right {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .message-container {
+        overflow-x: auto;
+        padding: 10px;
+    }
+
+    .message-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
+    }
+    .message-table th, .message-table td {
+        border: 1px solid #ADD8E6;
+        padding: 8px;
+        vertical-align: top;
+    }
+    .message-table th {
+        background-color: #4682B4;
+        color: #fff;
+        text-align: left;
+    }
+    .message-table tr:nth-child(even) {
+        background-color: #F0F8FF;
+    }
+    .message-table tr:nth-child(odd) {
+        background-color: #ffffff;
+    }
+    .post p, .post a {
+        color: #333;
+    }
+    .post a {
+        text-decoration: underline;
+        color: #1a4d8f;
+        word-wrap: break-word;
+    }
+    .reply_input input.text.long2 {
+        width: 100%;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #4682B4;
+        margin-bottom: 5px;
+    }
+    .reply_input img {
+        cursor: pointer;
+    }
+    .reply {
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+    .info {
+        font-size: 12px;
+        list-style: none;
+        padding: 0;
+        color: #555;
+    }
+    .info li a {
+        color: #1a4d8f;
+        text-decoration: none;
+        word-break: break-all;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .header {
+            font-size: 20px;
+            padding: 15px;
+        }
+        .nav-bar a, .top-bar a {
+            flex: 1 1 45%;
+            text-align: center;
+        }
+        .message-table th, .message-table td {
+            padding: 6px;
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .nav-bar a, .top-bar a {
+            flex: 1 1 100%;
+            font-size: 13px;
+        }
+        .message-table th, .message-table td {
+            font-size: 12px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    CIEPD Conflict/Peace Watch Center
+</div>
+
+<!-- Navigation bar -->
+<div class="nav-bar">
+    <a href="index.html">Dashboard</a>
+    <a href="report.html">Reports</a>
+    <a href="message.html">Messages</a>
+    <a href="#">Stats</a>
+    <a href="#">Addons</a>
+    <a href="admin-map.html">Admin Map</a>
+</div>
+
+<div class="top-bar">
+    <a href="#">SMS</a>
+    <a href="#">Email</a>
+    <a href="#">Twitter</a>
+</div>
+
+<div class="status-bar">
+    <div class="status-left">Inbox / Outbox</div>
+    <div class="status-right">
+        <span>All (1370)</span>
+        <span>Trusted (0)</span>
+        <span>Spam (0)</span>
+        <span>Reporters (251)</span>
+    </div>
+</div>
+
+<div class="message-container">
+    <table class="message-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr><td>599447</td><td><div class="post"><p>Example content for message 599447...</p></div><ul class="info"><li>From: <strong>2348038501040</strong></li></ul></td><td>2018-08-26 23:11</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>599446</td><td><div class="post"><p><a href="http://N2000.00">N2000.00</a> was transferred to you from 2348034936674 via share n sell service.</p></div><ul class="info"><li>From: <strong>234777</strong></li></ul></td><td>2018-08-26 20:26</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>599445</td><td><div class="post"><p>*600*08034836674*2000*1234#</p></div><ul class="info"><li>From: <strong>2348034936674</strong></li></ul></td><td>2018-08-26 20:26</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>598575</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>2347070</strong></li></ul></td><td>2018-08-25 14:16</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>598116</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>2347070</strong></li></ul></td><td>2018-08-24 13:05</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>597599</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>2347070</strong></li></ul></td><td>2018-08-23 13:11</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>597185</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>2347070</strong></li></ul></td><td>2018-08-22 17:41</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>597184</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>2347070</strong></li></ul></td><td>2018-08-22 09:24</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>596858</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>2347070</strong></li></ul></td><td>2018-08-20 11:28</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>596430</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>2347070</strong></li></ul></td><td>2018-08-19 12:35</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>584813</td><td><div class="post"><p>Dear users, please dial *577*2227*3# for subscribing gaming service. Continue browsing <a href="http://gln.reycreo.com">http://gln.reycreo.com</a></p></div><ul class="info"><li>From: <strong>2342227</strong></li></ul></td><td>2018-07-05 17:10</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+            <tr><td>584198</td><td><div class="post"><p>Dear users, please dial *577*2227*3# for subscribing gaming service. Continue browsing <a href="http://gln.reycreo.com">http://gln.reycreo.com</a></p></div><ul class="info"><li>From: <strong>2342227</strong></li></ul></td><td>2018-07-04 09:41</td><td><a href="#">Create a Report?</a> | <a href="#">Delete</a></td></tr>
+
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
