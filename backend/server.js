@@ -31,9 +31,11 @@ import OpenAI from "openai";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
+// ⭐ DIAGNOSTIC LOG TRAP (Now correctly placed)
+console.log("SERVER START: BEFORE DOTENV CONFIGURATION");
+
 dotenv.config();
 console.log("🔑 OPENAI KEY LOADED?", process.env.OPENAI_API_KEY ? "YES" : "NO");
-
 
 
 // ==========================
@@ -244,11 +246,9 @@ async function ensureAdmin() {
   }
 }
 
-connectDB().then(ensureAdmin);
-
-if (process.argv.includes("--import")) {
-  importCSV().then(cleanDuplicates);
-}
+// 🛑 REMOVED BLOCKING CALLS: 
+// connectDB().then(ensureAdmin);
+// if (process.argv.includes("--import")) { ... }
 
 // ==========================
 // HELPERS
@@ -500,9 +500,9 @@ Incident Details:
 
 Return ONLY the JSON object, following this exact format and structure. Do not add any text before or after the JSON.
 {
-  "severity": [NUMBER 1-10, where 10 is highest risk/severity],
-  "incidentType": "[Concise type, e.g., Communal Clash, Oil Theft, Kidnapping]",
-  "summary": "[One concise paragraph summarizing the crisis, its cause, potential impact, and a brief recommendation.]"
+  "severity": [NUMBER 1-10, where 10 is highest risk/severity],
+  "incidentType": "[Concise type, e.g., Communal Clash, Oil Theft, Kidnapping]",
+  "summary": "[One concise paragraph summarizing the crisis, its cause, potential impact, and a brief recommendation.]"
 }
 `;
 
@@ -534,9 +534,9 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
     console.error("AI ANALYSIS ERROR:", err.message || err);
     // Send 500 status and a clear message for the frontend to display
     return res.status(500).json({ 
-        error: "AI processing failed",
-        message: err.message || "An unknown error occurred during AI processing."
-    });
+        error: "AI processing failed",
+        message: err.message || "An unknown error occurred during AI processing."
+    });
   }
 });
 
@@ -921,11 +921,20 @@ app.get("/api/hatealert-history", async (req, res) => {
 
 /*  
 ===========================================================
-  START SERVER
+  START SERVER (FIXED FOR RENDER TIMEOUT)
 ===========================================================
 */
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, async () => { // <--- Made the function 'async'
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+    
+    // ⭐ NEW: Connect DB and run startup tasks in the background
+    await connectDB();
+    await ensureAdmin(); // Ensure admin creation runs after connection
+
+    // Only run CSV import if the flag is present
+    if (process.argv.includes("--import")) {
+      await importCSV().then(cleanDuplicates);
+    }
 });
