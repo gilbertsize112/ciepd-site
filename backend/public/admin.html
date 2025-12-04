@@ -3,543 +3,837 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CIEPD Admin Dashboard – Manage News</title>
+<title>CIEPD Admin Dashboard – Manage News/Reports</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
 <script src="/socket.io/socket.io.js"></script>
 
 <style>
-  :root{
-    --primary: #0077b6;
-    --secondary: #00b4d8;
-    --accent: #023047;
-    --muted: #6b7280;
-    --danger: #e63946;
-    --success: #06d6a0;
-    --card: #ffffff;
-    --glass: rgba(255,255,255,0.85);
-    --radius: 14px;
-  }
+    /* ---------------------------------------------------- */
+    /* 1. COLOR PALETTE & GLOBAL RESET */
+    /* ---------------------------------------------------- */
+    :root{
+        --primary: #0077b6; /* CIEPD Blue */
+        --secondary: #00b4d8;
+        --accent: #023047; /* Dark Accent */
+        --muted: #6b7280;
+        --danger: #e63946;
+        --success: #06d6a0;
+        --warning: #ffb703;
+        --card: #ffffff;
+        --bg-light: #f8feff;
+        --radius: 12px;
+        --border-light: #e6eef6;
+    }
 
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family: "Inter", "Segoe UI", Poppins, system-ui, -apple-system, sans-serif;
-    background: linear-gradient(180deg,#e6f7ff 0%, #f8feff 100%);
-    color: #0b2447;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    min-height:100vh;
-  }
+    * { box-sizing: border-box; }
+    body{
+        margin:0;
+        font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+        background: var(--bg-light);
+        color: var(--accent);
+        min-height:100vh;
+        line-height: 1.6;
+    }
+    
+    /* ---------------------------------------------------- */
+    /* 2. HEADER AND NAVIGATION */
+    /* ---------------------------------------------------- */
+    .header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:18px 30px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border-light);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
 
-  .scroll-container {
-    width: 300px;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  .scroll-text {
-    display: inline-block;
-    padding-left: 100%;
-    animation: scroll-left 20s linear infinite;
-    font-weight: 700;
-    color: var(--primary);
-  }
-  @keyframes scroll-left {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-  }
+    .brand { 
+        font-weight:800; 
+        color:var(--primary); 
+        font-size:22px; 
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .brand i { color: var(--secondary); }
 
-  .header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:18px 28px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.65), rgba(255,255,255,0.45));
-    border-bottom: 1px solid rgba(11,36,71,0.06);
-    backdrop-filter: blur(6px);
-  }
+    .logout-btn{
+        background:var(--danger);
+        color:white;
+        border:none;
+        padding:10px 20px;
+        border-radius:999px;
+        cursor:pointer;
+        font-weight:600;
+        transition: background 0.2s;
+    }
+    .logout-btn:hover { background: #cc2a37; }
 
-  .brand { font-weight:700; color:var(--primary); font-size:20px; }
+    .nav-bar{
+        display:flex;
+        gap:12px;
+        justify-content:center;
+        padding:12px;
+        background: rgba(0, 119, 182, 0.05);
+        border-bottom: 1px solid var(--border-light);
+    }
+    .nav-bar a{
+        text-decoration:none;
+        padding:10px 18px;
+        border-radius:999px;
+        color:var(--accent);
+        border:1px solid transparent;
+        font-weight:500;
+        transition: 0.2s;
+    }
+    .nav-bar a:hover{
+        background: rgba(0, 119, 182, 0.1);
+    }
+    .nav-bar a.special-btn{
+        background:var(--primary);
+        color:white;
+        font-weight: 600;
+    }
+    .nav-bar a.special-btn:hover{
+        background: #005f93;
+    }
 
-  .logout-btn{
-    background:var(--danger);
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:999px;
-    cursor:pointer;
-    font-weight:600;
-  }
+    /* ---------------------------------------------------- */
+    /* 3. SCROLLING MARQUEE (IMPROVED) */
+    /* ---------------------------------------------------- */
+    .scroll-container {
+        width: 350px;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .scroll-text {
+        display: inline-block;
+        padding-left: 100%;
+        animation: scroll-left 25s linear infinite;
+        color: var(--primary);
+    }
+    @keyframes scroll-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
 
-  .nav-bar{
-    display:flex;
-    gap:10px;
-    justify-content:center;
-    padding:12px;
-    background: linear-gradient(90deg, rgba(0,119,182,0.06), rgba(0,180,216,0.03));
-  }
-  .nav-bar a{
-    text-decoration:none;
-    padding:9px 16px;
-    border-radius:999px;
-    color:var(--accent);
-    border:1px solid rgba(3,37,61,0.05);
-    font-weight:600;
-  }
-  .nav-bar a.special-btn{
-    background:var(--primary);
-    color:white;
-    border:none;
-  }
+    /* ---------------------------------------------------- */
+    /* 4. MAIN CONTAINER & LAYOUT */
+    /* ---------------------------------------------------- */
+    .container{
+        width:96%;
+        max-width:1300px;
+        margin:28px auto;
+        background:var(--card);
+        border-radius:var(--radius);
+        padding:30px;
+        box-shadow: 0 10px 30px rgba(3,37,61,0.08);
+    }
 
-  .container{
-    width:94%;
-    max-width:1200px;
-    margin:28px auto;
-    background:var(--card);
-    border-radius:var(--radius);
-    padding:26px;
-    box-shadow: 0 10px 30px rgba(3,37,61,0.06);
-  }
+    .top-row{
+        display:flex;
+        gap:20px;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom: 20px;
+    }
+    h1{ 
+        margin:0; 
+        color:var(--accent); 
+        font-size:24px; 
+        font-weight: 800; 
+    }
 
-  h1{ margin:0 0 18px 0; color:var(--primary); font-size:20px; }
+    /* ---------------------------------------------------- */
+    /* 5. FILTERS AND BUTTONS */
+    /* ---------------------------------------------------- */
+    .filters{ 
+        display:flex; 
+        gap:15px; 
+        flex-wrap:wrap; 
+        margin-bottom: 25px;
+    }
+    .filters input, .filters select{
+        padding:12px 18px;
+        border-radius:8px;
+        border:1px solid var(--border-light);
+        min-width:250px;
+        background:var(--bg-light);
+        transition: border-color 0.2s;
+        font-size: 15px;
+        color: var(--text-dark);
+    }
+    .filters input:focus, .filters select:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+    }
+    
+    .btn{ 
+        padding:12px 18px; 
+        border:none; 
+        border-radius:8px; 
+        cursor:pointer; 
+        font-weight:700; 
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-  .top-row{
-    display:flex;
-    gap:16px;
-    justify-content:space-between;
-    align-items:center;
-  }
+    /* View Mode Buttons */
+    #showNewsBtn, #showReportsBtn {
+        border-radius: 999px !important;
+    }
+    #showReportsBtn[style*="#ddd"] {
+        background: var(--border-light) !important;
+        color: var(--accent) !important;
+    }
+    #refreshBtn {
+        background: var(--primary);
+        color: white;
+    }
+    #refreshBtn:hover { background: #005f93; }
 
-  .filters{ display:flex; gap:12px; flex-wrap:wrap; }
-  .filters input, .filters select{
-    padding:10px 14px;
-    border-radius:999px;
-    border:1px solid #e6eef6;
-    min-width:230px;
-    background:#fbfdff;
-  }
+    /* Loading Status */
+    #status { display:flex; align-items:center; gap:5px; font-weight:600; color:var(--primary); }
+    .dot {
+        height: 8px;
+        width: 8px;
+        background-color: var(--primary);
+        border-radius: 50%;
+        display: inline-block;
+        animation: loading 1.4s infinite ease-in-out both;
+    }
+    .dot:nth-child(1) { animation-delay: -0.32s; }
+    .dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes loading {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
 
-  .news-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
-    gap:16px;
-    margin-top:12px;
-  }
-  .news-card{
-    background:linear-gradient(180deg,#ffffff,#fbfdff);
-    padding:16px;
-    border-radius:12px;
-    border-left:4px solid var(--primary);
-    box-shadow: 0 6px 18px rgba(3,37,61,0.04);
-    cursor:pointer;
-    transition:0.15s;
-  }
-  .news-card:hover{ transform: translateY(-6px); }
+    /* ---------------------------------------------------- */
+    /* 6. NEWS/REPORTS GRID & CARD */
+    /* ---------------------------------------------------- */
+    .news-grid{
+        display:grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
+        gap:20px;
+        margin-top:20px;
+    }
+    .news-card{
+        background:linear-gradient(180deg,#ffffff,#fcfdff);
+        padding:20px;
+        border-radius:var(--radius);
+        border-left:5px solid var(--primary);
+        box-shadow: 0 8px 25px rgba(3,37,61,0.08);
+        cursor:pointer;
+        transition:0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+    .news-card:hover{ 
+        transform: translateY(-8px); 
+        box-shadow: 0 12px 30px rgba(3,37,61,0.15);
+    }
+    
+    .badge-row {
+        margin-bottom: 10px;
+        display: flex;
+        gap: 8px;
+    }
+    .news-title{ 
+        font-weight:700; 
+        color:var(--accent); 
+        margin:0 0 5px 0; 
+        font-size:18px; 
+    }
+    .news-desc{ 
+        color:var(--muted); 
+        margin:0 0 10px 0; 
+        font-size:14px; 
+        flex-grow: 1;
+    }
 
-  .news-title{ font-weight:700; color:var(--accent); margin:0; font-size:16px; }
-  .news-desc{ color:var(--muted); margin:6px 0; font-size:14px; }
+    .badge{
+        padding:5px 10px;
+        border-radius:999px;
+        font-size:11px;
+        font-weight:700;
+        color:white;
+        text-transform: uppercase;
+    }
+    .verified{ background:var(--success); }
+    .unverified{ background:var(--danger); }
+    .approved{ background:var(--primary); }
 
-  .badge{
-    padding:6px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-    color:white;
-  }
-  .verified{ background:var(--success); }
-  .unverified{ background:var(--danger); }
-  .approved{ background:var(--primary); }
+    /* ---------------------------------------------------- */
+    /* 7. PAGINATION */
+    /* ---------------------------------------------------- */
+    #pagination{
+        display:flex;
+        gap:15px;
+        justify-content:center;
+        align-items: center;
+        margin-top:30px;
+    }
+    #pagination button{
+        background:var(--primary);
+        border:none;
+        color:white;
+        padding:10px 18px;
+        border-radius:999px;
+        cursor:pointer;
+        font-weight:600;
+        transition: background 0.2s;
+    }
+    #pagination button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+    .page-info {
+        font-weight: 600;
+        color: var(--accent);
+    }
 
-  #pagination{
-    display:flex;
-    gap:10px;
-    justify-content:center;
-    margin-top:22px;
-  }
-  #pagination button{
-    background:var(--primary);
-    border:none;
-    color:white;
-    padding:8px 16px;
-    border-radius:999px;
-    cursor:pointer;
-    font-weight:700;
-  }
+    /* ---------------------------------------------------- */
+    /* 8. SIDE PANEL (DETAIL VIEW) */
+    /* ---------------------------------------------------- */
+    .side-panel{
+        position:fixed;
+        right:0;
+        top:0;
+        width:0;
+        height:100vh;
+        background:var(--card);
+        box-shadow:-10px 0 30px rgba(3,37,61,0.2);
+        overflow-y:auto;
+        transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index:9999;
+    }
+    .side-panel.open{ width:min(700px, 95%); }
 
-  .side-panel{
-    position:fixed;
-    right:0;
-    top:0;
-    width:0;
-    height:100vh;
-    background:white;
-    box-shadow:-20px 0 40px rgba(3,37,61,0.1);
-    overflow:auto;
-    transition:0.25s;
-    z-index:9999;
-  }
-  .side-panel.open{ width:min(900px,100%); }
+    .panel-inner{ padding:30px; }
 
-  .panel-inner{ padding:26px; }
+    .panel-header {
+        display:flex; 
+        justify-content:space-between; 
+        align-items:flex-start;
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    .panel-title{ 
+        margin:0; 
+        font-size:26px; 
+        font-weight:800; 
+        color:var(--primary); 
+    }
+    .close-btn{
+        background:transparent;
+        border:none;
+        font-size:20px;
+        cursor:pointer;
+        color:var(--muted);
+        transition: color 0.2s;
+    }
+    .close-btn:hover { color: var(--danger); }
 
-  .panel-title{ margin:0; font-size:22px; font-weight:800; color:var(--primary); }
-  .close-btn{
-    background:transparent;
-    border:none;
-    font-size:16px;
-    cursor:pointer;
-    color:var(--muted);
-  }
+    .panel-meta {
+        margin-bottom: 20px;
+        padding: 10px;
+        background: var(--bg-light);
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+    }
+    .panel-meta p { margin: 5px 0; display: flex; align-items: center; gap: 8px;}
+    .panel-meta i { color: var(--primary); }
 
-  .btn{ padding:10px 16px; border:none; border-radius:999px; cursor:pointer; font-weight:700; }
-  .btn-verify{ background:var(--success); color:white; }
-  .btn-approve{ background:var(--primary); color:white; }
-  .btn-delete{ background:var(--danger); color:white; }
+    .panel-block { margin-bottom: 25px; }
+    .panel-text { margin: 10px 0; }
+
+    .panel-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px dashed var(--border-light);
+    }
+
+    .btn-verify{ background:var(--success); color:white; }
+    .btn-approve{ background:var(--primary); color:white; }
+    .btn-delete{ background:var(--danger); color:white; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="brand">
-    <div class="scroll-container">
-      <div class="scroll-text">Welcome to Conflict Watch Center</div>
+    <div class="brand">
+        <i class="fas fa-shield-alt"></i> CIEPD Admin
     </div>
-  </div>
-  <button onclick="window.location.href='login.html'" class="logout-btn">Logout</button>
+    <div class="scroll-container">
+        <div class="scroll-text">Conflict Watch Center: Stay alert, stay informed.</div>
+    </div>
+    <button onclick="window.location.href='login.html'" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
 </div>
 
 <div class="nav-bar">
-  <a href="home.html">Home</a>
-  <a href="report.html">Reports</a>
-  <a href="submit.html">Submit</a>
-  <a href="getalert.html">Get Alerts</a>
-  <a href="contact.html">Contact Us</a>
-  <a href="hatealert.html">Hate Alerts</a>
-  <a href="admin-map.html" class="special-btn">Big Map</a>
+    <a href="home.html"><i class="fas fa-home"></i> Home</a>
+    <a href="report.html"><i class="fas fa-file-alt"></i> Reports</a>
+    <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
+    <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
+    <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
+    <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
+    <a href="admin-map.html" class="special-btn"><i class="fas fa-map-marked-alt"></i> Big Map</a>
 </div>
 
 <div class="container">
 
-  <div class="top-row">
-    <h1 id="modeTitle">Manage News</h1>
+    <div class="top-row">
+        <h1 id="modeTitle">Manage News</h1>
 
-    <div style="display:flex; gap:10px;">
-      <button id="showNewsBtn" class="btn" style="background:var(--primary);color:white;">View News</button>
-      <button id="showReportsBtn" class="btn" style="background:#ddd;color:#000;">View Reports</button>
+        <div style="display:flex; gap:10px;">
+            <button id="showNewsBtn" class="btn"><i class="fas fa-newspaper"></i> View News</button>
+            <button id="showReportsBtn" class="btn"><i class="fas fa-clipboard-list"></i> View Reports</button>
+        </div>
     </div>
 
-    <div id="status" class="loading" style="display:none">
-      <span class="dot"></span><span class="dot"></span><span class="dot"></span>Loading
+    <div class="filters">
+        <input id="search" type="text" placeholder="Search by Title, Description, or Content…" />
+        <select id="categoryFilter"><option value="">All Categories</option></select>
+
+        <button id="refreshBtn" class="btn">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        
+        <div id="status" style="display:none">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>Loading...
+        </div>
     </div>
-  </div>
 
-  <div class="filters">
-    <input id="search" type="text" placeholder="Search…" />
-    <select id="categoryFilter"><option>All Categories</option></select>
-
-    <button id="refreshBtn" class="btn" style="background:#eef6ff;color:var(--primary);">Refresh</button>
-  </div>
-
-  <div id="newsGrid" class="news-grid"></div>
-  <div id="pagination"></div>
+    <div id="newsGrid" class="news-grid"></div>
+    <div id="pagination"></div>
 </div>
 
 <aside id="sidePanel" class="side-panel">
-  <div class="panel-inner">
+    <div class="panel-inner">
 
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 id="panelTitle" class="panel-title">Item Title</h2>
-      <button id="panelBack" class="close-btn">Close ✖</button>
+        <div class="panel-header">
+            <h2 id="panelTitle" class="panel-title">Item Title</h2>
+            <button id="panelBack" class="close-btn"><i class="fas fa-times-circle"></i></button>
+        </div>
+
+        <div class="panel-meta">
+            <p id="panelDate"><i class="fas fa-calendar-alt"></i> Date: N/A</p>
+            <p id="panelLocation"><i class="fas fa-map-marker-alt"></i> Location: N/A</p>
+            <p id="panelCats"><i class="fas fa-tags"></i> Categories: N/A</p>
+        </div>
+
+        <div class="panel-actions">
+            <span id="panelVerifiedBadge" class="badge" style="display:none"></span>
+            <span id="panelApprovedBadge" class="badge" style="display:none"></span>
+        </div>
+        
+        <div class="panel-block">
+            <h3 style="margin-top: 0;">Summary/Description</h3>
+            <div id="panelShort" class="panel-text" style="font-weight:600; font-style: italic; color: var(--accent);"></div>
+        </div>
+        
+        <div class="panel-block">
+            <h3>Full Content/Details</h3>
+            <div id="panelContent" class="panel-text" style="white-space: pre-wrap;"></div>
+        </div>
+        
+        <div id="panelButtons" class="panel-actions">
+            </div>
+
     </div>
-
-    <div class="panel-meta">
-      <p id="panelDate"></p>
-      <p id="panelLocation"></p>
-      <p id="panelCats"></p>
-    </div>
-
-    <div class="panel-block">
-      <div id="panelShort" class="panel-text" style="font-weight:700;"></div>
-      <div id="panelContent" class="panel-text"></div>
-    </div>
-
-    <div class="panel-actions">
-      <span id="panelVerifiedBadge" class="badge" style="display:none"></span>
-      <span id="panelApprovedBadge" class="badge" style="display:none"></span>
-    </div>
-
-    <div id="panelButtons" class="panel-actions"></div>
-
-  </div>
 </aside>
-
 <script>
+// =================================================================
+// 🚨 CRITICAL: YOUR JAVASCRIPT LOGIC IS PRESERVED BELOW
+// ...
+// =================================================================
+
+// 🛑 CRITICAL FIX: DEFINE BASE_URL HERE
+const BASE_URL = 
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000"
+        : "https://your-deployed-backend.onrender.com"; // **<<< Update this if you are deployed!**
+// ----------------------------------------------------
+
 let currentPage = 1;
 const pageSize = 40;
-
 /* ⭐ NEW MODE SWITCH */
 let currentMode = "news"; // "news" or "reports"
 
 function el(id){ return document.getElementById(id); }
+
 /***********************
-  MODE SWITCHING
+    MODE SWITCHING
 ************************/
 el("showNewsBtn").onclick = () => {
-  currentMode = "news";
-  el("modeTitle").innerText = "Manage News";
-  el("showNewsBtn").style.background = "var(--primary)";
-  el("showNewsBtn").style.color = "white";
-  el("showReportsBtn").style.background = "#ddd";
-  el("showReportsBtn").style.color = "#000";
-  loadItems();
+    currentMode = "news";
+    el("modeTitle").innerText = "Manage News";
+    // Apply Active State
+    el("showNewsBtn").style.background = "var(--primary)";
+    el("showNewsBtn").style.color = "white";
+    el("showReportsBtn").style.background = "var(--border-light)";
+    el("showReportsBtn").style.color = "var(--accent)";
+    loadItems();
+    loadCategories(); // Only load categories when in news mode
 };
 
 el("showReportsBtn").onclick = () => {
-  currentMode = "reports";
-  el("modeTitle").innerText = "Manage Reports";
-  el("showReportsBtn").style.background = "var(--primary)";
-  el("showReportsBtn").style.color = "white";
-  el("showNewsBtn").style.background = "#ddd";
-  el("showNewsBtn").style.color = "#000";
-  loadItems();
+    currentMode = "reports";
+    el("modeTitle").innerText = "Manage Reports";
+    // Apply Active State
+    el("showReportsBtn").style.background = "var(--primary)";
+    el("showReportsBtn").style.color = "white";
+    el("showNewsBtn").style.background = "var(--border-light)";
+    el("showNewsBtn").style.color = "var(--accent)";
+    loadItems();
+    // Hide category filter for reports mode
+    el("categoryFilter").style.display = 'none'; 
 };
 
+// Initial state setup (must run after defining the click handlers)
+el("showReportsBtn").style.background = "var(--border-light)";
+el("showReportsBtn").style.color = "var(--accent)";
+
+
 /***********************
-  LOAD CATEGORIES (NEWS ONLY)
+    LOAD CATEGORIES (NEWS ONLY)
 ************************/
 async function loadCategories(){
-  try{
-    const res = await fetch("/api/news/categories");
-    const data = await res.json();
-    el("categoryFilter").innerHTML = `<option value="">All Categories</option>`;
-    data.forEach(c => {
-      el("categoryFilter").innerHTML += `<option value="${c}">${c}</option>`;
-    });
-  }catch(e){ console.log(e); }
+    el("categoryFilter").style.display = 'block'; // Show filter
+    try{
+        const res = await fetch("/api/news/categories");
+        const data = await res.json();
+        el("categoryFilter").innerHTML = `<option value="">All Categories</option>`;
+        data.forEach(c => {
+            el("categoryFilter").innerHTML += `<option value="${c}">${c}</option>`;
+        });
+    }catch(e){ console.error("Error loading categories:", e); }
 }
 
 /***********************
-  OPEN SIDE PANEL
+    OPEN SIDE PANEL
 ************************/
 function openPanel(n){
-  el("panelTitle").innerText = n.title || n.incidentType || "Item";
+    el("panelTitle").innerText = n.title || n.incidentType || "Item Details";
+    el("panelShort").innerText = n.description || n.summary || "No short description provided.";
+    el("panelContent").innerText = n.content || n.details || "No full content provided.";
 
-  el("panelShort").innerText = n.description || n.summary || "No short description";
-  el("panelContent").innerText = n.content || n.details || "";
+    // Meta Data
+    el("panelDate").innerHTML = `<i class="fas fa-calendar-alt"></i> Date: ${new Date(n.createdAt).toLocaleString()}`;
+    el("panelLocation").innerHTML = `<i class="fas fa-map-marker-alt"></i> Location: ${n.location || n.state || "N/A"}`;
+    el("panelCats").innerHTML = `<i class="fas fa-tags"></i> Categories: ${(n.categories || n.tags || []).join(", ") || "N/A"}`;
 
-  el("panelDate").innerText = new Date(n.createdAt).toLocaleString();
-  el("panelLocation").innerText = n.location || n.state || "No location";
+    /* VERIFIED badge */
+    const v = el("panelVerifiedBadge");
+    if(n.verified){
+        v.style.display="inline-block";
+        v.className="badge verified";
+        v.innerText="VERIFIED";
+    } else {
+        v.style.display="inline-block";
+        v.className="badge unverified";
+        v.innerText="NOT VERIFIED";
+    }
 
-  el("panelCats").innerText =
-    (n.categories || n.tags || []).join(", ");
+    /* APPROVED badge */
+    const a = el("panelApprovedBadge");
+    if(n.approved){
+        a.style.display="inline-block";
+        a.className="badge approved";
+        a.innerText="APPROVED";
+    } else {
+        a.style.display="none";
+    }
 
-  /* VERIFIED badge */
-  const v = el("panelVerifiedBadge");
-  if(n.verified){
-    v.style.display="inline-block";
-    v.className="badge verified";
-    v.innerText="VERIFIED";
-  } else {
-    v.style.display="inline-block";
-    v.className="badge unverified";
-    v.innerText="NOT VERIFIED";
-  }
+    /* Buttons */
+    el("panelButtons").innerHTML = `
+        <button class="btn btn-verify" style="display:${n.verified?'none':''}"
+            onclick="verifyItem('${n._id}')"><i class="fas fa-check"></i> Verify</button>
 
-  /* APPROVED badge */
-  const a = el("panelApprovedBadge");
-  if(n.approved){
-    a.style.display="inline-block";
-    a.className="badge approved";
-    a.innerText="APPROVED";
-  } else {
-    a.style.display="none";
-  }
+        <button class="btn btn-approve" style="display:${n.approved?'none':''}"
+            onclick="approveItem('${n._id}')"><i class="fas fa-thumbs-up"></i> Approve</button>
+        
+        <button class="btn btn-analyze" onclick="analyzeItem('${n._id}')"><i class="fas fa-brain"></i> AI Analyze</button>
 
-  /* Buttons */
-  el("panelButtons").innerHTML = `
-    <button class="btn btn-verify" style="display:${n.verified?'none':''}"
-      onclick="verifyItem('${n._id}')">Verify</button>
+        <button class="btn btn-delete"
+            onclick="deleteItem('${n._id}')"><i class="fas fa-trash"></i> Delete</button>
+    `;
 
-    <button class="btn btn-approve" style="display:${n.approved?'none':''}"
-      onclick="approveItem('${n._id}')">Approve</button>
-
-    <button class="btn btn-delete"
-      onclick="deleteItem('${n._id}')">Delete</button>
-  `;
-
-  el("sidePanel").classList.add("open");
+    el("sidePanel").classList.add("open");
 }
 
 el("panelBack").onclick = () =>
-  el("sidePanel").classList.remove("open");
+    el("sidePanel").classList.remove("open");
+
+// ----------------------------------------------------
+// AI Analyze Function (Improved)
+// ----------------------------------------------------
+async function analyzeItem(id) {
+    const analysisBlock = document.getElementById('panelContent');
+    const analyzeBtn = document.querySelector('.btn-analyze');
+    
+    // 1. Set Loading State
+    const originalContent = analysisBlock.innerHTML;
+    analysisBlock.innerHTML = `<p style="text-align:center; color: var(--primary); font-weight: 600;">
+        <i class="fas fa-spinner fa-spin"></i> Sending report to AI for analysis...
+    </p>`;
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = `<i class="fas fa-cog fa-spin"></i> Analyzing...`;
+    
+    try {
+        // 2. Send Request to Backend AI Endpoint
+        const response = await fetch(`${BASE_URL}/api/ai/analyze-report/${id}`, {
+            method: 'POST', // Use POST as it performs an action
+            headers: { 'Content-Type': 'application/json' },
+            // If you need to send the whole object, fetch the object first. 
+            // For now, sending ID is fine since the backend can look it up.
+            body: JSON.stringify({ itemId: id })
+        });
+
+        if (!response.ok) {
+            throw new Error('AI analysis failed or timed out.');
+        }
+
+        const result = await response.json();
+        
+        // 3. Display Results
+        analysisBlock.innerHTML = `
+            <div style="background: #e6f7ff; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary);">
+                <h4 style="margin-top: 0; color: var(--primary);">🤖 AI Analysis Result</h4>
+                <p><strong>Severity:</strong> <span style="font-weight: 700; color: ${result.severity > 7 ? 'var(--danger)' : result.severity > 4 ? 'var(--warning)' : 'var(--success)'}">${result.severity || 'N/A'}</span></p>
+                <p><strong>Type:</strong> ${result.incidentType || 'N/A'}</p>
+                <p style="white-space: pre-wrap;"><strong>Summary:</strong> ${result.summary || 'No summary provided.'}</p>
+            </div>
+            ${originalContent}
+        `;
+        
+    } catch (error) {
+        // 4. Handle Errors
+        analysisBlock.innerHTML = `
+            <div style="background: #fde7e7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--danger);">
+                <h4 style="margin-top: 0; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Analysis Error</h4>
+                <p>Could not reach AI service or received an invalid response.</p>
+                <p style="font-size: 0.8em;">${error.message}</p>
+            </div>
+            ${originalContent}
+        `;
+        console.error("AI Analysis Error:", error);
+    } finally {
+        // 5. Reset Button State
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = `<i class="fas fa-brain"></i> AI Analyze`;
+    }
+}
 
 /***********************
- VERIFY (works for news + reports)
+    VERIFY (works for news + reports)
 ************************/
 async function verifyItem(id){
-  const endpoint = currentMode === "news"
-    ? `/api/news/verify/${id}`
-    : `/api/reports/verify/${id}`;
+    const endpoint = currentMode === "news"
+        ? `/api/news/verify/${id}`
+        : `/api/reports/verify/${id}`;
 
-  const res = await fetch(endpoint, { method:"PUT" });
-  const data = await res.json();
+    const res = await fetch(endpoint, { method:"PUT" });
+    const data = await res.json();
 
-  if(!data.success) return alert("Verification failed");
+    if(!data.success) return alert("Verification failed");
 
-  el("panelVerifiedBadge").className="badge verified";
-  el("panelVerifiedBadge").innerText="VERIFIED";
+    // Update panel
+    el("panelVerifiedBadge").className="badge verified";
+    el("panelVerifiedBadge").innerText="VERIFIED";
+    document.querySelector(".btn-verify").style.display="none";
 
-  const card = document.querySelector(`[data-id="${id}"] .badge-row`);
-  if(card){
-    card.innerHTML = `<span class="badge verified">VERIFIED</span>`;
-  }
-
-  document.querySelector(".btn-verify").style.display="none";
+    // Update card in the grid
+    const cardBadgeRow = document.querySelector(`[data-id="${id}"] .badge-row`);
+    if(cardBadgeRow){
+        cardBadgeRow.innerHTML = `<span class="badge verified">VERIFIED</span> ${document.querySelector(`[data-id="${id}"] .approved`)?.outerHTML || ''}`;
+    }
 }
 
 /***********************
- APPROVE (works for news + reports)
+    APPROVE (works for news + reports)
 ************************/
 async function approveItem(id){
-  const endpoint = currentMode === "news"
-    ? `/api/news/approve/${id}`
-    : `/api/reports/approve/${id}`;
+    const endpoint = currentMode === "news"
+        ? `/api/news/approve/${id}`
+        : `/api/reports/approve/${id}`;
 
-  const res = await fetch(endpoint, { method:"PUT" });
-  const data = await res.json();
+    const res = await fetch(endpoint, { method:"PUT" });
+    const data = await res.json();
 
-  if(!data.success) return alert("Approve failed");
+    if(!data.success) return alert("Approve failed");
 
-  el("panelApprovedBadge").style.display="inline-block";
-  el("panelApprovedBadge").className="badge approved";
-  el("panelApprovedBadge").innerText="APPROVED";
+    // Update panel
+    el("panelApprovedBadge").style.display="inline-block";
+    el("panelApprovedBadge").className="badge approved";
+    el("panelApprovedBadge").innerText="APPROVED";
+    document.querySelector(".btn-approve").style.display="none";
 
-  document.querySelector(".btn-approve").style.display="none";
+    // Update card in the grid
+    const cardBadgeRow = document.querySelector(`[data-id="${id}"] .badge-row`);
+    if(cardBadgeRow){
+        const verifiedBadge = document.querySelector(`[data-id="${id}"] .verified`)?.outerHTML || `<span class="badge unverified">NOT VERIFIED</span>`;
+        cardBadgeRow.innerHTML = `${verifiedBadge} <span class="badge approved">APPROVED</span>`;
+    }
 }
 
 /***********************
- DELETE (works for news + reports)
+    DELETE (works for news + reports)
 ************************/
 async function deleteItem(id){
-  if(!confirm("Delete this item?")) return;
+    if(!confirm("Are you sure you want to permanently delete this item?")) return;
 
-  const endpoint = currentMode === "news"
-    ? `/api/news/${id}`
-    : `/api/reports/${id}`;
+    const endpoint = currentMode === "news"
+        ? `/api/news/${id}`
+        : `/api/reports/${id}`;
 
-  await fetch(endpoint, { method:"DELETE" });
+    await fetch(endpoint, { method:"DELETE" });
 
-  document.querySelector(`[data-id="${id}"]`)?.remove();
-  el("sidePanel").classList.remove("open");
+    document.querySelector(`[data-id="${id}"]`)?.remove();
+    el("sidePanel").classList.remove("open");
 }
 
 /***********************
-  LOAD ITEMS (NEWS + REPORTS)
+    LOAD ITEMS (NEWS + REPORTS)
 ************************/
 async function loadItems(){
-  el("status").style.display="inline-flex";
+    const statusEl = el("status");
+    statusEl.style.display="flex"; // Show loading status
 
-  const search = el("search").value.toLowerCase();
-  const category = el("categoryFilter").value;
+    const search = el("search").value.toLowerCase();
+    const category = el("categoryFilter").value;
 
-  let url = "";
+    let url = "";
 
-  if(currentMode === "news"){
-    url = `/api/news?page=${currentPage}&limit=${pageSize}&search=${search}&category=${category}`;
-  } else {
-    url = `/api/reports?page=${currentPage}&limit=${pageSize}&search=${search}`;
-  }
+    if(currentMode === "news"){
+        url = `/api/news?page=${currentPage}&limit=${pageSize}&search=${search}&category=${category}`;
+    } else {
+        url = `/api/reports?page=${currentPage}&limit=${pageSize}&search=${search}`;
+    }
 
-  const res = await fetch(url);
-  const data = await res.json();
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
 
-  renderItems(data.items);
-  renderPagination(data.totalPages);
+        renderItems(data.items);
+        renderPagination(data.totalPages);
+    } catch (error) {
+        console.error("Error fetching items:", error);
+        el("newsGrid").innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--danger);padding:30px;">
+            <i class="fas fa-exclamation-triangle"></i> Failed to load data from the server.
+        </div>`;
+    }
 
-  el("status").style.display="none";
+    statusEl.style.display="none"; // Hide loading status
 }
 
 /***********************
-  RENDER CARDS (NEWS + REPORTS)
+    RENDER CARDS (NEWS + REPORTS)
 ************************/
 function renderItems(items){
-  const grid = el("newsGrid");
-  grid.innerHTML = "";
+    const grid = el("newsGrid");
+    grid.innerHTML = "";
 
-  if(!items || items.length === 0){
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#777;">No items found</div>`;
-    return;
-  }
+    if(!items || items.length === 0){
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px;">
+            <i class="fas fa-info-circle"></i> No items found matching the current criteria.
+        </div>`;
+        return;
+    }
 
-  items.forEach(n => {
-    const card = document.createElement("div");
-    card.className = "news-card";
-    card.setAttribute("data-id", n._id);
+    items.forEach(n => {
+        const card = document.createElement("div");
+        card.className = "news-card";
+        card.setAttribute("data-id", n._id);
 
-    const verified = n.verified
-      ? `<span class="badge verified">VERIFIED</span>`
-      : `<span class="badge unverified">NOT VERIFIED</span>`;
+        const verified = n.verified
+            ? `<span class="badge verified">VERIFIED</span>`
+            : `<span class="badge unverified">UNVERIFIED</span>`;
 
-    const approved = n.approved
-      ? `<span class="badge approved">APPROVED</span>`
-      : "";
+        const approved = n.approved
+            ? `<span class="badge approved">APPROVED</span>`
+            : "";
 
-    const title = n.title || n.incidentType || "Untitled";
-    const desc  = n.description || n.summary || n.details || "";
+        const title = n.title || n.incidentType || "Untitled Incident";
+        const desc  = n.description || n.summary || n.details || "No description provided.";
 
-    card.innerHTML = `
-      <div class="badge-row">${verified}${approved}</div>
-      <h3 class="news-title">${title}</h3>
-      <p class="news-desc">${desc.slice(0,160)}...</p>
-    `;
+        card.innerHTML = `
+            <div class="badge-row">${verified}${approved}</div>
+            <h3 class="news-title">${title}</h3>
+            <p class="news-desc">${desc.slice(0,120)}...</p>
+            <div style="font-size: 0.8rem; color: #aaa;">${new Date(n.createdAt).toLocaleDateString()}</div>
+        `;
 
-    card.onclick = () => openPanel(n);
-    grid.appendChild(card);
-  });
+        card.onclick = () => openPanel(n);
+        grid.appendChild(card);
+    });
 }
 
 /***********************
- PAGINATION
+    PAGINATION
 ************************/
 function renderPagination(total){
-  const p = el("pagination");
-  p.innerHTML = "";
+    const p = el("pagination");
+    p.innerHTML = "";
 
-  if(!total || total < 1) return;
+    if(!total || total <= 1) return;
 
-  const prev = document.createElement("button");
-  prev.textContent = "⬅ Back";
-  prev.disabled = currentPage === 1;
-  prev.onclick = () => { currentPage--; loadItems(); };
+    const prev = document.createElement("button");
+    prev.textContent = "⬅ Previous";
+    prev.disabled = currentPage === 1;
+    prev.onclick = () => { currentPage--; loadItems(); };
 
-  const next = document.createElement("button");
-  next.textContent = "Next ➡";
-  next.disabled = currentPage === total;
-  next.onclick = () => { currentPage++; loadItems(); };
+    const next = document.createElement("button");
+    next.textContent = "Next ➡";
+    next.disabled = currentPage === total;
+    next.onclick = () => { currentPage++; loadItems(); };
 
-  const info = document.createElement("span");
-  info.className = "page-info";
-  info.textContent = `Page ${currentPage} of ${total}`;
+    const info = document.createElement("span");
+    info.className = "page-info";
+    info.textContent = `Page ${currentPage} of ${total}`;
 
-  p.append(prev, info, next);
+    p.append(prev, info, next);
 }
 
 /***********************
- EVENTS
+    EVENTS
 ************************/
 el("search").addEventListener("input", () => {
-  currentPage = 1;
-  loadItems();
+    currentPage = 1;
+    loadItems();
 });
 
 el("categoryFilter").addEventListener("change", () => {
-  currentPage = 1;
-  loadItems();
+    currentPage = 1;
+    loadItems();
 });
 
 el("refreshBtn").onclick = loadItems;
 
 /***********************
- INIT
+    INIT
 ************************/
 loadCategories();
 loadItems();
