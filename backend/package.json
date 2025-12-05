@@ -11,6 +11,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.943.0",
+    "@aws-sdk/lib-storage": "^3.943.0",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "cheerio": "^1.1.2",
@@ -18,13 +21,19 @@
     "csv-parser": "^3.2.0",
     "csvtojson": "^2.0.14",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "express-session": "^1.18.2",
-    "mongoose": "^8.19.3",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "mongoose": "^8.20.1",
     "multer": "^2.0.2",
-    "nodemailer": "^7.0.10",
-    "openai": "^6.9.0",
+    "multer-s3": "^3.0.1",
+    "multer-s3-v3": "^33.0.12",
+    "nodemailer": "^7.0.11",
+    "openai": "^6.10.0",
+    "path": "^0.12.7",
     "socket.io": "^4.8.1",
+    "url": "^0.11.4",
     "uuid": "^13.0.0"
   }
 }
