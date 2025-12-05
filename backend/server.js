@@ -420,29 +420,6 @@ app.put("/api/news/approve/:id", async (req, res) => {
 });
 
 // ==========================
-// ⭐ ESCALATE NEWS (FIX FOR 404 ERROR)
-// ==========================
-app.put("/api/news/escalate/:id", async (req, res) => {
-  try {
-    const item = await findNews(req.params.id);
-    if (!item) return res.status(404).json({ error: "News not found" });
-
-    // Escalation typically implies full approval and verification
-    item.approved = true;
-    item.verified = true;
-    await item.save();
-
-    // Emit a socket event to update the admin dashboard in real-time
-    io.emit("news:escalated", { id: item._id, approved: true, verified: true });
-
-    res.json({ success: true, message: "News item escalated and approved." });
-  } catch (err) {
-    console.error("ESCALATE ERROR:", err);
-    res.status(500).json({ error: "Escalation failed" });
-  }
-});
-
-// ==========================
 // DELETE NEWS
 // ==========================
 app.delete("/api/news/delete/:id", async (req, res) => {
@@ -566,26 +543,26 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
 /*  
 ===========================================================
  ⭐ CORRECTED AI ANALYSIS ROUTE (Using Request Body)
-    FIX: ROUTE NOW MATCHES FRONTEND POST /api/ai/analyze-item
+    FIX: ROUTE NOW MATCHES FRONTEND POST /api/ai/analyze-item
 ===========================================================
 */
 app.post("/api/ai/analyze-item", async (req, res) => {
   try {
-    // 💡 Extract the necessary data from the request BODY
+    // 💡 Extract the necessary data from the request BODY
     const { itemId, title: bodyTitle, content: bodyContent } = req.body; 
     
-    // This part attempts to find the full item data in the DB
-    let item = null;
-    if (itemId) {
-        item = await News.findById(itemId);
-        if (!item) {
-            item = await Report.findById(itemId);
-        }
-    }
+    // This part attempts to find the full item data in the DB
+    let item = null;
+    if (itemId) {
+        item = await News.findById(itemId);
+        if (!item) {
+            item = await Report.findById(itemId);
+        }
+    }
 
     if (!item) {
-        console.warn(`Item ID ${itemId} not found in DB for analysis. Using raw content.`);
-    }
+        console.warn(`Item ID ${itemId} not found in DB for analysis. Using raw content.`);
+    }
 
     // Use data from DB if available, otherwise fall back to data sent from frontend (req.body)
     const incidentTitle = item?.title || item?.incidentType || bodyTitle || 'Untitled Report';

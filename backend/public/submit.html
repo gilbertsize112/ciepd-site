@@ -5,16 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CIEPD – Submit Report</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
+/* ========================================================== */
+/* 0. ROOT VARIABLES & GLOBAL STYLES */
+/* ========================================================== */
 :root {
-  --primary: #0077b6;
-  --secondary: #0096c7;
-  --dark: #023e8a;
+  --primary: #0077b6; /* Blue */
+  --secondary: #0096c7; /* Lighter Blue */
+  --dark: #023e8a; /* Dark Blue */
   --light: #e8f5ff;
   --white: #ffffff;
+  --alert-red: #c62828; /* Deep Red for Critical Alert */
+  --alert-dark-red: #a11f1f;
 }
 
-/* Background */
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
@@ -23,7 +29,7 @@ body {
   color: #333;
 }
 
-/* ===== BOUNCE ANIMATION ===== */
+/* ===== BOUNCE ANIMATION (No Change) ===== */
 @keyframes bounceSmooth {
   0% { transform: translateY(0); }
   30% { transform: translateY(-12px); }
@@ -37,7 +43,9 @@ body {
   animation: bounceSmooth 2.3s infinite ease-in-out;
 }
 
-/* ===== IMPROVED HEADER ===== */
+/* ========================================================== */
+/* 1. HEADER & NAVIGATION */
+/* ========================================================== */
 .header {
   background: rgba(0,0,0,0.55);
   padding: 60px 20px;
@@ -66,7 +74,6 @@ body {
   font-weight: 600;
 }
 
-/* ===== IMPROVED NAVIGATION ===== */
 .topnav {
   display: flex;
   justify-content: center;
@@ -97,7 +104,9 @@ body {
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
 
-/* Main Form Area */
+/* ========================================================== */
+/* 2. FORM LAYOUT & INPUTS */
+/* ========================================================== */
 .wrapper {
   width: 92%;
   max-width: 900px;
@@ -109,11 +118,11 @@ body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-/* Floating Input Group */
 .input-group {
   margin: 20px 0;
   position: relative;
 }
+
 .input-group input,
 .input-group textarea {
   width: 100%;
@@ -125,11 +134,13 @@ body {
   background: #f9fcff;
   transition: 0.2s;
 }
+
 .input-group input:focus,
 .input-group textarea:focus {
   border-color: var(--primary);
   background: white;
 }
+
 .input-group label {
   position: absolute;
   top: -10px;
@@ -146,13 +157,18 @@ body {
   margin-top: 10px;
   padding-left: 5px;
 }
+
 .category-box label {
   display: block;
   padding: 6px 0;
   font-size: 0.95rem;
 }
 
-/* Buttons */
+/* ========================================================== */
+/* 3. BUTTONS & ANIMATIONS */
+/* ========================================================== */
+
+/* ===== STANDARD SUBMIT BUTTON (Blue) - RESTORED ===== */
 .btn-submit {
   width: 100%;
   padding: 15px;
@@ -165,24 +181,48 @@ body {
   transition: 0.3s;
   margin-top: 10px;
 }
+
 .btn-submit:hover {
   background: var(--secondary);
   transform: translateY(-2px);
 }
 
-.btn-back {
+/* ===== ALERT DISPATCH BUTTON (Red) ===== */
+.btn-alert-dispatch {
   width: 100%;
-  padding: 12px;
-  background: #999;
+  padding: 18px; 
+  margin-top: 20px; 
+  background: var(--alert-red); 
   color: white;
   border: none;
-  margin-top: 15px;
-  border-radius: 10px;
+  border-radius: 15px; 
+  font-size: 1.2rem; 
+  font-weight: 800; 
   cursor: pointer;
   transition: 0.3s;
+  box-shadow: 0 6px 15px rgba(198, 40, 40, 0.4); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px; 
 }
-.btn-back:hover {
-  background: #777;
+
+.btn-alert-dispatch:hover {
+  background: var(--alert-dark-red);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(198, 40, 40, 0.6);
+}
+
+.btn-alert-dispatch i {
+  /* Animation for the bell icon */
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); color: #fff700; } /* Bell turns yellow briefly */
+    100% { transform: scale(1); }
 }
 
 /* Success Animation */
@@ -197,8 +237,9 @@ body {
   border-radius: 15px;
   box-shadow: 0 5px 25px rgba(0,0,0,0.2);
   font-size: 1.2rem;
-  color: var(--primary);
+  color: var(--alert-red); 
   animation: popFade 0.4s ease;
+  font-weight: 700;
 }
 
 @keyframes popFade {
@@ -206,7 +247,7 @@ body {
   to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
-/* ===== AI Box Styling ===== */
+/* ===== AI Box Styling (No Change) ===== */
 .ai-box {
   margin-top: 15px;
   padding: 15px;
@@ -224,6 +265,7 @@ body {
   cursor: pointer;
   font-weight: 600;
 }
+
 .ai-btn:hover {
   background: var(--primary);
 }
@@ -271,18 +313,15 @@ body {
       <textarea id="content" rows="5" required></textarea>
     </div>
 
-    <!-- ⭐⭐⭐ AI Assistant ⭐⭐⭐ -->
     <div class="ai-box">
       <button type="button" class="ai-btn" onclick="generateAI()">✨ AI Improve / Summarize Description</button>
       <div id="aiOutput" class="ai-output"></div>
     </div>
 
-    <!-- ⭐⭐⭐ CATEGORIES ⭐⭐⭐ -->
     <div>
       <label style="font-weight:600;color:var(--dark);">Categories *</label>
 
       <div class="category-box">
-
         <strong>Incidences of Violent Conflicts</strong>
         <label><input type="checkbox" name="category" value="Kidnapping"> Kidnapping</label>
         <label><input type="checkbox" name="category" value="WASH Related Conflict"> WASH Related Conflict</label>
@@ -310,7 +349,6 @@ body {
 
         <br><strong>Violence Against Women and Girls (VAWG)</strong>
         <label><input type="checkbox" name="category" value="VAWG"> VAWG</label>
-
       </div>
     </div>
 
@@ -320,19 +358,19 @@ body {
     </div> 
 
     <div class="input-group">
-  <label>News Source Link</label>
-  <input type="url" id="newsSource">
-</div>
+      <label>News Source Link</label>
+      <input type="url" id="newsSource">
+    </div>
 
-<div class="input-group">
-  <label>External Video Link</label>
-  <input type="url" id="videoLink">
-</div>
+    <div class="input-group">
+      <label>External Video Link</label>
+      <input type="url" id="videoLink">
+    </div>
 
-<div class="input-group">
-  <label>Upload Photos</label>
-  <input type="file" id="photos" accept="image/*" multiple>
-</div>
+    <div class="input-group">
+      <label>Upload Photos</label>
+      <input type="file" id="photos" accept="image/*" multiple>
+    </div>
 
     <h3 style="color:var(--primary);margin-top:25px;">Optional Information</h3>
 
@@ -351,78 +389,88 @@ body {
       <input type="email" id="email">
     </div>
 
-    <button type="submit" class="btn-submit">Submit Report</button>
-
+    <button type="submit" class="btn-alert-dispatch" id="alertDispatchButton">
+      <i class="fa-solid fa-bell"></i> Dispatch IMMEDIATE Alert (Email & WhatsApp) <i class="fa-solid fa-bell"></i>
+    </button>
+    
+    <button type="submit" class="btn-submit">Submit Report (Standard)</button>
+    
   </form>
 </div>
 
-<div id="successPopup" class="success-popup">Report Submitted Successfully!</div>
+<div id="successPopup" class="success-popup">Alert Dispatched Successfully!</div>
 
 <script>
-const form = document.getElementById("reportForm");
+// ==========================================================
+// JAVASCRIPT LOGIC
+// ==========================================================
+const form = document.getElementById("reportForm"); 
 const popup = document.getElementById("successPopup");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  // --- 1. Determine Submission Type and Collect Data ---
+  // The 'submitter' property tells us which button triggered the submit event
+  const clickedButton = e.submitter; 
+  
   const title = document.getElementById("title").value.trim();
   const content = document.getElementById("content").value.trim();
   const location = document.getElementById("location").value.trim();
-  const firstName = document.getElementById("firstName").value.trim();
-  const lastName = document.getElementById("lastName").value.trim();
-  const email = document.getElementById("email").value.trim();
-
-  // ⭐ FIXED IDs ⭐
-  const newsSource = document.getElementById("newsSource").value.trim();
-  const videoLink = document.getElementById("videoLink").value.trim();
-  const photos = document.getElementById("photos").files;
-
+  
   const categories = Array.from(
     document.querySelectorAll('input[name="category"]:checked')
   ).map(c => c.value);
 
   if (!title || !content || !location || categories.length === 0) {
-    alert("Please fill all required fields.");
+    alert("Please fill all required fields (Title, Description, Location, and select at least one Category).");
     return;
   }
 
-  /* ⭐⭐ PREPARE FORM DATA FOR FILE UPLOAD ⭐⭐ */
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("content", content);
-  formData.append("location", location);
-  formData.append("firstName", firstName);
-  formData.append("lastName", lastName);
-  formData.append("email", email);
-  formData.append("newsSource", newsSource);
-  formData.append("videoLink", videoLink);
-  categories.forEach(c => formData.append("category", c));
-
-  // append all selected photos
-  for (let i = 0; i < photos.length; i++) {
-    formData.append("photos", photos[i]);
-  }
-
+  // --- 2. Prepare Form Data ---
+  const formData = new FormData(form); 
+  
+  // This flag tells the server which button was pressed (Alert vs. Standard Submit)
+  const isCriticalAlert = clickedButton.classList.contains('btn-alert-dispatch');
+  formData.append('isCriticalAlert', isCriticalAlert ? 'true' : 'false');
+  
+  // --- 3. API Call to Backend ---
   const apiURL = window.location.hostname.includes("localhost")
     ? "http://localhost:3000/api/report"
     : "https://ciepd-backend.onrender.com/api/report";
 
-  const res = await fetch(apiURL, {
-    method: "POST",
-    body: formData   // ⭐ removed JSON — now supports photos
-  });
+  let successMessage = "Report Submitted Successfully!";
 
-  const data = await res.json();
+  if (isCriticalAlert) {
+      // If the RED button was clicked, change the success message
+      successMessage = "🚨 Alert Dispatched! Agencies Notified via Email/WhatsApp!";
+  }
 
-  if (res.ok) {
-    popup.style.display = "block";
-    setTimeout(() => { popup.style.display = "none"; form.reset(); }, 2000);
-  } else {
-    alert("Error submitting report: " + (data.message || "Unknown error"));
+  try {
+    const res = await fetch(apiURL, {
+      method: "POST",
+      body: formData
+    });
+  
+    const data = await res.json();
+  
+    if (res.ok) {
+      // Success feedback
+      popup.innerHTML = successMessage;
+      // Change success popup color/style based on alert type (optional, but good UX)
+      popup.style.color = isCriticalAlert ? 'var(--alert-red)' : 'var(--dark)'; 
+      popup.style.display = "block";
+      setTimeout(() => { popup.style.display = "none"; form.reset(); }, 4000); 
+    } else {
+      // Error feedback
+      alert("Error submitting report: " + (data.message || "Unknown error. Check server logs."));
+    }
+  } catch (error) {
+    alert("Connection error: Could not reach the server API.");
   }
 });
 
-/* ⭐ AI FUNCTION — unchanged (but can use new IDs if needed) ⭐ */
+/* AI FUNCTION — (No Change) */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
@@ -472,8 +520,5 @@ async function generateAI() {
   }
 }
 </script>
-
-
-
 </body>
 </html>
