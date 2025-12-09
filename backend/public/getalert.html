@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIEPD Get Alerts – Real-Time Safety Notifications</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* ---------------------------------------------------- */
@@ -14,7 +14,7 @@
         :root {
             --primary: #0066cc; /* Deep Blue - Strong Primary */
             --secondary: #00aaff; /* Light Blue - Accent */
-            --bg-light: #f5f7fa;
+            --bg-light: #ebf2f6; 
             --bg-card: #ffffff;
             --text-dark: #2c3e50;
             --text-muted: #7f8c8d;
@@ -28,9 +28,16 @@
         body { 
             margin: 0; 
             font-family: 'Montserrat', sans-serif; 
-            background-color: var(--bg-light); 
-            color: var(--text-dark); 
+            color: #2c3e50; 
             line-height: 1.6;
+            position: relative;
+            min-height: 100vh;
+            z-index: 1; 
+        }
+
+        /* Adjust colors for better readability on video background if needed, but keeping original for form boxes */
+        .container h2 {
+            color: var(--primary); 
         }
 
         a { 
@@ -42,33 +49,56 @@
             color: var(--secondary); 
             text-decoration: underline; 
         }
+        
+        /* ---------------------------------------------------- */
+        /* BACKGROUND VIDEO STYLES */
+        /* ---------------------------------------------------- */
+        #video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%; 
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100;
+            overflow: hidden;
+        }
 
         /* ---------------------------------------------------- */
-        /* 2. HEADER AND NAVIGATION */
+        /* 2. HEADER AND NAVIGATION - MODIFIED FOR TRANSPARENCY & MOBILE */
         /* ---------------------------------------------------- */
         #header {
-            background: var(--primary);
-            padding: 25px 20px;
+            background: rgba(0, 0, 0, 0.6); /* Slightly darker for better mobile contrast */
+            padding: 15px 15px; /* Reduced padding for mobile */
             text-align: center;
-            color: white;
+            color: white; 
             box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            position: relative; 
+            z-index: 10; 
         }
 
         #header h1 {
-            font-size: 2.2em;
+            font-size: 1.8em; /* Smaller on mobile */
             margin: 0 0 5px 0;
             font-weight: 800;
+            color: #fff; 
         }
 
         #header span {
-            font-size: 0.95em;
+            font-size: 0.85em; /* Smaller on mobile */
             opacity: 0.9;
+            color: #fff; 
+            display: block; /* Ensures it takes full width below H1 on mobile */
         }
 
         #nav {
             background-color: var(--bg-card);
             border-bottom: 1px solid var(--border-color);
             box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            z-index: 9; 
+            /* Added padding for mobile to contain wrap items */
+            padding: 5px 0; 
         }
 
         #nav ul {
@@ -77,6 +107,7 @@
             list-style: none; 
             margin: 0; 
             padding: 0;
+            flex-wrap: wrap; /* Allows navigation items to wrap on smaller screens */
         }
 
         #nav li {
@@ -86,12 +117,13 @@
         #nav a {
             color: var(--text-dark);
             font-weight: 600;
-            padding: 15px 20px;
+            padding: 10px 10px; /* Reduced padding for mobile */
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.95em;
+            gap: 5px; /* Reduced gap */
+            font-size: 0.85em; /* Smaller font for mobile */
             transition: background-color 0.2s, color 0.2s;
+            text-align: center;
         }
 
         #nav a:hover {
@@ -109,30 +141,34 @@
         /* 3. MAIN CONTAINER & LAYOUT */
         /* ---------------------------------------------------- */
         .container { 
-            max-width: 1200px; /* Wider container for better professional look */
-            margin: 40px auto; 
-            padding: 0 20px;
+            max-width: 1200px;
+            margin: 20px auto; /* Reduced margin for mobile */
+            padding: 0 15px; /* Reduced padding for mobile */
         }
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr; /* Alerts form on left, Map/Reports on right */
-            gap: 30px;
+            grid-template-columns: 1fr 2fr; 
+            gap: 20px; /* Reduced gap for mobile */
         }
 
         h2 { 
             color: var(--primary); 
-            margin-bottom: 20px; 
-            font-size: 1.8em; 
+            margin-bottom: 15px; /* Reduced margin */
+            font-size: 1.6em; /* Slightly smaller for mobile */
             font-weight: 700;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 2px solid var(--border-color);
         }
         
         .section-intro {
-            font-size: 1.1em;
+            font-size: 1em; /* Smaller font */
             color: var(--text-muted);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            /* Added background for readability over video */
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly less transparent */
+            padding: 10px;
+            border-radius: var(--radius);
         }
 
         /* ---------------------------------------------------- */
@@ -140,30 +176,31 @@
         /* ---------------------------------------------------- */
         .alert-box {
             background: var(--bg-card);
-            padding: 30px;
+            padding: 20px; /* Reduced padding for mobile */
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            border-top: 5px solid var(--secondary); /* Highlight the form */
+            border-top: 5px solid var(--secondary);
+            height: fit-content; 
         }
 
         .alert-box h3 {
             margin-top: 0;
             color: var(--text-dark);
-            font-size: 1.6em;
+            font-size: 1.4em; /* Smaller font for mobile */
             font-weight: 700;
             border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced margin */
         }
 
         .alert-box label {
             display: block;
-            margin-bottom: 6px;
-            font-size: 1em;
+            margin-bottom: 5px;
+            font-size: 0.95em;
             font-weight: 600;
             color: var(--text-dark);
         }
@@ -171,7 +208,7 @@
         .alert-box input, 
         .alert-box select {
             width: 100%;
-            padding: 12px;
+            padding: 10px; /* Reduced padding */
             border-radius: 6px;
             border: 1px solid var(--border-color);
             font-size: 1em;
@@ -179,22 +216,15 @@
             transition: border-color 0.3s, box-shadow 0.3s;
         }
 
-        .alert-box input:focus, 
-        .alert-box select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
-        }
-
         .alert-btn {
-            margin-top: 25px;
+            margin-top: 20px; /* Reduced margin */
             background-color: var(--secondary);
             color: white;
-            padding: 15px 15px;
+            padding: 12px 15px; /* Reduced padding */
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1.1em;
+            font-size: 1em; /* Reduced font size */
             font-weight: 700;
             width: 100%;
             transition: 0.3s;
@@ -213,52 +243,81 @@
         /* 5. MAP AND REPORTS (Right Column) */
         /* ---------------------------------------------------- */
         .map-wrapper { 
-            height: 350px; 
-            margin-bottom: 25px; 
+            height: 300px; /* Reduced height for mobile */
+            margin-bottom: 20px; 
             border: 1px solid var(--border-color); 
             border-radius: var(--radius); 
             overflow: hidden; 
             box-shadow: var(--shadow);
+            position: relative;
         }
-
+        
+        /* Map Image/Placeholder */
         .map-wrapper img {
              width:100%; 
              height:100%; 
              object-fit: cover;
              display: block;
         }
+        
+        /* Dynamic Overlay for Alert Zone Message */
+        #alertZoneMessage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 102, 204, 0.85); 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em; /* Smaller font for mobile */
+            font-weight: 700;
+            text-align: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none; 
+        }
+
+        #alertZoneMessage i {
+            margin-bottom: 10px;
+        }
+        
+        #alertZoneMessage.show {
+            opacity: 1;
+        }
 
         .report-list-container {
             background: var(--bg-card);
-            padding: 30px;
+            padding: 20px; /* Reduced padding for mobile */
             border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
 
         .report-item { 
             border-bottom: 1px dashed var(--border-color); 
-            padding: 15px 0; 
-        }
-
-        .report-item:last-child { 
-            border-bottom: none; 
+            padding: 10px 0; /* Reduced padding */
         }
 
         .report-title { 
             font-weight: 700; 
             color: var(--primary); 
-            font-size: 1.1em; 
-            margin-bottom: 5px;
+            font-size: 1em; 
+            margin-bottom: 3px;
+            display: block; 
         }
         
         .report-content {
-            font-size: 0.95em;
+            font-size: 0.9em; /* Smaller font for mobile */
             color: var(--text-dark);
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .report-date {
-            font-size: 0.85em;
+            font-size: 0.8em; /* Smaller font for mobile */
             color: var(--text-muted);
             font-style: italic;
         }
@@ -267,66 +326,73 @@
         .pagination {
             display: flex;
             justify-content: center;
-            margin-top: 25px;
-            gap: 15px;
+            margin-top: 20px;
+            gap: 10px;
         }
 
         .pagination button {
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 6px;
             border: none;
             cursor: pointer;
             background: var(--primary);
             color: white;
-            font-size: 1em;
+            font-size: 0.9em;
             font-weight: 600;
             transition: 0.3s;
-        }
-
-        .pagination button:hover:not(:disabled) {
-            background: #005f99;
-        }
-
-        .pagination button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            color: #7f8c8d;
         }
 
         /* FOOTER */
         footer { 
             text-align: center; 
-            padding: 30px; 
-            font-size: 0.9em; 
+            padding: 20px 10px; /* Reduced padding */
+            font-size: 0.8em; /* Smaller font */
             color: var(--text-muted); 
-            margin-top: 40px; 
+            margin-top: 20px; 
             border-top: 1px solid var(--border-color);
             background-color: var(--bg-card);
         }
 
-        /* Responsive Adjustments */
+        /* ---------------------------------------------------- */
+        /* RESPONSIVE MEDIA QUERY (The core change for mobile) */
+        /* ---------------------------------------------------- */
         @media (max-width: 900px) {
             .main-grid {
-                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+                /* Stacks the 1fr and 2fr columns into a single column on small screens */
+                grid-template-columns: 1fr; 
             }
             .container {
                 margin: 20px auto;
             }
             #nav ul {
-                flex-wrap: wrap;
+                /* Ensures nav items wrap if necessary */
+                flex-wrap: wrap; 
             }
             #nav a {
+                /* Give each nav item more space */
                 padding: 12px 10px;
+                flex-grow: 1; 
+                justify-content: center;
+            }
+            
+            /* Remove white background from h2 in the right column, as its parent is now stacked below a white box */
+            div > h2[style] {
+                background-color: transparent !important;
+                padding: 0 !important;
             }
         }
     </style>
 </head>
 
 <body>
-
+    <video autoplay muted loop id="video-background">
+        <source src="videos/vid.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
     <div id="header">
         <h1>CIEPD Watch Center</h1>
-        <span>Submit Reports via: <strong>09056454523</strong> | <i class="fab fa-whatsapp"></i> WhatsApp/SMS</span>
+        <span>Submit Reports via: **09056454523** | <i class="fab fa-whatsapp"></i> WhatsApp/SMS</span>
     </div>
 
     <nav id="nav">
@@ -334,7 +400,7 @@
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
             <li><a href="submit.html"><i class="fas fa-plus-circle"></i> Submit Report</a></li>
-            <li><a href="get_alert.html" class="active"><i class="fas fa-bell"></i> Get Alerts</a></li>
+            <li><a href="getalert.html" class="active"><i class="fas fa-bell"></i> Get Alerts</a></li>
             <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
             <li><a href="admin-map.html"><i class="fas fa-map-marked-alt"></i> Big Map</a></li>
         </ul>
@@ -361,7 +427,7 @@
 
                     <div class="form-group">
                         <label for="alertLocation"><i class="fas fa-map-marker-alt"></i> Select Your Location (State/LGA)</label>
-                        <select id="alertLocation" required>
+                        <select id="alertLocation" required onchange="updateAlertZoneVisual()">
                             <option value="">-- Select Location --</option>
                             <option>Rivers State</option>
                             <option>Akwaibom State</option>
@@ -390,11 +456,12 @@
             </div>
             
             <div>
-                <h2><i class="fas fa-globe-africa"></i> Alert Zone Visualizer</h2>
+                <h2 style="background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 10px; border-bottom: none;"><i class="fas fa-globe-africa"></i> Alert Zone Visualizer</h2>
                 <div class="map-wrapper" id="divMap">
-                    <img src="Nigerdelta.jpg" alt="Map of the Niger Delta Region">
+                    <img id="mapImage" src="Nigerdelta.jpg" alt="Map of the Niger Delta Region">
+                    <div id="alertZoneMessage"></div>
                 </div>
-                <p style="text-align: center; font-size: 0.9em; color: var(--text-muted);">The map visually represents the 20km radius alert zone you selected.</p>
+                <p style="text-align: center; font-size: 0.9em; color: var(--text-muted); background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 10px;">The map visually represents the 20km radius alert zone you selected.</p>
 
                 <div class="report-list-container" style="margin-top: 30px;">
                     <h2><i class="fas fa-clipboard-list"></i> Latest Field Reports</h2>
@@ -412,21 +479,37 @@
     </div>
 
     <footer> 
-        &copy; 2025 CIEPD Conflict/Peace Watch Center. Powered by <a href="http://www.ushahidi.com/">SammyTech</a> Platform.
+        &copy; 2025 CIEPD Conflict/Peace Watch Center. Powered by <a href="">SammyTech</a> Platform.
     </footer>
 
     <script>
         const el = (id) => document.getElementById(id);
 
+        /* ------------- VISUALIZER FUNCTION ------------- */
+        function updateAlertZoneVisual() {
+            const location = el("alertLocation").value;
+            const messageEl = el("alertZoneMessage");
+
+            if (location) {
+                messageEl.innerHTML = `<i class="fas fa-location-arrow fa-2x"></i><br>Alert Zone Active in<br>**${location}** (20km Radius)`;
+                messageEl.classList.add('show');
+            } else {
+                messageEl.classList.remove('show');
+            }
+        }
+
         /* ------------- REPORT PAGINATION SETTINGS ------------- */
         let currentPage = 1;
-        const pageSize = 5; // Reduced page size for a cleaner look
+        const pageSize = 5;
         let allReports = [];
 
         /* ---------------- FETCH LATEST REPORTS ---------------- */
         async function fetchReports() {
             try {
+                // NOTE: Ensure your API endpoint 'http://localhost:3000/get-news' is correct and running.
                 const response = await fetch('http://localhost:3000/get-news');
+                if (!response.ok) throw new Error('Failed to fetch reports.');
+                
                 const reports = await response.json();
 
                 // Sort reports by date (most recent first)
@@ -434,16 +517,17 @@
                 renderPage();
 
             } catch (err) {
+                console.error("Error fetching reports:", err);
                 el('reportList').innerHTML = '<p style="color: red; text-align: center;">Could not load reports. Please check the backend server.</p>';
             }
         }
 
         function renderPage() {
             const container = el('reportList');
-            const messageEl = el('subscriptionMessage');
 
             if (allReports.length === 0) {
-                container.innerHTML = "<p>No reports available at this time.</p>";
+                container.innerHTML = "<p style='text-align: center;'>No reports available at this time.</p>";
+                updatePaginationButtons();
                 return;
             }
 
@@ -456,10 +540,13 @@
             pageItems.forEach(report => {
                 const div = document.createElement('div');
                 div.className = 'report-item';
+                
+                const contentSummary = report.content ? report.content.substring(0, 150) + '...' : 'No summary provided.';
+                const reportUrl = `report-details.html?id=${report._id || ''}`;
 
                 div.innerHTML = `
-                    <div class="report-title">${report.title || 'Untitled Report'}</div>
-                    <div class="report-content">${report.content ? report.content.substring(0, 150) + '...' : 'No summary provided.'}</div>
+                    <a href="${reportUrl}" class="report-title">${report.title || 'Untitled Report'}</a>
+                    <div class="report-content">${contentSummary}</div>
                     <div class="report-date">
                         <i class="fas fa-calendar-alt"></i> ${new Date(report.createdAt).toLocaleString()} 
                         | <i class="fas fa-map-pin"></i> ${report.location || 'N/A'}
@@ -476,19 +563,25 @@
             const totalPages = Math.ceil(allReports.length / pageSize);
 
             el("prevBtn").disabled = currentPage === 1;
-            el("nextBtn").disabled = currentPage >= totalPages;
+            el("nextBtn").disabled = currentPage >= totalPages || totalPages === 0;
         }
 
         function nextPage() {
             currentPage++;
             renderPage();
-            window.scrollTo(0, el('reportList').offsetTop - 50); // Scroll to the list
+            window.scrollTo({
+                top: el('reportList').offsetTop - 50,
+                behavior: 'smooth'
+            });
         }
 
         function prevPage() {
             currentPage--;
             renderPage();
-            window.scrollTo(0, el('reportList').offsetTop - 50); // Scroll to the list
+            window.scrollTo({
+                top: el('reportList').offsetTop - 50,
+                behavior: 'smooth'
+            });
         }
 
         /* ---------------- ALERT SUBSCRIPTION ---------------- */
@@ -512,16 +605,17 @@
             messageEl.textContent = "Subscribing...";
             messageEl.style.color = 'var(--primary)';
 
-            /* ---- Auto-add +234 for WhatsApp/SMS (Replaced alert() with in-page messaging) ---- */
-            if (!phone.startsWith("+")) {
-                if (phone.startsWith("0")) {
-                    phone = "+234" + phone.substring(1);
-                } else {
+            /* ---- Auto-add +234 for WhatsApp/SMS (Standard Nigerian format) ---- */
+            if (phone.startsWith("0")) {
+                phone = "+234" + phone.substring(1); 
+            } else if (!phone.startsWith("+")) {
+                if (phone.length === 10) { 
                     phone = "+234" + phone;
                 }
             }
             
             try {
+                // NOTE: Ensure your API endpoint 'http://localhost:3000/subscribe-alert' is correct and running.
                 const response = await fetch("http://localhost:3000/subscribe-alert", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -533,21 +627,25 @@
                 if (response.ok) {
                     messageEl.textContent = `✔ Success! You are subscribed for alerts in ${location} via ${method}.`;
                     messageEl.style.color = 'green';
-                    document.getElementById("alertForm").reset(); // Clear form on success
+                    document.getElementById("alertForm").reset(); 
+                    updateAlertZoneVisual(); 
                 } else {
                     messageEl.textContent = "Subscription failed: " + (data.message || "Server Error.");
                     messageEl.style.color = 'red';
                 }
 
             } catch (error) {
-                messageEl.textContent = "Network error. Please try again later.";
+                messageEl.textContent = "Network error. Please check your connection and try again.";
                 messageEl.style.color = 'red';
-                console.error(error);
+                console.error("Subscription Error:", error);
             }
         }
 
-        fetchReports(); // Initial load
+        // Initial calls
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchReports(); 
+            updateAlertZoneVisual(); 
+        });
     </script>
-
 </body>
 </html>
