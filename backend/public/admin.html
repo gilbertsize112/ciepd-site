@@ -53,6 +53,39 @@
     }
 
     /* ---------------------------------------------------- */
+    /* ⭐ VIDEO BACKGROUND STYLING (NEW SECTION) ⭐ */
+    /* ---------------------------------------------------- */
+    #video-background {
+        position: fixed; /* Fixes video relative to viewport */
+        right: 0;
+        bottom: 0;
+        min-width: 100%; 
+        min-height: 100%; 
+        z-index: -200; /* Puts the video way behind everything else */
+        object-fit: cover; 
+        filter: brightness(30%); /* Dims the video significantly for contrast */
+        transition: filter 0.3s;
+    }
+    .dark #video-background {
+        filter: brightness(20%); /* Even darker in dark mode */
+    }
+
+    /* Content Wrapper to sit ABOVE the video */
+    #content-wrapper {
+        position: relative; 
+        z-index: 10; 
+        min-height: 100vh;
+    }
+
+    /* Adjust main body background so the video shows */
+    body {
+        background: transparent !important; 
+        color: var(--text-dark); /* Ensure text is readable */
+    }
+    /* ---------------------------------------------------- */
+
+
+    /* ---------------------------------------------------- */
     /* 2. HEADER AND NAVIGATION */
     /* ---------------------------------------------------- */
     .header{
@@ -60,7 +93,9 @@
         align-items:center;
         justify-content:space-between;
         padding:18px 30px;
-        background: var(--card);
+        /* Using rgba color for semi-transparency over the video */
+        background: rgba(var(--card-rgb, 255, 255, 255), 0.9); 
+        backdrop-filter: blur(5px); /* Add blur effect for modern look */
         border-bottom: 1px solid var(--border-light);
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         position: sticky;
@@ -68,6 +103,15 @@
         z-index: 1000;
         transition: background-color 0.3s, border-bottom 0.3s, box-shadow 0.3s;
     }
+
+    /* Custom RGB for background calculation in JS (will require a small JS update) */
+    :root {
+        --card-rgb: 255, 255, 255;
+    }
+    .dark {
+        --card-rgb: 31, 42, 55; /* RGB value for #1f2a37 */
+    }
+
 
     .brand {
         font-weight:800;
@@ -115,21 +159,24 @@
         gap:12px;
         justify-content:center;
         padding:12px;
-        background: rgba(0, 119, 182, 0.05);
+        /* Using rgba color for semi-transparency over the video */
+        background: rgba(0, 119, 182, 0.1); 
         border-bottom: 1px solid var(--border-light);
         transition: background-color 0.3s, border-bottom 0.3s;
+        flex-wrap: wrap; /* Added for responsiveness */
     }
     .nav-bar a{
         text-decoration:none;
         padding:10px 18px;
         border-radius:999px;
-        color:var(--accent);
+        color:var(--text-dark); /* Changed from accent to dark text for contrast */
         border:1px solid transparent;
         font-weight:500;
         transition: 0.2s;
     }
     .nav-bar a:hover{
-        background: rgba(0, 119, 182, 0.1);
+        background: rgba(0, 119, 182, 0.2);
+        color: var(--primary);
     }
     .nav-bar a.special-btn{
         background:var(--primary);
@@ -168,7 +215,9 @@
         width:96%;
         max-width:1300px;
         margin:28px auto;
-        background:var(--card);
+        /* Using rgba color for transparency over the video */
+        background: rgba(var(--card-rgb, 255, 255, 255), 0.95); 
+        backdrop-filter: blur(3px);
         border-radius:var(--radius);
         padding:30px;
         box-shadow: 0 10px 30px rgba(3,37,61,0.08);
@@ -191,6 +240,7 @@
 
     /* ---------------------------------------------------- */
     /* 5. FILTERS AND BUTTONS */
+    /* (Existing styles for filters and buttons remain here) */
     /* ---------------------------------------------------- */
     .filters{
         display:flex;
@@ -203,7 +253,7 @@
         border-radius:8px;
         border:1px solid var(--border-light);
         min-width:250px;
-        background:var(--bg-light);
+        background:var(--card); /* Changed to card for contrast */
         transition: border-color 0.2s, background-color 0.3s, color 0.3s;
         font-size: 15px;
         color: var(--text-dark);
@@ -268,7 +318,6 @@
         margin-top:20px;
     }
     .news-card{
-        /* Use card variable for background */
         background: var(--card);
         padding:20px;
         border-radius:var(--radius);
@@ -278,8 +327,8 @@
         transition:0.2s;
         display: flex;
         flex-direction: column;
-        min-height: 180px; /* Ensure visual consistency */
-        border: 1px solid var(--border-light); /* Added border for definition in dark mode */
+        min-height: 180px; 
+        border: 1px solid var(--border-light); 
     }
     .news-card:hover{
         transform: translateY(-8px);
@@ -396,7 +445,7 @@
         padding: 10px;
         background: var(--bg-light);
         border-radius: 8px;
-        border: 1px solid var(--border-light); /* Added border for dark mode contrast */
+        border: 1px solid var(--border-light); 
         font-size: 14px;
         font-weight: 500;
         color: var(--muted);
@@ -411,7 +460,7 @@
     .panel-actions {
         display: flex;
         gap: 15px;
-        flex-wrap: wrap; /* Added for responsiveness */
+        flex-wrap: wrap; 
         align-items: center;
         margin-top: 20px;
         padding-top: 15px;
@@ -419,22 +468,21 @@
         transition: border-top 0.3s;
     }
     
-    /* Panel Action Button Styles (updated with btn-escalate) */
     .btn-verify{ background:var(--success); color:white; }
     .btn-approve{ background:var(--primary); color:white; }
-    .btn-analyze{ background:var(--accent); color:white; } /* New color for Analyze */
+    .btn-analyze{ background:var(--accent); color:white; } 
     .btn-delete{ background:var(--danger); color:white; }
 
     /* ⭐ NEW ESCALATE BUTTON STYLE ⭐ */
     .btn-escalate{ 
         background: var(--warning); 
-        color: var(--accent); /* Dark text for high contrast on warning background */
+        color: var(--accent); 
         font-weight: 800;
         box-shadow: 0 4px 10px rgba(255, 183, 3, 0.4);
-        animation: pulse-escalate 1.5s infinite; /* Added a subtle animation */
+        animation: pulse-escalate 1.5s infinite; 
     }
     .btn-escalate:hover {
-        background: #e6a800; /* Slightly darker on hover */
+        background: #e6a800; 
         animation: none;
     }
     @keyframes pulse-escalate {
@@ -450,7 +498,6 @@
     /* ---------------------------------------------------- */
 
     @media (max-width: 1200px) {
-        /* Adjust news grid to slightly smaller cards on large tablets */
         .news-grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         }
@@ -459,14 +506,13 @@
     @media (max-width: 900px) {
         /* A. HEADER and NAVIGATION */
         .header {
-            /* Enable wrapping or stacking for smaller screens */
             flex-wrap: wrap;
             justify-content: center;
             padding: 15px 20px;
             gap: 10px;
         }
         .header > div { 
-            order: 3; /* Move scroll and dark mode toggle down */
+            order: 3; 
             width: 100%;
             justify-content: space-between;
             display: flex;
@@ -481,10 +527,10 @@
             font-size: 14px;
         }
         .scroll-container {
-            width: 70%; /* Give scroll text more room */
+            width: 70%; 
         }
         .nav-bar {
-            flex-wrap: wrap; /* Allow links to wrap */
+            flex-wrap: wrap; 
             justify-content: flex-start;
             gap: 8px;
             padding: 10px 20px;
@@ -500,25 +546,24 @@
             margin: 15px auto;
         }
         .top-row {
-            flex-direction: column; /* Stack H1 and view mode buttons */
+            flex-direction: column; 
             align-items: flex-start;
             gap: 15px;
         }
         .filters {
-            flex-direction: column; /* Stack filters vertically */
+            flex-direction: column; 
             gap: 10px;
         }
         .filters input, .filters select {
-            min-width: 100%; /* Full width for filters */
+            min-width: 100%; 
         }
 
         /* C. NEWS GRID */
         .news-grid {
-            grid-template-columns: 1fr; /* Single column for better readability */
+            grid-template-columns: 1fr; 
         }
 
         /* D. DETAIL PANEL */
-        /* Force side panel to full width on mobile/tablet */
         .side-panel.open { 
             width: 100%; 
         } 
@@ -529,7 +574,7 @@
             font-size: 22px;
         }
         .panel-actions button {
-            width: 100%; /* Full width buttons for easy tap */
+            width: 100%; 
             justify-content: center;
         }
     }
@@ -537,17 +582,16 @@
     @media (max-width: 500px) {
         /* Further adjustments for narrow phones */
         .header > div {
-             /* Stack scroll and dark mode toggle */
             flex-direction: column;
             align-items: flex-start;
         }
         .scroll-container {
-            width: 100%; /* Full width */
+            width: 100%; 
             margin-bottom: 10px;
         }
         #darkModeToggle {
             margin-left: 0;
-            position: absolute; /* Float toggle button top right */
+            position: absolute; 
             top: 15px;
             right: 15px;
         }
@@ -555,7 +599,7 @@
             margin-top: 10px;
         }
         .top-row > div {
-            flex-direction: column; /* Stack View News/View Reports buttons */
+            flex-direction: column; 
             width: 100%;
         }
         .top-row > div button {
@@ -563,41 +607,47 @@
              justify-content: center;
         }
         #pagination {
-            flex-wrap: wrap; /* Allow pagination to wrap */
+            flex-wrap: wrap; 
         }
     }
 </style>
 </head>
 <body>
 
-<header class="header">
-    <div class="brand">
-        <i class="fas fa-shield-alt"></i> CIEPD Admin
-    </div>
-    <div style="display: flex; align-items: center;">
-        <div class="scroll-container">
-            <div class="scroll-text">Conflict Watch Center: Stay alert, stay informed.</div>
+<video autoplay muted loop id="video-background">
+    <source src="videos/vid.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+
+<div id="content-wrapper">
+
+    <header class="header">
+        <div class="brand">
+            <i class="fas fa-shield-alt"></i> CIEPD Admin
         </div>
-        <button id="darkModeToggle" aria-label="Toggle Dark Mode">
-            <i class="fas fa-sun"></i>
+        <div style="display: flex; align-items: center;">
+            <div class="scroll-container">
+                <div class="scroll-text">Conflict Watch Center: Stay alert, stay informed.</div>
+            </div>
+            <button id="darkModeToggle" aria-label="Toggle Dark Mode">
+                <i class="fas fa-sun"></i>
+            </button>
+        </div>
+        <button onclick="window.location.href='login.html'" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
         </button>
-    </div>
-    <button onclick="window.location.href='login.html'" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
-</header>
+    </header>
 
-<nav class="nav-bar">
-    <a href="admin.html"><i class="fas fa-home"></i> Home</a>
-    <a href="report.html"><i class="fas fa-file-alt"></i> Reports</a>
-    <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
-    <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
-    <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
-    <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
-    <a href="urgent-queue.html" class="special-btn" style="background: var(--danger);"><i class="fas fa-fire"></i> Urgent Queue</a>
-    <a href="admin-map.html" class="special-btn"><i class="fas fa-map-marked-alt"></i> Big Map</a>
-</nav>
-
+    <nav class="nav-bar">
+        <a href="admin.html"><i class="fas fa-home"></i> Home</a>
+        <a href="report.html"><i class="fas fa-file-alt"></i> Reports</a>
+        <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
+        <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
+        <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
+        <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
+        <a href="urgent-queue.html" class="special-btn" style="background: var(--danger);"><i class="fas fa-fire"></i> Urgent Queue</a>
+        <a href="admin-map.html" class="special-btn"><i class="fas fa-map-marked-alt"></i> Big Map</a>
+    </nav>
 <main class="container">
 
     <div class="top-row">
