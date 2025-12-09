@@ -27,6 +27,7 @@
         --radius: 12px;
         --border-light: #e6eef6;
         --text-dark: #333;
+        --card-rgb: 255, 255, 255; /* RGB for Light Mode Header/Container opacity */
     }
 
     /* ---------------------------------------------------- */
@@ -39,35 +40,37 @@
         --bg-light: #121820; /* Very dark main background */
         --border-light: #2c3e50;
         --text-dark: #e6f7ff; /* Text is light */
+        --card-rgb: 31, 42, 55; /* RGB for Dark Mode Header/Container opacity */
     }
 
     * { box-sizing: border-box; }
     body{
         margin:0;
         font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
-        background: var(--bg-light);
+        /* BACKGROUND IS SET TO TRANSPARENT BELOW TO SHOW VIDEO */
+        background: var(--bg-light); 
         color: var(--accent);
         min-height:100vh;
         line-height: 1.6;
-        transition: background-color 0.3s, color 0.3s; /* Smooth transition for theme change */
+        transition: background-color 0.3s, color 0.3s; 
     }
 
     /* ---------------------------------------------------- */
     /* ⭐ VIDEO BACKGROUND STYLING (NEW SECTION) ⭐ */
     /* ---------------------------------------------------- */
     #video-background {
-        position: fixed; /* Fixes video relative to viewport */
+        position: fixed; 
         right: 0;
         bottom: 0;
         min-width: 100%; 
         min-height: 100%; 
-        z-index: -200; /* Puts the video way behind everything else */
+        z-index: -200; 
         object-fit: cover; 
-        filter: brightness(30%); /* Dims the video significantly for contrast */
+        filter: brightness(30%); 
         transition: filter 0.3s;
     }
     .dark #video-background {
-        filter: brightness(20%); /* Even darker in dark mode */
+        filter: brightness(20%); 
     }
 
     /* Content Wrapper to sit ABOVE the video */
@@ -93,9 +96,9 @@
         align-items:center;
         justify-content:space-between;
         padding:18px 30px;
-        /* Using rgba color for semi-transparency over the video */
+        /* Semi-transparent background for header */
         background: rgba(var(--card-rgb, 255, 255, 255), 0.9); 
-        backdrop-filter: blur(5px); /* Add blur effect for modern look */
+        backdrop-filter: blur(5px); 
         border-bottom: 1px solid var(--border-light);
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         position: sticky;
@@ -103,15 +106,6 @@
         z-index: 1000;
         transition: background-color 0.3s, border-bottom 0.3s, box-shadow 0.3s;
     }
-
-    /* Custom RGB for background calculation in JS (will require a small JS update) */
-    :root {
-        --card-rgb: 255, 255, 255;
-    }
-    .dark {
-        --card-rgb: 31, 42, 55; /* RGB value for #1f2a37 */
-    }
-
 
     .brand {
         font-weight:800;
@@ -154,22 +148,25 @@
     }
     .logout-btn:hover { background: #cc2a37; }
 
+    /* FIX APPLIED HERE: Navigation bar is now near-opaque for link visibility */
     .nav-bar{
         display:flex;
         gap:12px;
         justify-content:center;
         padding:12px;
-        /* Using rgba color for semi-transparency over the video */
-        background: rgba(0, 119, 182, 0.1); 
+        /* UPDATED: Use opaque card color for better contrast over video */
+        background: rgba(var(--card-rgb, 255, 255, 255), 0.95); 
+        backdrop-filter: blur(2px);
         border-bottom: 1px solid var(--border-light);
+        box-shadow: 0 1px 5px rgba(0,0,0,0.05); /* Added subtle shadow for depth */
         transition: background-color 0.3s, border-bottom 0.3s;
-        flex-wrap: wrap; /* Added for responsiveness */
+        flex-wrap: wrap; 
     }
     .nav-bar a{
         text-decoration:none;
         padding:10px 18px;
         border-radius:999px;
-        color:var(--text-dark); /* Changed from accent to dark text for contrast */
+        color:var(--text-dark); 
         border:1px solid transparent;
         font-weight:500;
         transition: 0.2s;
@@ -215,7 +212,7 @@
         width:96%;
         max-width:1300px;
         margin:28px auto;
-        /* Using rgba color for transparency over the video */
+        /* Semi-transparent background for main content area */
         background: rgba(var(--card-rgb, 255, 255, 255), 0.95); 
         backdrop-filter: blur(3px);
         border-radius:var(--radius);
@@ -240,7 +237,6 @@
 
     /* ---------------------------------------------------- */
     /* 5. FILTERS AND BUTTONS */
-    /* (Existing styles for filters and buttons remain here) */
     /* ---------------------------------------------------- */
     .filters{
         display:flex;
@@ -253,7 +249,7 @@
         border-radius:8px;
         border:1px solid var(--border-light);
         min-width:250px;
-        background:var(--card); /* Changed to card for contrast */
+        background:var(--card); 
         transition: border-color 0.2s, background-color 0.3s, color 0.3s;
         font-size: 15px;
         color: var(--text-dark);
