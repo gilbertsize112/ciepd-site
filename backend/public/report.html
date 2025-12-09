@@ -14,9 +14,35 @@
     body {
         margin: 0;
         font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
-        background: #eef3ff;
+        
+        /* Video Background Interaction */
+        background: transparent; /* Allows video to show */
         overflow-x: hidden;
+        min-height: 100vh;
     }
+
+    /* ---------------------------------------------------- */
+    /* 0. VIDEO BACKGROUND & CONTENT LAYOUT */
+    /* ---------------------------------------------------- */
+    /* ⭐ VIDEO BACKGROUND STYLING ⭐ */
+    #video-background {
+        position: fixed; 
+        right: 0;
+        bottom: 0;
+        min-width: 100%; 
+        min-height: 100%; 
+        z-index: -200; /* Puts the video beneath everything */
+        object-fit: cover; 
+        filter: brightness(30%); /* Dims the video so content is readable */
+    }
+
+    /* ⭐ CONTENT WRAPPER ⭐ */
+    #content-wrapper {
+        position: relative; 
+        z-index: 10; /* Ensures content is above the video */
+        min-height: 100vh;
+    }
+
 
     /* ---------------------------------------------------- */
     /* 1. HEADER (WITH SHIMMER ANIMATION) */
@@ -104,13 +130,15 @@
     }
     
     /* ---------------------------------------------------- */
-    /* 3. MAIN CONTENT STYLES (Existing) */
+    /* 3. MAIN CONTENT LAYOUT AND COMPONENTS */
     /* ---------------------------------------------------- */
     .container {
         width: 95%;
         max-width: 1300px;
         margin: 40px auto;
     }
+    
+    /* 3a. Stats Boxes */
     .stats {
         display: flex;
         gap: 20px;
@@ -118,17 +146,14 @@
         margin-bottom: 30px;
         animation: fadeUp 1s ease-out;
     }
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
     .stat-box {
         flex: 1;
         min-width: 250px;
         padding: 22px;
         border-radius: 20px;
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(12px);
+        /* Background for video interaction */
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
         box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         text-align: center;
         font-size: 22px;
@@ -140,6 +165,8 @@
         transform: translateY(-6px);
         box-shadow: 0 12px 35px rgba(0,0,0,0.18);
     }
+
+    /* 3b. Filters */
     .filters {
         display: flex;
         gap: 15px;
@@ -163,14 +190,18 @@
         box-shadow: 0 0 0 3px #1a237e44;
         transform: scale(1.02);
     }
+    
+    /* 3c. Report Grid and Cards */
     .report-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        /* UPDATED: Changed minmax to 220px to allow 4 cards across the 1300px max-width */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 25px;
         animation: fadeUp 1.4s ease-out;
     }
     .report-card {
-        background: #ffffff;
+        /* Background for video interaction */
+        background: rgba(255, 255, 255, 0.95);
         padding: 22px;
         border-radius: 20px;
         box-shadow: 0 4px 18px rgba(0,0,0,0.12);
@@ -178,10 +209,6 @@
         position: relative;
         overflow: hidden;
         animation: fadeUpSmall 0.5s ease;
-    }
-    @keyframes fadeUpSmall {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
     }
     .report-card:hover {
         transform: translateY(-6px);
@@ -203,7 +230,7 @@
         background: #0d47a133;
     }
     .report-title {
-        font-size: 22px;
+        font-size: 20px; /* Slight reduction for better fit in 4-column layout */
         font-weight: 800;
         color: #0d47a1;
         margin-bottom: 10px;
@@ -225,6 +252,8 @@
         font-size: 15px;
         margin-bottom: 12px;
     }
+    
+    /* 3d. Status Tags */
     .status {
         display: inline-block;
         padding: 7px 14px;
@@ -235,8 +264,10 @@
         letter-spacing: 0.3px;
         box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     }
-    .verified { background: #2e7d32; }
-    .unverified { background: #c62828; }
+    .verified { background: #2e7d32; } /* Green */
+    .unverified { background: #c62828; } /* Red */
+
+    /* 3e. Pagination */
     .pagination {
         text-align: center;
         margin-top: 35px;
@@ -258,9 +289,33 @@
         background: #0d47a1;
         transform: translateY(-3px);
     }
+
     /* ---------------------------------------------------- */
-    /* 4. RESPONSIVENESS */
+    /* 4. ANIMATIONS */
     /* ---------------------------------------------------- */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUpSmall {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+
+    /* ---------------------------------------------------- */
+    /* 5. RESPONSIVENESS */
+    /* ---------------------------------------------------- */
+
+    /* New: For tablets/laptops (Up to 1200px) - Switch to 3 columns */
+    @media (max-width: 1200px) {
+        .report-grid {
+             /* 3 columns on medium screens */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+        }
+    }
+
+    /* Existing: For mobile devices (Up to 768px) - Switch to 1 column */
     @media (max-width: 768px) {
         header {
             font-size: 30px;
@@ -288,42 +343,54 @@
             padding: 8px 12px;
             font-size: 13px;
         }
+        .report-grid {
+             /* 1 column on small screens */
+            grid-template-columns: repeat(auto-fill, minmax(90%, 1fr));
+        }
     }
 </style>
 </head>
 <body>
 
-<header>CIEPD Conflict/Peace Watch Center - Reports</header>
+<video autoplay muted loop id="video-background">
+    <source src="videos/vid.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
-<nav class="nav-bar">
-    <a href="home.html"><i class="fas fa-home"></i> Home</a>
-    <a href="report.html" class="active"><i class="fas fa-clipboard-list"></i> Reports</a>
-    <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
-    <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
-    <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
-    <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
-</nav>
-<div class="container">
+<div id="content-wrapper">
 
-    <div class="stats">
-        <div class="stat-box" id="total-count">Total: 0</div>
-        <div class="stat-box" id="verified-count">Verified: 0</div>
-        <div class="stat-box" id="unverified-count">Unverified: 0</div>
+    <header>CIEPD Conflict/Peace Watch Center - Reports</header>
+
+    <nav class="nav-bar">
+        <a href="home.html"><i class="fas fa-home"></i> Home</a>
+        <a href="report.html" class="active"><i class="fas fa-clipboard-list"></i> Reports</a>
+        <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
+        <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
+        <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
+        <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
+    </nav>
+    <div class="container">
+
+        <div class="stats">
+            <div class="stat-box" id="total-count">Total: 0</div>
+            <div class="stat-box" id="verified-count">Verified: 0</div>
+            <div class="stat-box" id="unverified-count">Unverified: 0</div>
+        </div>
+
+        <div class="filters">
+            <input id="search-input" type="text" placeholder="🔍 Search reports...">
+            <select id="category-filter">
+                <option value="">All Categories</option>
+            </select>
+        </div>
+
+        <div class="report-grid" id="report-grid"></div>
+
+        <div class="pagination" id="pagination"></div>
+
     </div>
 
-    <div class="filters">
-        <input id="search-input" type="text" placeholder="🔍 Search reports...">
-        <select id="category-filter">
-            <option value="">All Categories</option>
-        </select>
-    </div>
-
-    <div class="report-grid" id="report-grid"></div>
-
-    <div class="pagination" id="pagination"></div>
-
-</div>
-
+</div> 
 <script>
 let allReports = [];
 let currentPage = 1;
