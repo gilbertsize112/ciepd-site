@@ -6,191 +6,299 @@
     <title>CIEPD Conflict Watch Center</title>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* ---------------------------------------------------- */
         /* 1. DESIGN VARIABLES & BASE STYLES */
         /* ---------------------------------------------------- */
         :root {
+            /* Light Mode Defaults */
             --primary: #0077b6; /* Deep Blue */
             --secondary: #00b4d8; /* Light Blue/Cyan */
             --light: #caf0f8;
             --white: #ffffff;
             --text-dark: #222;
+            --text-light: #f4f4f4;
             --danger: #ff4d4d;
+            --bg-body: var(--primary);
+            --bg-container: rgba(255, 255, 255, 0.9);
+            --bg-header: rgba(0, 0, 0, 0.3);
+            --bg-footer: rgba(0, 0, 0, 0.3);
+            --border-color: var(--primary);
+            --shadow-color: rgba(0, 0, 0, 0.15);
+            --table-even-bg: #f5faff;
+            --table-text: #333;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 1.1 DARK MODE VARIABLES */
+        /* ---------------------------------------------------- */
+        body.dark-mode {
+            /* Dark Mode Overrides */
+            --primary: #00b4d8; /* Brighter Blue */
+            --secondary: #0077b6;
+            --light: #03045e;
+            --white: #111;
+            --text-dark: #eee;
+            --text-light: #111;
+            --bg-body: #111;
+            --bg-container: rgba(18, 18, 18, 0.95);
+            --bg-header: rgba(18, 18, 18, 0.9);
+            --bg-footer: rgba(18, 18, 18, 0.9);
+            --border-color: var(--primary);
+            --shadow-color: rgba(0, 0, 0, 0.6);
+            --table-even-bg: #2a2a2a;
+            --table-text: #ddd;
         }
 
         body {
             margin: 0;
-            font-family: 'Segoe UI', 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background-color: var(--bg-body); 
             color: var(--text-dark);
             background-attachment: fixed;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        
+        /* ---------------------------------------------------- */
+        /* 1.5 BACKGROUND VIDEO STYLES */
+        /* ---------------------------------------------------- */
+        #bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100; 
+            transform: translateX(-50%) translateY(-50%);
+            object-fit: cover; 
+            filter: brightness(0.4); /* Slightly darker for contrast */
+            transition: filter 0.5s ease;
+        }
+        body.dark-mode #bg-video {
+             filter: brightness(0.15); /* Even darker in dark mode */
         }
 
         /* ---------------------------------------------------- */
         /* 2. HEADER */
         /* ---------------------------------------------------- */
         .header {
-            background: rgba(255,255,255,0.2);
+            background: var(--bg-header);
             backdrop-filter: blur(10px);
-            padding: 20px 40px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: white;
-            font-size: 26px;
+            color: var(--text-light);
+            font-size: 20px;
             font-weight: 600;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 3px 8px var(--shadow-color);
+            flex-wrap: wrap; 
+            transition: background 0.5s ease, box-shadow 0.5s ease;
+        }
+        .header span {
+            font-size: 1.2em;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .action-btn {
-            padding: 10px 22px;
+            padding: 8px 18px;
             background-color: var(--danger);
             border: none;
-            border-radius: 30px;
-            color: white;
+            border-radius: 20px;
+            color: var(--white); /* White text always on danger button */
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
+            text-decoration: none; 
+            text-align: center;
         }
         .action-btn:hover {
             background-color: #cc0000;
-            transform: scale(1.05);
+            transform: scale(1.03);
+        }
+        /* Mobile adjustment for header */
+        @media(max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 10px;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: space-around;
+            }
         }
 
+
+        /* ---------------------------------------------------- */
+        /* 2.1 DARK MODE TOGGLE STYLES */
+        /* ---------------------------------------------------- */
+        #theme-toggle {
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--text-light); /* Icon color */
+            padding: 5px;
+            border-radius: 50%;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        #theme-toggle:hover {
+            transform: scale(1.1);
+            color: var(--secondary);
+        }
+        
         /* ---------------------------------------------------- */
         /* 3. NAVIGATION BAR (NAV-BAR) */
         /* ---------------------------------------------------- */
         .nav-bar {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-wrap: wrap; 
+            gap: 8px;
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
-            padding: 15px 10px;
+            padding: 12px 5px;
         }
 
-        .nav-bar a, .language-selector { /* Shared styles for nav links and selector */
+        .nav-bar a, .nav-item-wrapper { 
             text-decoration: none;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.4);
+            color: var(--text-light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--text-light); /* Border uses light text color */
             font-weight: 500;
             transition: all 0.3s ease;
+            white-space: nowrap; 
+            display: inline-flex;
+            align-items: center;
         }
-        .nav-bar a:hover, .language-selector:hover {
+        .nav-bar a:hover, .nav-item-wrapper:hover {
             background: rgba(255,255,255,0.3);
             transform: translateY(-2px);
         }
-
-        .special-btn {
-            background: var(--light);
-            color: var(--primary) !important;
-            border: 1px solid var(--white);
+        /* Special button styling (language/map) */
+        .nav-bar a.special-btn, .nav-item-wrapper.special-btn-wrapper {
+            background: var(--primary);
+            color: var(--white) !important;
+            border: 1px solid var(--secondary);
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        .special-btn:hover {
+        .nav-bar a.special-btn:hover, .nav-item-wrapper.special-btn-wrapper:hover {
             background: var(--secondary);
-            color: white !important;
+            color: var(--white) !important;
+        }
+        body.dark-mode .nav-bar a.special-btn, 
+        body.dark-mode .nav-item-wrapper.special-btn-wrapper {
+             /* In dark mode, primary/secondary are swapped */
+            background: var(--secondary);
+            color: var(--text-light) !important;
         }
 
+
         /* ---------------------------------------------------- */
-        /* 4. LANGUAGE SELECTOR STYLES (Custom Dropdown) */
+        /* 4. GOOGLE TRANSLATE WIDGET STYLING */
         /* ---------------------------------------------------- */
-        .language-selector {
-            display: flex;
-            align-items: center;
-            padding: 0; 
-            background: transparent;
-            border: none;
-            transform: none !important; 
+        .language-wrapper {
+            position: relative;
+            min-width: 120px; 
         }
 
         .language-selector-dropdown {
-            /* Inherit the look of the 'special-btn' */
-            background: var(--light);
-            color: var(--primary);
-            border: 1px solid var(--white);
-            border-radius: 25px;
-            padding: 10px 35px 10px 18px; 
+            background: var(--primary);
+            color: var(--white);
+            border: 1px solid var(--secondary);
+            border-radius: 20px;
+            padding: 8px 30px 8px 15px; 
             font-size: 1em;
             font-weight: 500;
-            
+            width: 100%;
             cursor: pointer;
+            
             -webkit-appearance: none; 
             -moz-appearance: none;
             appearance: none;
             
-            /* Custom arrow using SVG icon */
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%230077b6" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            /* Custom arrow using white SVG */
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
             background-repeat: no-repeat;
-            background-position: right 10px center;
+            background-position: right 8px center;
+            background-size: 18px;
+            transition: all 0.3s ease;
         }
-
         .language-selector-dropdown:hover {
             background: var(--secondary);
-            color: white;
-        }
-
-        .language-selector-dropdown option {
-            background-color: var(--primary);
-            color: white;
-            padding: 5px;
+            color: var(--white);
         }
         
-        /* ---------------------------------------------------- */
-        /* GOOGLE TRANSLATE WIDGET STYLING */
-        /* ---------------------------------------------------- */
-        /* Style the wrapper to mimic the custom button look */
+        /* Dark Mode Translate Override */
+        body.dark-mode .language-selector-dropdown {
+            background: var(--secondary);
+            color: var(--text-light);
+        }
+
+
+        /* Google's Widget Styling (Hidden by default) */
         #google_translate_element_wrapper {
-            margin: 0;
-            padding: 0;
-            background: var(--light);
-            border: 1px solid var(--white);
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 40px; 
-            overflow: hidden;
-            line-height: 1; /* Fix vertical alignment */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 10; 
+            visibility: hidden; 
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        /* Style the actual Google dropdown inside its container */
-        #google_translate_element_wrapper .goog-te-combo {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 15px !important; /* Adjusted padding to match button size */
-            height: 40px;
-            background: transparent !important;
-            color: var(--primary) !important;
-            font-size: 1em;
-            font-weight: 500;
+        
+        #google_translate_element_wrapper.active {
+            visibility: visible;
+            opacity: 1;
         }
-        /* Hide Google's default branding/links */
-        #google_translate_element_wrapper .goog-te-gadget-simple {
-            background: transparent !important;
-            border: none !important;
+        /* Style the actual Google dropdown to match the dark/light mode */
+        #google_translate_element .goog-te-gadget-simple {
+            background: var(--primary) !important; /* Use primary color */
+            border: 1px solid var(--secondary) !important;
+            border-radius: 20px !important;
         }
-        #google_translate_element_wrapper a.goog-te-menu-value {
+        
+        #google_translate_element .goog-te-combo {
+            color: var(--text-light) !important;
+        }
+
+        /* Hide Google's default flag/text/branding */
+        #google_translate_element_wrapper .goog-logo-link,
+        #google_translate_element_wrapper .VIpgJd-ZVi9od-ORHb-OEVmcd {
+            display: none !important; 
+        }
+        .VIpgJd-ZVi9od-aQOPGd { 
             display: none !important;
         }
-
-
+        body {
+            top: 0 !important; 
+        }
+        
         /* ---------------------------------------------------- */
         /* 5. MAIN CONTENT & COMPONENTS */
         /* ---------------------------------------------------- */
         .container {
-            width: 90%;
+            width: 95%; 
             max-width: 1100px;
-            margin: 40px auto;
-            background: rgba(255,255,255,0.85);
+            margin: 30px auto; 
+            background: var(--bg-container);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 20px; 
+            box-shadow: 0 8px 25px var(--shadow-color);
+            transition: background 0.5s ease, box-shadow 0.5s ease;
         }
 
         h1, h2 {
@@ -198,84 +306,104 @@
             margin-top: 0;
             border-bottom: 2px solid var(--secondary);
             padding-bottom: 6px;
+            transition: color 0.5s ease;
         }
-        h5 { color: var(--primary); }
 
         p {
-            line-height: 1.7;
-            font-size: 1.05em;
-            color: #333;
+            line-height: 1.6; 
+            font-size: 1em;
+            color: var(--table-text);
+            transition: color 0.5s ease;
         }
 
         /* Map Section */
         .map-container {
             display: flex;
-            gap: 25px;
-            margin: 30px 0;
+            gap: 20px;
+            margin: 20px 0;
             align-items: flex-start;
-            flex-wrap: wrap;
+            flex-wrap: wrap; 
         }
 
         .map-container img {
-            width: 45%;
-            min-width: 300px;
-            border-radius: 16px;
-            border: 3px solid var(--primary);
-            box-shadow: 0 8px 18px rgba(0,0,0,0.2);
-            transition: transform 0.4s ease;
+            width: 100%; 
+            max-width: 450px; 
+            height: auto;
+            border-radius: 12px;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 8px 18px var(--shadow-color);
+            transition: transform 0.4s ease, border-color 0.5s ease;
         }
-        .map-container img:hover {
-            transform: scale(1.02);
-        }
+
         .map-text {
             flex: 1;
-            background: rgba(255,255,255,0.9);
+            min-width: 300px; 
+            background: var(--white);
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: background 0.5s ease;
+        }
+        body.dark-mode .map-text {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
         }
 
-        /* Table */
+        /* Table (Responsive Table Structure) */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 25px;
+            margin-top: 20px;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            transition: box-shadow 0.5s ease;
         }
 
         table th, table td {
-            padding: 14px 12px;
+            padding: 12px 10px; 
             text-align: left;
+            border: none; /* Removed internal borders */
+            color: var(--table-text);
         }
         table th {
             background: var(--primary);
-            color: white;
+            color: var(--white);
         }
         table tr:nth-child(even) {
-            background-color: #f5faff;
+            background-color: var(--table-even-bg);
+        }
+        table tr {
+            transition: background-color 0.5s ease;
         }
         table td a {
             color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
+            transition: color 0.5s ease;
         }
-        table td a:hover {
-            text-decoration: underline;
+
+        /* Responsive Table (Vertical Layout on Mobile) */
+        @media(max-width: 600px) {
+            /* ... (keep existing mobile table styles) ... */
+            td:before { 
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--primary);
+                text-align: left;
+                line-height: 35px; 
+            }
         }
+
 
         /* More Button */
         .more {
             display: inline-block;
             background: var(--primary);
-            color: white;
+            color: var(--white);
             padding: 10px 22px;
             border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
             margin-top: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, background 0.5s ease;
         }
         .more:hover {
             background: var(--secondary);
@@ -286,53 +414,46 @@
         /* 6. FOOTER */
         /* ---------------------------------------------------- */
         footer {
-            background: rgba(0,0,0,0.2);
+            background: var(--bg-footer);
             backdrop-filter: blur(8px);
-            color: white;
+            color: var(--text-light);
             text-align: center;
-            padding: 25px;
-            font-size: 0.95em;
+            padding: 20px;
+            font-size: 0.9em;
+            transition: background 0.5s ease;
         }
         footer a {
-            color: var(--light);
+            color: var(--secondary);
             text-decoration: underline;
-        }
-        
-        .translation-status {
-            display: none;
+            transition: color 0.5s ease;
         }
 
         /* ---------------------------------------------------- */
-        /* 7. RESPONSIVENESS */
+        /* 7. GENERAL RESPONSIVENESS */
         /* ---------------------------------------------------- */
-        @media(max-width: 768px){
-            .map-container {
-                flex-direction: column;
-                align-items: center;
-            }
+        @media(min-width: 769px) {
+             /* Adjust map image width back on larger screens */
             .map-container img {
-                width: 90%;
-            }
-            .map-text {
-                text-align: center;
-            }
-            /* Mobile fix for language selector */
-            .language-selector-dropdown {
-                margin-top: 10px; 
-                width: 100%; 
-            }
-            #google_translate_element_wrapper {
-                 margin-top: 10px; 
-                 width: 100%; 
+                width: 45%; 
+                min-width: 300px;
             }
         }
     </style>
 </head>
 <body>
+<video autoplay loop muted id="bg-video">
+    <source src="videos/vid.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
 <header class="header">
     <span>CIEPD Conflict/Peace Watch Center</span>
-    <button class="action-btn" onclick="window.location.href='login.html'">Login</button>
+    <div class="header-actions">
+        <span id="theme-toggle" class="material-icons" title="Toggle Dark/Light Mode">
+            light_mode
+        </span>
+        <a href="login.html" class="action-btn">Login</a>
+    </div>
 </header>
 
 <nav class="nav-bar">
@@ -343,7 +464,7 @@
     <a href="contact.html">Contact Us</a>
     <a href="/admin-map.html" class="special-btn">Big Map</a>
     
-    <div class="language-selector" id="custom-language-selector">
+    <div class="language-wrapper special-btn-wrapper">
         <select id="language-menu" class="language-selector-dropdown">
             <option value="">🌐 Language (Select)</option> 
             <option value="en">English</option>
@@ -352,12 +473,11 @@
             <option value="ha">Hausa</option>
             <option value="ig">Igbo</option>
             <option value="yo">Yoruba</option>
-            <option value="all">View All (All Languages)</option> 
         </select>
-    </div>
-
-    <div id="google_translate_element_wrapper" class="language-selector" style="display:none;">
-        <div id="google_translate_element"></div>
+        
+        <div id="google_translate_element_wrapper">
+            <div id="google_translate_element"></div>
+        </div>
     </div>
 </nav>
 
@@ -367,55 +487,101 @@
     <section class="map-container">
         <img src="Nigerdelta.jpg" alt="Niger Delta Region Map" />
         <div class="map-text">
+            <h2>Our Mission</h2>
             <p>
-                Community Initiative for Enhanced Peace and Development domiciled Conflict Watch Center, which relies on various community-based sources of information, and community-specific indicators to generate analysis on potential conflict hotspots. The approach of the CWC is tuned towards predicting, tracking, monitoring, and reporting on situations, events, and actors (individual, group, and institutional) with the capacity to cause violence. It is built on conflict preventive measures more than mitigating.
+                The CIEPD Conflict Watch Center relies on various community-based sources of information and community-specific indicators to generate analysis on potential conflict hotspots. The approach is tuned towards **predicting, tracking, monitoring, and reporting** on situations, events, and actors (individual, group, and institutional) with the capacity to cause violence. It is built on conflict **preventive measures** more than mitigating.
             </p>
         </div>
     </section>
 
     <h2>Latest Reports</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Location</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><a href="report.html">Protest Erupts in Ondo Community Over Mysterious...</a></td>
-                <td>Ondo</td>
-                <td>Aug 22 2025</td>
-            </tr>
-            <tr>
-                <td><a href="report.html">Tension in Edo community over alleged sale...</a></td>
-                <td>Edo State</td>
-                <td>Aug 21 2025</td>
-            </tr>
-            <tr>
-                <td><a href="report.html">Community Calls for Peace Talks Following Boundary Clash...</a></td>
-                <td>Rivers State</td>
-                <td>Aug 20 2025</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Title"><a href="report.html">Protest Erupts in Ondo Community Over Mysterious...</a></td>
+                    <td data-label="Location">Ondo</td>
+                    <td data-label="Date">Aug 22 2025</td>
+                </tr>
+                <tr>
+                    <td data-label="Title"><a href="report.html">Tension in Edo community over alleged sale...</a></td>
+                    <td data-label="Location">Edo State</td>
+                    <td data-label="Date">Aug 21 2025</td>
+                </tr>
+                <tr>
+                    <td data-label="Title"><a href="report.html">Community Calls for Peace Talks Following Boundary Clash...</a></td>
+                    <td data-label="Location">Rivers State</td>
+                    <td data-label="Date">Aug 20 2025</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <a class="more" href="report.html">View More Reports</a>
 </main>
 
 <footer>
     <p>Powered by <a href="http://www.ushahidi.com/">Sammy Tech</a></p>
-    <p>All rights reserved. No part of this report should be used without acknowledgment of the source.</p>
-    
-    <p class="translation-status" id="translation-message" style="display:none;">
-        Language set to: English
-    </p>
+    <p>&copy; 2025 CIEPD Conflict Watch Center. All rights reserved. No part of this report should be used without acknowledgment of the source.</p>
 </footer>
 
 <script type="text/javascript">
+    
+    // ----------------------------------------------------
+    // 1. THEME TOGGLE LOGIC
+    // ----------------------------------------------------
+    const toggleButton = document.getElementById('theme-toggle');
+    const body = document.body;
+    const THEME_KEY = 'ciepd_theme';
+
+    /**
+     * Applies the saved or default theme on page load.
+     */
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            body.classList.add('dark-mode');
+            toggleButton.textContent = 'dark_mode'; // Set icon to Moon
+            toggleButton.title = 'Toggle Light Mode';
+        } else {
+            body.classList.remove('dark-mode');
+            toggleButton.textContent = 'light_mode'; // Set icon to Sun
+            toggleButton.title = 'Toggle Dark Mode';
+        }
+        localStorage.setItem(THEME_KEY, theme);
+    }
+
+    /**
+     * Toggles the theme between light and dark.
+     */
+    function toggleTheme() {
+        const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(newTheme);
+    }
+
+    // Initialize theme from localStorage or default to 'light'
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+    applyTheme(savedTheme);
+
+    // Add event listener for the toggle button
+    toggleButton.addEventListener('click', toggleTheme);
+
+
+    // ----------------------------------------------------
+    // 2. GOOGLE TRANSLATE LOGIC
+    // ----------------------------------------------------
+
+    /**
+     * Initializes the Google Translate widget and includes persistence logic.
+     */
     function googleTranslateElementInit() {
-        // Initialize the Google Translate widget
         new google.translate.TranslateElement({
             pageLanguage: 'en', 
             includedLanguages: 'en,fr,es,ha,ig,yo',
@@ -423,37 +589,39 @@
             autoDisplay: false
         }, 'google_translate_element');
         
-        // --- PERSISTENCE LOGIC START ---
-        // Check for the Google Translate cookie (googtrans) after a brief delay
+        const customSelector = document.getElementById('language-menu');
+        const googleWrapper = document.getElementById('google_translate_element_wrapper');
+
+        // Check for Google Translate cookie for persistence on page load
         setTimeout(() => {
             const googleCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('googtrans='));
             
-            // If the cookie exists and it's not set to the default translation of /en/en
-            if (googleCookie && !googleCookie.includes('/en/en')) {
-                const customSelector = document.getElementById('custom-language-selector');
-                const googleWrapper = document.getElementById('google_translate_element_wrapper');
-                
+            // If the cookie exists and it's not the default translation cookie for /en/en
+            if (googleCookie && !googleCookie.trim().endsWith('/en/en')) {
+                // If a translation is active, hide the custom dropdown and show the Google one
                 if (customSelector && googleWrapper) {
                     customSelector.style.display = 'none';
-                    googleWrapper.style.display = 'flex';
+                    googleWrapper.classList.add('active');
                 }
             }
-        }, 100);
-        // --- PERSISTENCE LOGIC END ---
+        }, 300); // Small delay to ensure the widget is loaded
     }
 
+    /**
+     * Handles the change event from the custom language menu.
+     */
     document.getElementById('language-menu').addEventListener('change', function() {
         const selectedLangCode = this.value;
-        const customSelector = document.getElementById('custom-language-selector');
+        const customSelector = this;
         const googleWrapper = document.getElementById('google_translate_element_wrapper');
         
         if (selectedLangCode === "") {
             return; // Exit if the user selects the default "Select" option
         }
         
-        // Step 1: Hide the custom selector and show the official Google widget container
+        // Step 1: Hide the custom selector and activate the official Google widget container
         customSelector.style.display = 'none';
-        googleWrapper.style.display = 'flex'; // Use flex to center/align the new dropdown
+        googleWrapper.classList.add('active');
 
         // Step 2: Use a delay to ensure the Google widget has fully rendered its internal components
         setTimeout(() => {
@@ -465,15 +633,15 @@
                 googleSelect.value = selectedLangCode;
                 
                 // Trigger the 'change' event manually to start translation
-                if (document.createEvent) {
+                if ("createEvent" in document) {
                     var event = document.createEvent('HTMLEvents');
                     event.initEvent('change', true, true);
                     googleSelect.dispatchEvent(event);
-                } else if (googleSelect.fireEvent) {
+                } else {
                     googleSelect.fireEvent('onchange');
                 }
             } else {
-                 console.error("Google Translate internal select element not found.");
+                console.error("Google Translate internal select element not found after 500ms.");
             }
         }, 500); // 500ms delay for robust rendering
     });
