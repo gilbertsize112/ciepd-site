@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CIEPD Login Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         /* Base Styling */
         :root {
-            --primary-color: #2575fc; /* Rich Blue */
+            --primary-color: #2575fc;
             --primary-dark: #0053b3;
-            --text-dark: #333;
+            --text-dark: #2c3e50;
             --border-color: #e0e6ed;
             --error-color: #e74c3c;
             --success-color: #27ae60;
+            --glass-bg: rgba(255, 255, 255, 0.92);
         }
 
         * {
@@ -24,171 +26,213 @@
         }
 
         body {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-            background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("loginbg.jpg") no-repeat center center / cover;
-            position: relative;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("loginbg.jpg") no-repeat center center / cover;
+            background-attachment: fixed;
             color: var(--text-dark);
+            padding: 20px;
+            overflow-x: hidden;
         }
 
-        /* Background shapes - (Kept your existing beautiful background animation) */
-        .shape { position: absolute; border-radius: 50%; opacity: 0.25; animation: float 25s linear infinite; }
-        .shape.small { width: 50px; height: 50px; }
-        .shape.medium { width: 100px; height: 100px; }
-        .shape.large { width: 150px; height: 150px; }
+        /* Animated Background Shapes */
+        .shape { position: absolute; border-radius: 50%; opacity: 0.3; animation: float 20s linear infinite; z-index: 0; }
+        .shape.small { width: 40px; height: 40px; }
+        .shape.medium { width: 80px; height: 80px; }
+        .shape.large { width: 120px; height: 120px; }
 
         @keyframes float {
             0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-50px) rotate(180deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
             100% { transform: translateY(0) rotate(360deg); }
         }
-        /* End Background shapes */
 
         .container {
-            background: rgba(255, 255, 255, 0.95); /* Slightly less transparent */
-            border-radius: 15px; /* Slightly softer corners */
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             width: 100%;
-            max-width: 440px; /* Slightly wider */
-            padding: 40px 35px;
+            max-width: 420px;
+            padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); /* Deeper shadow */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             position: relative;
-            z-index: 1;
-            animation: fadeIn 1s ease forwards;
+            z-index: 10;
+            animation: fadeIn 0.8s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Header Branding */
+        /* Branding */
         .branding-header {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+            gap: 12px;
         }
         .branding-header i {
-            font-size: 32px;
+            font-size: 35px;
             color: var(--primary-color);
-            margin-right: 10px;
         }
         h1 { 
-            font-size: 1.8rem; 
+            font-size: 1.6rem; 
             color: var(--primary-dark); 
-            margin: 0; 
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
-        p.subtitle { 
-            font-size: 0.9rem; 
-            color: #7f8c8d; 
-            margin-bottom: 25px; 
-            margin-top: 5px;
-            text-align: center;
+        .subtitle { 
+            font-size: 0.85rem; 
+            color: #5d6d7e; 
+            margin-bottom: 30px; 
+            line-height: 1.4;
         }
 
-        /* Tabs */
-        .tabs { display: flex; justify-content: space-around; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); }
+        /* Tabs Navigation */
+        .tabs { 
+            display: flex; 
+            margin-bottom: 25px; 
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+            padding: 5px;
+        }
         .tab {
-            padding: 12px 10px;
+            flex: 1;
+            padding: 10px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: #7f8c8d;
-            transition: 0.2s;
-            border-bottom: 3px solid transparent; /* Increased thickness */
+            transition: 0.3s ease;
+            border-radius: 8px;
         }
-        .tab.active { color: var(--primary-color); border-color: var(--primary-color); }
-
-        /* Forms */
-        form { display: none; text-align: left; animation: fadeIn 0.5s ease; }
-        form.active { display: block; }
-
-        .input-group { margin-bottom: 18px; position: relative; } /* Added relative position */
-        label { font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 5px; text-transform: uppercase; color: #555; }
-
-        /* Input with Icon */
-        input[type="text"], input[type="password"], input[type="email"] {
-            width: 100%;
-            padding: 12px 15px 12px 40px; /* Adjusted padding for icon */
-            border: 1px solid var(--border-color);
-            border-radius: 8px; /* Softer corners */
-            font-size: 0.95rem;
-            outline: none;
-            transition: 0.3s;
+        .tab.active { 
+            background: white;
+            color: var(--primary-color); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .input-group i { /* Style for Font Awesome icons */
+        /* Form Controls */
+        form { display: none; text-align: left; }
+        form.active { display: block; animation: slideIn 0.4s ease; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+        label { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            display: block; 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            color: var(--primary-dark);
+            padding-left: 2px;
+        }
+
+        .input-wrapper { position: relative; }
+        .input-wrapper i {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--primary-color);
-            z-index: 2;
+            font-size: 1.1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+            background: #fff;
         }
 
         input:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37,117,252,0.25);
+            box-shadow: 0 0 0 4px rgba(37,117,252,0.15);
         }
 
-        /* Buttons */
+        /* Action Buttons */
         button {
             width: 100%;
-            padding: 14px; /* Increased padding */
+            padding: 16px;
             background: var(--primary-color);
             color: #fff;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            margin-top: 10px;
         }
 
-        button:hover { background: var(--primary-dark); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        button:disabled { background: #95a5a6; cursor: not-allowed; }
+        button:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(37,117,252,0.3); }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; }
 
-        /* Message Box Styling */
+        /* Status Messages */
         #message-box {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 6px;
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 10px;
             text-align: center;
-            font-size: 14px;
-            font-weight: 500;
-            display: none; /* Hidden by default */
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
         }
-        .msg-error { background-color: #fcebeb; color: var(--error-color); border: 1px solid var(--error-color); }
-        .msg-success { background-color: #e8fce8; color: var(--success-color); border: 1px solid var(--success-color); }
+        .msg-error { background-color: #fdecea; color: var(--error-color); border: 1px solid #fadbd8; }
+        .msg-success { background-color: #eafaf1; color: var(--success-color); border: 1px solid #d5f5e3; }
 
+        .footer { 
+            margin-top: 30px; 
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.75rem; 
+            color: #7f8c8d; 
+            line-height: 1.6;
+        }
 
-        .footer { margin-top: 25px; font-size: 0.8rem; color: #666; text-align: center; }
+        /* Mobile Specific Adjustments */
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+            h1 { font-size: 1.4rem; }
+            input { font-size: 16px; /* Prevents iOS zoom on focus */ }
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="shape small" style="top:10%; left:15%; background:#ff6b6b;"></div>
-    <div class="shape medium" style="top:70%; left:75%; background:#ffca3a;"></div>
-    <div class="shape large" style="top:50%; left:50%; background:#6bcB77;"></div>
-    <div class="shape medium" style="top:20%; left:80%; background:#4d96ff;"></div>
-    <div class="shape small" style="top:80%; left:20%; background:#ff6b6b;"></div>
+    <div class="shape small" style="top:5%; left:10%; background:#ff6b6b;"></div>
+    <div class="shape medium" style="bottom:10%; right:10%; background:#ffca3a;"></div>
+    <div class="shape large" style="top:40%; right:20%; background:#6bcB77;"></div>
+    <div class="shape medium" style="top:15%; right:5%; background:#4d96ff;"></div>
 
     <div class="container">
         <div class="branding-header">
             <i class="fas fa-satellite-dish"></i>
             <h1>CIEPD Watch Center</h1>
         </div>
-        <p class="subtitle">Access your administrative and monitoring tools</p>
+        <p class="subtitle">Secure administrative monitoring & real-time analytics portal</p>
 
         <div class="tabs">
             <div class="tab active" data-tab-id="login" onclick="showTab('login', this)">Login</div>
@@ -200,56 +244,74 @@
 
         <form id="login" class="active">
             <div class="input-group">
-                <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" id="loginEmail" placeholder="admin@ciepd.org" required />
+                <label for="loginEmail">Registered Email</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="loginEmail" placeholder="admin@ciepd.org" required />
+                </div>
             </div>
             <div class="input-group">
-                <label for="loginPassword"><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="loginPassword" placeholder="••••••••" required />
+                <label for="loginPassword">Secure Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required />
+                </div>
             </div>
-            <button type="submit" id="login-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button type="submit" id="login-btn"><i class="fas fa-sign-in-alt"></i> Access Portal</button>
         </form>
 
         <form id="signup">
             <div class="input-group">
-                <label for="signupName"><i class="fas fa-user"></i> Full Name</label>
-                <input type="text" id="signupName" placeholder="John Doe" required />
+                <label for="signupName">Full Name</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signupName" placeholder="Enter full name" required />
+                </div>
             </div>
-
             <div class="input-group">
-                <label for="signupEmail"><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" id="signupEmail" placeholder="Your work email" required />
+                <label for="signupEmail">Work Email</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signupEmail" placeholder="email@ciepd.org" required />
+                </div>
             </div>
-
             <div class="input-group">
-                <label for="signupPassword"><i class="fas fa-key"></i> Password</label>
-                <input type="password" id="signupPassword" placeholder="Create a secure password" required />
+                <label for="signupPassword">New Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="password" id="signupPassword" placeholder="Min. 8 characters" required />
+                </div>
             </div>
-
             <button type="submit" id="signup-btn"><i class="fas fa-user-plus"></i> Create Account</button>
         </form>
 
         <form id="reset">
             <div class="input-group">
-                <label for="resetEmail"><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" id="resetEmail" placeholder="Confirm your email" required />
+                <label for="resetEmail">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="resetEmail" placeholder="Enter registered email" required />
+                </div>
             </div>
-
             <div class="input-group">
-                <label for="resetNewPassword"><i class="fas fa-unlock"></i> New Password</label>
-                <input type="password" id="resetNewPassword" placeholder="Enter new password" required />
+                <label for="resetNewPassword">New Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-unlock"></i>
+                    <input type="password" id="resetNewPassword" placeholder="Set new password" required />
+                </div>
             </div>
-
-            <button type="submit" id="reset-btn"><i class="fas fa-redo-alt"></i> Reset Password</button>
+            <button type="submit" id="reset-btn"><i class="fas fa-redo-alt"></i> Recover Password</button>
         </form>
 
         <div class="footer">
-            <p>Report incidents via SMS/WhatsApp: <strong>08034559689</strong></p>
+            <p>Urgent technical support or incident reporting:</p>
+            <p style="color: var(--primary-dark); font-weight: 700; margin-top: 5px;">
+                <i class="fab fa-whatsapp"></i> 08034559689
+            </p>
         </div>
     </div>
 
     <script>
-        /* 🔥 Correct backend auto-detection (fixed 100%) */
         const BASE_URL =
             window.location.hostname === "localhost" ||
             window.location.hostname === "127.0.0.1"
@@ -263,7 +325,7 @@
             document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
             element.classList.add('active');
             document.getElementById(tabId).classList.add('active');
-            messageBox.style.display = 'none'; // Clear message on tab switch
+            messageBox.style.display = 'none';
         }
 
         function showMessage(msg, type = 'error') {
@@ -277,114 +339,67 @@
             const btn = document.getElementById(btnId);
             btn.disabled = isLoading;
             if (isLoading) {
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+                btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Processing...`;
             } else {
                 btn.innerHTML = `<i class="${iconClass}"></i> ${defaultText}`;
             }
         }
         
-        // --- LOGIN LOGIC ---
-        document.getElementById("login").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            messageBox.style.display = 'none';
-            toggleButtonLoading('login-btn', true, 'Login', 'fas fa-sign-in-alt');
+        // Form Submission Handlers
+        const forms = ['login', 'signup', 'reset'];
+        forms.forEach(formId => {
+            document.getElementById(formId).addEventListener("submit", async (e) => {
+                e.preventDefault();
+                messageBox.style.display = 'none';
+                
+                let btnId, btnText, btnIcon, endpoint;
+                const payload = {};
 
-            const email = document.getElementById("loginEmail").value.trim();
-            const password = document.getElementById("loginPassword").value.trim();
-
-            try {
-                const res = await fetch(`${BASE_URL}/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    window.location.href = data.redirect || "admin.html";
+                if(formId === 'login') {
+                    btnId = 'login-btn'; btnText = 'Access Portal'; btnIcon = 'fas fa-sign-in-alt'; endpoint = '/login';
+                    payload.email = document.getElementById("loginEmail").value.trim();
+                    payload.password = document.getElementById("loginPassword").value.trim();
+                } else if(formId === 'signup') {
+                    btnId = 'signup-btn'; btnText = 'Create Account'; btnIcon = 'fas fa-user-plus'; endpoint = '/signup';
+                    payload.name = document.getElementById("signupName").value.trim();
+                    payload.email = document.getElementById("signupEmail").value.trim();
+                    payload.password = document.getElementById("signupPassword").value.trim();
                 } else {
-                    showMessage(data.error || data.message || "Invalid credentials. Please try again.");
+                    btnId = 'reset-btn'; btnText = 'Recover Password'; btnIcon = 'fas fa-redo-alt'; endpoint = '/reset-password';
+                    payload.email = document.getElementById("resetEmail").value.trim();
+                    payload.newPassword = document.getElementById("resetNewPassword").value.trim();
                 }
 
-            } catch (err) {
-                console.error(err);
-                showMessage("Connection Error: Unable to reach the server.");
-            } finally {
-                toggleButtonLoading('login-btn', false, 'Login', 'fas fa-sign-in-alt');
-            }
-        });
+                toggleButtonLoading(btnId, true, btnText, btnIcon);
 
-        // --- SIGNUP LOGIC ---
-        document.getElementById("signup").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            messageBox.style.display = 'none';
-            toggleButtonLoading('signup-btn', true, 'Create Account', 'fas fa-user-plus');
+                try {
+                    const res = await fetch(`${BASE_URL}${endpoint}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: (formId === 'login' ? "include" : "omit"),
+                        body: JSON.stringify(payload)
+                    });
 
-            const name = document.getElementById("signupName").value.trim();
-            const email = document.getElementById("signupEmail").value.trim();
-            const password = document.getElementById("signupPassword").value.trim();
+                    const data = await res.json();
 
-            try {
-                // NOTE: Assuming your backend has a /signup route, which it might not yet.
-                const res = await fetch(`${BASE_URL}/signup`, { 
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name, email, password })
-                });
+                    if (res.ok && (data.success || formId !== 'login')) {
+                        if(formId === 'login') {
+                            window.location.href = data.redirect || "admin.html";
+                        } else {
+                            showMessage(data.message || "Action successful! You can now log in.", 'success');
+                            showTab("login", document.querySelector('[data-tab-id="login"]'));
+                        }
+                    } else {
+                        showMessage(data.error || data.message || "Operation failed. Please check your details.");
+                    }
 
-                const data = await res.json();
-
-                if (res.ok) {
-                    showMessage("Account created successfully! You can now log in.", 'success');
-                    showTab("login", document.querySelector('[data-tab-id="login"]'));
-                } else {
-                    showMessage(data.message || "Signup failed. Account may already exist.");
+                } catch (err) {
+                    showMessage("Server Connection Failed. Please ensure backend is running.");
+                } finally {
+                    toggleButtonLoading(btnId, false, btnText, btnIcon);
                 }
-
-            } catch (err) {
-                console.error(err);
-                showMessage("Connection Error: Failed to create account.");
-            } finally {
-                toggleButtonLoading('signup-btn', false, 'Create Account', 'fas fa-user-plus');
-            }
-        });
-
-        // --- RESET LOGIC ---
-        document.getElementById("reset").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            messageBox.style.display = 'none';
-            toggleButtonLoading('reset-btn', true, 'Reset Password', 'fas fa-redo-alt');
-
-            const email = document.getElementById("resetEmail").value.trim();
-            const newPassword = document.getElementById("resetNewPassword").value.trim();
-
-            try {
-                // NOTE: Assuming your backend has a /reset-password route, which it might not yet.
-                const res = await fetch(`${BASE_URL}/reset-password`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, newPassword })
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showMessage("Password updated successfully! You can now log in.", 'success');
-                    showTab("login", document.querySelector('[data-tab-id="login"]'));
-                } else {
-                    showMessage(data.message || "Password reset failed. Email not found.");
-                }
-
-            } catch (err) {
-                console.error(err);
-                showMessage("Connection Error: Failed to reset password.");
-            } finally {
-                toggleButtonLoading('reset-btn', false, 'Reset Password', 'fas fa-redo-alt');
-            }
+            });
         });
     </script>
-
 </body>
 </html>

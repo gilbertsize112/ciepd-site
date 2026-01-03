@@ -160,12 +160,27 @@
         /* ---------------------------------------------------- */
         .nav-bar {
             display: flex;
-            justify-content: center;
-            flex-wrap: wrap; 
+            justify-content: center; /* Centered on Desktop */
+            flex-wrap: wrap; /* Allow wrapping on Desktop */
             gap: 8px;
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
-            padding: 12px 5px;
+            padding: 12px 10px;
+        }
+
+        /* Mobile Responsive Navigation (Horizontal Scroll) */
+        @media (max-width: 768px) {
+            .nav-bar {
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .nav-bar::-webkit-scrollbar {
+                display: none;
+            }
         }
 
         .nav-bar a, .nav-item-wrapper { 

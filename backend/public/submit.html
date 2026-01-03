@@ -85,6 +85,21 @@ body {
   border-bottom: 2px solid #0077b6;
 }
 
+/* Mobile Responsive Navigation (Horizontal Scroll) */
+@media (max-width: 768px) {
+  .topnav {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .topnav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .topnav a {
   text-decoration: none;
   padding: 10px 22px;

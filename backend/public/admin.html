@@ -525,14 +525,26 @@
         .scroll-container {
             width: 70%; 
         }
+        
+        /* UPDATED: Horizontal scroll for nav bar on mobile */
         .nav-bar {
-            flex-wrap: wrap; 
+            flex-wrap: nowrap; 
+            overflow-x: auto;
             justify-content: flex-start;
-            gap: 8px;
+            gap: 12px;
             padding: 10px 20px;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+            /* Hide scrollbar for cleaner look but keep functionality */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE 10+ */
+        }
+        .nav-bar::-webkit-scrollbar { 
+            display: none;  /* Chrome/Safari */
         }
         .nav-bar a {
-            padding: 8px 12px;
+            flex: 0 0 auto; /* Prevent shrinking */
+            white-space: nowrap;
+            padding: 8px 14px;
             font-size: 13px;
         }
 
@@ -565,6 +577,16 @@
         } 
         .panel-inner { 
             padding: 20px; 
+            padding-top: 0; /* Let sticky header handle spacing */
+        }
+        .panel-header {
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            z-index: 10;
+            padding-top: 15px;
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-light);
         }
         .panel-title {
             font-size: 22px;
