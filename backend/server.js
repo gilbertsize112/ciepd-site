@@ -13,7 +13,7 @@ import { Server } from "socket.io";
 import csv from "csvtojson";
 import fs from "fs";
 
-// ⭐ NEW IMPORTS FOR FILE UPLOAD (S3 and local disk)
+
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
 import AWS from "aws-sdk";
@@ -37,7 +37,7 @@ import OpenAI from "openai";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-// ⭐ DIAGNOSTIC LOG TRAP (Now correctly placed)
+// ⭐ DIAGNOSTIC LOG TRAP 
 console.log("SERVER START: BEFORE DOTENV CONFIGURATION");
 
 dotenv.config();
@@ -45,7 +45,7 @@ console.log("🔑 OPENAI KEY LOADED?", process.env.OPENAI_API_KEY ? "YES" : "NO"
 
 
 // ==========================
-// FILE STORAGE CONFIGURATION (S3 or Local Disk)
+// FILE STORAGE CONFIGURATION 
 // ==========================
 let storage;
 
@@ -67,7 +67,7 @@ if (isS3Configured) {
     storage = multerS3({
         s3: s3,
         bucket: process.env.S3_BUCKET_NAME,
-        acl: 'public-read', // Makes the uploaded files publicly accessible
+        acl: 'public-read', 
         metadata: function (req, file, cb) {
             cb(null, { fieldName: file.fieldname });
         },
@@ -137,7 +137,7 @@ app.use(
     })
 );
 
-// We need to keep this order: json/urlencoded first, then file handler (multer)
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -158,7 +158,7 @@ app.use(
 );
 
 // STATIC FILES
-// This is critical for serving local files if not using S3
+
 app.use(express.static(path.join(__dirname, "public")));
 
 // ==========================

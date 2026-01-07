@@ -6,152 +6,167 @@
 <title>CIEPD – Submit Report</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 /* ========================================================== */
-/* 0. ROOT VARIABLES & GLOBAL STYLES */
+/* 0. ROOT VARIABLES & GLOBAL RESET */
 /* ========================================================== */
 :root {
-  --primary: #0077b6; /* Blue */
-  --secondary: #0096c7; /* Lighter Blue */
-  --dark: #023e8a; /* Dark Blue */
-  --light: #e8f5ff;
-  --white: #ffffff;
-  --alert-red: #c62828; /* Deep Red for Critical Alert */
-  --alert-dark-red: #a11f1f;
+  --primary: #0077b6;
+  --secondary: #00b4d8;
+  --accent: #023047;
+  --muted: #6b7280;
+  --danger: #e63946;
+  --success: #06d6a0;
+  --card: #ffffff;
+  --radius: 12px;
+  --border-light: #e6eef6;
+  --text-dark: #333;
+  --card-rgb: 255, 255, 255;
+  --alert-red: #c62828;
 }
+
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: url("background.jpg") no-repeat center center fixed;
   background-size: cover;
-  color: #333;
-}
-
-/* ===== BOUNCE ANIMATION (No Change) ===== */
-@keyframes bounceSmooth {
-  0% { transform: translateY(0); }
-  30% { transform: translateY(-12px); }
-  60% { transform: translateY(0); }
-  80% { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
-}
-
-.bounce-text {
-  display:inline-block;
-  animation: bounceSmooth 2.3s infinite ease-in-out;
+  color: var(--text-dark);
+  min-height: 100vh;
 }
 
 /* ========================================================== */
 /* 1. HEADER & NAVIGATION */
 /* ========================================================== */
 .header {
-  background: rgba(0,0,0,0.55);
-  padding: 60px 20px;
-  text-align: center;
-  color: white;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background: rgba(var(--card-rgb), 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 2.4rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+.brand {
+  font-weight: 800;
+  color: var(--primary);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.header p {
-  margin-top: 12px;
-  font-size: 1.1rem;
-  background: rgba(255,255,255,0.15);
-  display: inline-block;
-  padding: 6px 14px;
-  border-radius: 8px;
+.scroll-container {
+  width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 13px;
   font-weight: 600;
+  background: rgba(0, 119, 182, 0.1);
+  padding: 5px 15px;
+  border-radius: 20px;
+  color: var(--primary);
+}
+.scroll-text {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll-left 20s linear infinite;
+}
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
 }
 
 .topnav {
   display: flex;
   justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(var(--card-rgb), 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-light);
   flex-wrap: wrap;
-  padding: 14px;
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-  border-bottom: 2px solid #0077b6;
-}
-
-/* Mobile Responsive Navigation (Horizontal Scroll) */
-@media (max-width: 768px) {
-  .topnav {
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .topnav::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 .topnav a {
   text-decoration: none;
-  padding: 10px 22px;
-  margin: 5px;
-  background: #f0faff;
-  color: var(--dark);
-  border-radius: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  color: var(--text-dark);
   font-weight: 600;
-  border: 1.5px solid #bcdfff;
-  transition: 0.25s ease-in-out;
+  font-size: 14px;
+  transition: 0.2s;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--border-light);
 }
 
-.topnav a:hover {
-  background: var(--secondary);
+.topnav a:hover, .topnav a.active {
+  background: var(--primary);
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
 
 /* ========================================================== */
-/* 2. FORM LAYOUT & INPUTS */
+/* 2. FLEX LAYOUT (Side by Side) */
 /* ========================================================== */
-.wrapper {
-  width: 92%;
-  max-width: 900px;
-  background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(6px);
-  margin: 40px auto;
+.main-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 95%;
+  max-width: 1200px;
+  margin: 30px auto;
+  align-items: flex-start;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
   padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
+.report-details-card {
+  flex: 1.8;
+  min-width: 350px;
+}
+
+.action-card {
+  flex: 1;
+  min-width: 320px;
+  position: sticky;
+  top: 100px;
+}
+
+/* ========================================================== */
+/* 3. INPUTS & CATEGORY STYLING */
+/* ========================================================== */
 .input-group {
   margin: 20px 0;
   position: relative;
 }
 
-.input-group input,
-.input-group textarea {
+.input-group input, .input-group textarea {
   width: 100%;
-  padding: 12px;
-  border: 1.5px solid #bddcff;
-  border-radius: 10px;
-  font-size: 1rem;
+  padding: 14px;
+  border: 1.5px solid var(--border-light);
+  border-radius: 12px;
+  font-size: 0.95rem;
   outline: none;
-  background: #f9fcff;
-  transition: 0.2s;
+  background: #fdfdfd;
+  transition: 0.3s;
 }
 
-.input-group input:focus,
-.input-group textarea:focus {
+.input-group input:focus, .input-group textarea:focus {
   border-color: var(--primary);
   background: white;
 }
@@ -161,340 +176,286 @@ body {
   top: -10px;
   left: 12px;
   background: white;
-  padding: 0 6px;
+  padding: 0 8px;
   font-size: 0.8rem;
-  color: var(--dark);
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: 700;
+  border-radius: 4px;
 }
 
-/* Checkboxes */
-.category-box {
+.category-section {
+  background: #f0f7ff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
   margin-top: 10px;
-  padding-left: 5px;
 }
 
-.category-box label {
+.category-section strong {
   display: block;
-  padding: 6px 0;
+  color: var(--accent);
+  margin-bottom: 8px;
   font-size: 0.95rem;
+  border-bottom: 1px solid #d0e4ff;
+}
+
+.category-group {
+  margin-bottom: 15px;
+}
+
+.category-group label {
+  display: block;
+  padding: 4px 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.category-group label:hover {
+  color: var(--primary);
 }
 
 /* ========================================================== */
-/* 3. BUTTONS & ANIMATIONS */
+/* 4. BUTTONS & UI COMPONENTS */
 /* ========================================================== */
-
-/* ===== STANDARD SUBMIT BUTTON (Blue) - RESTORED ===== */
 .btn-submit {
   width: 100%;
-  padding: 15px;
-  background: var(--primary);
+  padding: 16px;
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: 12px;
   font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
   transition: 0.3s;
   margin-top: 10px;
 }
 
 .btn-submit:hover {
-  background: var(--secondary);
+  background: #000;
   transform: translateY(-2px);
 }
 
-/* ===== ALERT DISPATCH BUTTON (Red) ===== */
 .btn-alert-dispatch {
   width: 100%;
   padding: 18px; 
-  margin-top: 20px; 
   background: var(--alert-red); 
   color: white;
   border: none;
-  border-radius: 15px; 
-  font-size: 1.2rem; 
+  border-radius: 12px; 
+  font-size: 1rem; 
   font-weight: 800; 
   cursor: pointer;
   transition: 0.3s;
-  box-shadow: 0 6px 15px rgba(198, 40, 40, 0.4); 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 15px; 
 }
 
 .btn-alert-dispatch:hover {
-  background: var(--alert-dark-red);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(198, 40, 40, 0.6);
+  background: #a11f1f;
+  transform: scale(1.02);
 }
 
-.btn-alert-dispatch i {
-  /* Animation for the bell icon */
-  animation: pulse-red 1.5s infinite;
-}
+.btn-alert-dispatch i { animation: pulse-red 1.5s infinite; }
+@keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.1); color: #fff700; } 100% { transform: scale(1); } }
 
-@keyframes pulse-red {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); color: #fff700; } /* Bell turns yellow briefly */
-    100% { transform: scale(1); }
-}
+.ai-box { margin: 15px 0; padding: 15px; background: #e1f5fe; border-left: 5px solid var(--primary); border-radius: 10px; }
+.ai-btn { background: var(--primary); padding: 10px 16px; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 700; }
+.ai-output { background: white; border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.9rem; display: none; border: 1px solid var(--border-light); line-height: 1.5; }
 
-/* Success Animation */
 .success-popup {
   display: none;
   position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 25px 40px;
-  border-radius: 15px;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-  font-size: 1.2rem;
-  color: var(--alert-red); 
-  animation: popFade 0.4s ease;
-  font-weight: 700;
+  top: 20px; right: 20px;
+  background: white; padding: 20px 30px;
+  border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 2000; border-left: 5px solid var(--success);
+  font-weight: 700; animation: slideIn 0.5s ease;
 }
 
-@keyframes popFade {
-  from { transform: translate(-50%, -45%) scale(0.9); opacity: 0; }
-  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-/* ===== AI Box Styling (No Change) ===== */
-.ai-box {
-  margin-top: 15px;
-  padding: 15px;
-  background: #f0faff;
-  border-left: 4px solid var(--primary);
-  border-radius: 10px;
-}
-
-.ai-btn {
-  background: var(--secondary);
-  padding: 10px 16px;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.ai-btn:hover {
-  background: var(--primary);
-}
-
-.ai-output {
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 10px;
-  font-size: 0.95rem;
-  display: none;
-  border: 1.5px solid #cfe8ff;
+@media (max-width: 900px) {
+  .action-card { position: static; }
+  .header { flex-direction: column; padding: 10px; gap: 10px; }
+  .scroll-container { width: 100%; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h1 class="bounce-text">CIEPD Conflict & Peace Watch Center</h1>
-  <p class="bounce-text">Report via WhatsApp/SMS: <strong>08034559689</strong></p>
-</div>
+<header class="header">
+  <div class="brand"><i class="fas fa-paper-plane"></i> CIEPD Watch Center</div>
+  <div class="scroll-container">
+    <div class="scroll-text">Report via WhatsApp/SMS: 08034559689 — Safe & Encrypted Reporting.</div>
+  </div>
+</header>
 
-<div class="topnav">
-  <a href="index.html">Home</a>
-  <a href="report.html">Reports</a>
-  <a href="submit.html">Submit Report</a>
-  <a href="getalert.html">Get Alerts</a>
-  <a href="contact.html">Contact</a>
-  <a href="admin-map.html">Big Map</a>
-</div>
+<nav class="topnav">
+  <a href="index.html"><i class="fas fa-home"></i> Home</a>
+  <a href="report.html"><i class="fas fa-file-alt"></i> Reports</a>
+  <a href="submit.html" class="active"><i class="fas fa-edit"></i> Submit Report</a>
+  <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
+  <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+</nav>
 
-<div class="wrapper">
-  <h2 style="text-align:center;color:var(--dark);margin-bottom:20px;">Submit a New Report</h2>
+<form id="reportForm">
+  <div class="main-layout">
+    
+    <div class="card report-details-card">
+      <h2 style="margin-top:0; color:var(--accent); text-align: center;">New Incident Report</h2>
+      
+      <div class="input-group">
+        <label>Report Title *</label>
+        <input type="text" id="title" required placeholder="e.g. Communal Clash in Rivers State">
+      </div>
 
-  <form id="reportForm">
+      <div class="input-group">
+        <label>Description *</label>
+        <textarea id="content" rows="6" required placeholder="Provide detailed information..."></textarea>
+      </div>
 
-    <div class="input-group">
-      <label>Report Title *</label>
-      <input type="text" id="title" required>
-    </div>
+      <div class="ai-box">
+        <button type="button" class="ai-btn" onclick="generateAI()">✨ AI Improve Description</button>
+        <div id="aiOutput" class="ai-output"></div>
+      </div>
 
-    <div class="input-group">
-      <label>Description *</label>
-      <textarea id="content" rows="5" required></textarea>
-    </div>
+      <div class="input-group">
+        <label>Location *</label>
+        <input type="text" id="location" required placeholder="City, State, LGA">
+      </div>
 
-    <div class="ai-box">
-      <button type="button" class="ai-btn" onclick="generateAI()">✨ AI Improve / Summarize Description</button>
-      <div id="aiOutput" class="ai-output"></div>
-    </div>
+      <div class="category-section">
+        <h4 style="margin: 0 0 15px 0; color:var(--primary);"><i class="fas fa-list"></i> Select Incident Categories *</h4>
+        
+        <div class="category-group">
+          <strong>Incidences of Violent Conflicts</strong>
+          <label><input type="checkbox" name="category" value="Kidnapping"> Kidnapping</label>
+          <label><input type="checkbox" name="category" value="WASH Related Conflict"> WASH Related Conflict</label>
+          <label><input type="checkbox" name="category" value="Intra-Communial Conflict"> Intra-Communial Conflict</label>
+          <label><input type="checkbox" name="category" value="Inter-Communial Conflicts"> Inter-Communial Conflicts</label>
+          <label><input type="checkbox" name="category" value="Religious Conflicts"> Religious Conflicts</label>
+          <label><input type="checkbox" name="category" value="Resource Conflict"> Resource Conflict</label>
+          <label><input type="checkbox" name="category" value="Others"> Others</label>
+        </div>
 
-    <div>
-      <label style="font-weight:600;color:var(--dark);">Categories *</label>
+        <div class="category-group">
+          <strong>Kidnapping — Sub Categories</strong>
+          <label><input type="checkbox" name="category" value="Early Warning Signal"> Early Warning Signal</label>
+          <label><input type="checkbox" name="category" value="Uncategorized Reports"> Uncategorized Reports</label>
+          <label><input type="checkbox" name="category" value="Electoral Violence"> Electoral Violence</label>
+          <label><input type="checkbox" name="category" value="Pre-Electoral Violence"> Pre-Electoral Violence</label>
+          <label><input type="checkbox" name="category" value="During"> During</label>
+          <label><input type="checkbox" name="category" value="Post Electoral Violence"> Post Electoral Violence</label>
+        </div>
 
-      <div class="category-box">
-        <strong>Incidences of Violent Conflicts</strong>
-        <label><input type="checkbox" name="category" value="Kidnapping"> Kidnapping</label>
-        <label><input type="checkbox" name="category" value="WASH Related Conflict"> WASH Related Conflict</label>
-        <label><input type="checkbox" name="category" value="Intra-Communial Conflict"> Intra-Communial Conflict</label>
-        <label><input type="checkbox" name="category" value="Inter-Communial Conflicts"> Inter-Communial Conflicts</label>
-        <label><input type="checkbox" name="category" value="Religious Conflicts"> Religious Conflicts</label>
-        <label><input type="checkbox" name="category" value="Resource Conflict"> Resource Conflict</label>
-        <label><input type="checkbox" name="category" value="Others"> Others</label>
+        <div class="category-group">
+          <strong>Peace Initiatives</strong>
+          <label><input type="checkbox" name="category" value="NGO"> NGO</label>
+          <label><input type="checkbox" name="category" value="CBOs/Communities"> CBOs/Communities</label>
+          <label><input type="checkbox" name="category" value="Government Initiative"> Government Initiative</label>
+        </div>
 
-        <br><strong>Kidnapping — Sub Categories</strong>
-        <label><input type="checkbox" name="category" value="Early Warning Signal"> Early Warning Signal</label>
-        <label><input type="checkbox" name="category" value="Uncategorized Reports"> Uncategorized Reports</label>
-        <label><input type="checkbox" name="category" value="Electoral Violence"> Electoral Violence</label>
-        <label><input type="checkbox" name="category" value="Pre-Electoral Violence"> Pre-Electoral Violence</label>
-        <label><input type="checkbox" name="category" value="During"> During</label>
-        <label><input type="checkbox" name="category" value="Post Electoral Violence"> Post Electoral Violence</label>
-
-        <br><strong>Peace Initiatives</strong>
-        <label><input type="checkbox" name="category" value="NGO"> NGO</label>
-        <label><input type="checkbox" name="category" value="CBOs/Communities"> CBOs/Communities</label>
-        <label><input type="checkbox" name="category" value="Government Initiative"> Government Initiative</label>
-
-        <br><strong>Hate Speech</strong>
-        <label><input type="checkbox" name="category" value="Hate Speech"> Hate Speech</label>
-
-        <br><strong>Violence Against Women and Girls (VAWG)</strong>
-        <label><input type="checkbox" name="category" value="VAWG"> VAWG</label>
+        <div class="category-group">
+          <strong>Social & Gender Issues</strong>
+          <label><input type="checkbox" name="category" value="Hate Speech"> Hate Speech</label>
+          <label><input type="checkbox" name="category" value="VAWG"> Violence Against Women and Girls (VAWG)</label>
+        </div>
       </div>
     </div>
 
-    <div class="input-group">
-      <label>Location *</label>
-      <input type="text" id="location" required>
-    </div> 
+    <div class="card action-card">
+      <h3 style="margin-top:0; color:var(--accent);"><i class="fas fa-paperclip"></i> Media & Links</h3>
+      
+      <div class="input-group">
+        <label>News Source Link</label>
+        <input type="url" id="newsSource" placeholder="https://...">
+      </div>
 
-    <div class="input-group">
-      <label>News Source Link</label>
-      <input type="url" id="newsSource">
+      <div class="input-group">
+        <label>External Video Link</label>
+        <input type="url" id="videoLink" placeholder="YouTube or Drive link">
+      </div>
+
+      <div class="input-group">
+        <label>Upload Photos</label>
+        <input type="file" id="photos" accept="image/*" multiple style="padding-top:35px;">
+      </div>
+
+      <hr style="border:0; border-top:1px solid var(--border-light); margin:25px 0;">
+      
+      <h3 style="color:var(--accent); margin-bottom:20px;"><i class="fas fa-user-shield"></i> Contact Info (Optional)</h3>
+
+      <div class="input-group">
+        <label>First Name</label>
+        <input type="text" id="firstName">
+      </div>
+
+      <div class="input-group">
+        <label>Email Address</label>
+        <input type="email" id="email">
+      </div>
+
+      <div style="margin-top:30px;">
+        <button type="submit" class="btn-alert-dispatch" id="alertDispatchButton">
+          <i class="fa-solid fa-bell"></i> Dispatch IMMEDIATE Alert
+        </button>
+        
+        <button type="submit" class="btn-submit">Submit Standard Report</button>
+      </div>
     </div>
 
-    <div class="input-group">
-      <label>External Video Link</label>
-      <input type="url" id="videoLink">
-    </div>
-
-    <div class="input-group">
-      <label>Upload Photos</label>
-      <input type="file" id="photos" accept="image/*" multiple>
-    </div>
-
-    <h3 style="color:var(--primary);margin-top:25px;">Optional Information</h3>
-
-    <div class="input-group">
-      <label>First Name</label>
-      <input type="text" id="firstName">
-    </div>
-
-    <div class="input-group">
-      <label>Last Name</label>
-      <input type="text" id="lastName">
-    </div>
-
-    <div class="input-group">
-      <label>Email</label>
-      <input type="email" id="email">
-    </div>
-
-    <button type="submit" class="btn-alert-dispatch" id="alertDispatchButton">
-      <i class="fa-solid fa-bell"></i> Dispatch IMMEDIATE Alert (Email & WhatsApp) <i class="fa-solid fa-bell"></i>
-    </button>
-    
-    <button type="submit" class="btn-submit">Submit Report (Standard)</button>
-    
-  </form>
-</div>
+  </div>
+</form>
 
 <div id="successPopup" class="success-popup">Alert Dispatched Successfully!</div>
 
 <script>
-// ==========================================================
-// JAVASCRIPT LOGIC
-// ==========================================================
 const form = document.getElementById("reportForm"); 
 const popup = document.getElementById("successPopup");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  // --- 1. Determine Submission Type and Collect Data ---
-  // The 'submitter' property tells us which button triggered the submit event
   const clickedButton = e.submitter; 
   
   const title = document.getElementById("title").value.trim();
   const content = document.getElementById("content").value.trim();
   const location = document.getElementById("location").value.trim();
-  
-  const categories = Array.from(
-    document.querySelectorAll('input[name="category"]:checked')
-  ).map(c => c.value);
+  const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(c => c.value);
 
   if (!title || !content || !location || categories.length === 0) {
-    alert("Please fill all required fields (Title, Description, Location, and select at least one Category).");
+    alert("Please fill required fields and select at least one Category.");
     return;
   }
 
-  // --- 2. Prepare Form Data ---
   const formData = new FormData(form); 
-  
-  // This flag tells the server which button was pressed (Alert vs. Standard Submit)
   const isCriticalAlert = clickedButton.classList.contains('btn-alert-dispatch');
   formData.append('isCriticalAlert', isCriticalAlert ? 'true' : 'false');
   
-  // --- 3. API Call to Backend ---
   const apiURL = window.location.hostname.includes("localhost")
     ? "http://localhost:3000/api/report"
     : "https://ciepd-backend.onrender.com/api/report";
 
-  let successMessage = "Report Submitted Successfully!";
-
-  if (isCriticalAlert) {
-      // If the RED button was clicked, change the success message
-      successMessage = "🚨 Alert Dispatched! Agencies Notified via Email/WhatsApp!";
-  }
-
   try {
-    const res = await fetch(apiURL, {
-      method: "POST",
-      body: formData
-    });
-  
-    const data = await res.json();
-  
+    const res = await fetch(apiURL, { method: "POST", body: formData });
     if (res.ok) {
-      // Success feedback
-      popup.innerHTML = successMessage;
-      // Change success popup color/style based on alert type (optional, but good UX)
-      popup.style.color = isCriticalAlert ? 'var(--alert-red)' : 'var(--dark)'; 
+      popup.innerHTML = isCriticalAlert ? "🚨 Alert Dispatched Successfully!" : "✅ Report Submitted Successfully!";
       popup.style.display = "block";
       setTimeout(() => { popup.style.display = "none"; form.reset(); }, 4000); 
     } else {
-      // Error feedback
-      alert("Error submitting report: " + (data.message || "Unknown error. Check server logs."));
+      alert("Error submitting report.");
     }
-  } catch (error) {
-    alert("Connection error: Could not reach the server API.");
-  }
+  } catch (error) { alert("Connection error."); }
 });
 
-/* AI FUNCTION — (No Change) */
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("content").value.trim();
-  const location = document.getElementById("location").value.trim();
-
-  const categories = Array.from(
-    document.querySelectorAll('input[name="category"]:checked')
-  ).map(c => c.value);
-
   const output = document.getElementById("aiOutput");
 
   if (!description) {
@@ -507,32 +468,14 @@ async function generateAI() {
   output.innerHTML = "⏳ AI is generating…";
 
   try {
-    const apiURL = window.location.hostname.includes("localhost")
-      ? "http://localhost:3000/api/ai/analyze-report"
-      : "https://ciepd-backend.onrender.com/api/ai/analyze-report";
-
-    const res = await fetch(apiURL, {
+    const res = await fetch("https://ciepd-backend.onrender.com/api/ai/analyze-report", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        description,
-        location,
-        categories
-      })
+      body: JSON.stringify({ title, description })
     });
-
     const data = await res.json();
-
-    let finalText = data.analysis || data.output_text || 
-      data.output?.[0]?.content?.[0]?.text || 
-      "AI returned no readable analysis.";
-
-    output.innerHTML = finalText;
-
-  } catch (e) {
-    output.innerHTML = "❌ Error talking to AI service.";
-  }
+    output.innerHTML = data.analysis || "AI returned no analysis.";
+  } catch (e) { output.innerHTML = "❌ AI Service Error."; }
 }
 </script>
 </body>

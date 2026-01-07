@@ -4,227 +4,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIEPD Get Alerts – Real-Time Safety Notifications</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ---------------------------------------------------- */
-        /* 1. PROFESSIONAL COLOR PALETTE & GLOBAL RESET */
-        /* ---------------------------------------------------- */
+        /* ========================================================== */
+        /* 0. ROOT VARIABLES & GLOBAL RESET */
+        /* ========================================================== */
         :root {
-            --primary: #0066cc; /* Deep Blue - Strong Primary */
-            --secondary: #00aaff; /* Light Blue - Accent */
-            --bg-light: #ebf2f6; 
-            --bg-card: #ffffff;
-            --text-dark: #2c3e50;
-            --text-muted: #7f8c8d;
-            --border-color: #e0e4e8;
-            --radius: 10px;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --primary: #0077b6;
+            --secondary: #00b4d8;
+            --accent: #023047;
+            --muted: #6b7280;
+            --danger: #e63946;
+            --success: #06d6a0;
+            --card: #ffffff;
+            --bg-light: #f8feff;
+            --radius: 12px;
+            --border-light: #e6eef6;
+            --text-dark: #333;
+            --card-rgb: 255, 255, 255;
         }
 
-        /* Basic Reset */
         * { box-sizing: border-box; }
+
         body { 
             margin: 0; 
-            font-family: 'Montserrat', sans-serif; 
-            color: #2c3e50; 
+            font-family: 'Poppins', sans-serif; 
+            color: var(--text-dark); 
             line-height: 1.6;
-            position: relative;
             min-height: 100vh;
-            z-index: 1; 
+            background: #f0f4f8; /* Fallback */
         }
 
-        /* Adjust colors for better readability on video background if needed, but keeping original for form boxes */
-        .container h2 {
-            color: var(--primary); 
-        }
-
-        a { 
-            text-decoration: none; 
-            color: var(--primary); 
-            transition: color 0.2s;
-        }
-        a:hover { 
-            color: var(--secondary); 
-            text-decoration: underline; 
-        }
-        
         /* ---------------------------------------------------- */
         /* BACKGROUND VIDEO STYLES */
         /* ---------------------------------------------------- */
         #video-background {
             position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%; 
-            min-height: 100%;
-            width: auto;
-            height: auto;
+            right: 0; bottom: 0;
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
             z-index: -100;
-            overflow: hidden;
+            object-fit: cover;
         }
 
-        /* ---------------------------------------------------- */
-        /* 2. HEADER AND NAVIGATION - MODIFIED FOR TRANSPARENCY & MOBILE */
-        /* ---------------------------------------------------- */
-        #header {
-            background: rgba(0, 0, 0, 0.6); /* Slightly darker for better mobile contrast */
-            padding: 15px 15px; /* Reduced padding for mobile */
-            text-align: center;
-            color: white; 
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-            position: relative; 
-            z-index: 10; 
-        }
-
-        #header h1 {
-            font-size: 1.8em; /* Smaller on mobile */
-            margin: 0 0 5px 0;
-            font-weight: 800;
-            color: #fff; 
-        }
-
-        #header span {
-            font-size: 0.85em; /* Smaller on mobile */
-            opacity: 0.9;
-            color: #fff; 
-            display: block; /* Ensures it takes full width below H1 on mobile */
-        }
-
-        #nav {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-            z-index: 9; 
-            /* Added padding for mobile to contain wrap items */
-            padding: 5px 0; 
-        }
-
-        #nav ul {
-            display: flex; 
-            justify-content: center; 
-            list-style: none; 
-            margin: 0; 
-            padding: 0;
-            flex-wrap: wrap; /* Allows navigation items to wrap on smaller screens */
-        }
-
-        #nav li {
-            margin: 0;
-        }
-
-        #nav a {
-            color: var(--text-dark);
-            font-weight: 600;
-            padding: 10px 10px; /* Reduced padding for mobile */
+        /* ========================================================== */
+        /* 1. HEADER & NAVIGATION (Matched to Admin/Submit Styles) */
+        /* ========================================================== */
+        .header {
             display: flex;
             align-items: center;
-            gap: 5px; /* Reduced gap */
-            font-size: 0.85em; /* Smaller font for mobile */
-            transition: background-color 0.2s, color 0.2s;
-            text-align: center;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(var(--card-rgb), 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        #nav a:hover {
-            background-color: var(--bg-light);
-            text-decoration: none;
-        }
-
-        #nav a.active {
+        .brand {
+            font-weight: 800;
             color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-            background-color: var(--bg-light);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
-        /* ---------------------------------------------------- */
-        /* 3. MAIN CONTAINER & LAYOUT */
-        /* ---------------------------------------------------- */
+
+        /* MARQUEE CONTACT INFO */
+        .scroll-container {
+            width: 350px;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(0, 119, 182, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: var(--primary);
+        }
+        .scroll-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 20s linear infinite;
+        }
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .topnav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(var(--card-rgb), 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            position: sticky;
+            top: 70px; /* Sits below the brand header */
+            z-index: 999;
+        }
+
+        .topnav a {
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 999px;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.2s;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topnav a:hover, .topnav a.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,119,182,0.2);
+        }
+
+        /* ========================================================== */
+        /* 2. MAIN CONTAINER & LAYOUT */
+        /* ========================================================== */
         .container { 
             max-width: 1200px;
-            margin: 20px auto; /* Reduced margin for mobile */
-            padding: 0 15px; /* Reduced padding for mobile */
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr; 
-            gap: 20px; /* Reduced gap for mobile */
+            grid-template-columns: 380px 1fr; 
+            gap: 30px;
+            align-items: flex-start;
         }
 
-        h2 { 
-            color: var(--primary); 
-            margin-bottom: 15px; /* Reduced margin */
-            font-size: 1.6em; /* Slightly smaller for mobile */
-            font-weight: 700;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--border-color);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        h2.section-title {
+            color: var(--accent);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
         }
         
         .section-intro {
-            font-size: 1em; /* Smaller font */
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            /* Added background for readability over video */
-            background-color: rgba(255, 255, 255, 0.9); /* Slightly less transparent */
-            padding: 10px;
-            border-radius: var(--radius);
+            text-align: center;
+            color: var(--muted);
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.8);
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         /* ---------------------------------------------------- */
-        /* 4. ALERT SUBSCRIPTION FORM (Left Column) */
+        /* 3. ALERT SUBSCRIPTION FORM */
         /* ---------------------------------------------------- */
         .alert-box {
-            background: var(--bg-card);
-            padding: 20px; /* Reduced padding for mobile */
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border-top: 5px solid var(--secondary);
-            height: fit-content; 
+            border-top: 6px solid var(--primary);
         }
 
         .alert-box h3 {
             margin-top: 0;
-            color: var(--text-dark);
-            font-size: 1.4em; /* Smaller font for mobile */
-            font-weight: 700;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            color: var(--accent);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .form-group {
-            margin-bottom: 15px; /* Reduced margin */
+            margin-bottom: 20px;
         }
 
-        .alert-box label {
+        .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 0.95em;
-            font-weight: 600;
-            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
         }
 
-        .alert-box input, 
-        .alert-box select {
+        .form-group input, 
+        .form-group select {
             width: 100%;
-            padding: 10px; /* Reduced padding */
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            font-size: 1em;
-            background: #ffffff;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-light);
+            font-size: 1rem;
+            background: #fdfdfd;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0,119,182,0.1);
         }
 
         .alert-btn {
-            margin-top: 20px; /* Reduced margin */
-            background-color: var(--secondary);
+            background: var(--accent);
             color: white;
-            padding: 12px 15px; /* Reduced padding */
+            padding: 15px;
             border: none;
-            border-radius: 6px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 1em; /* Reduced font size */
             font-weight: 700;
             width: 100%;
             transition: 0.3s;
@@ -232,154 +240,120 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            font-size: 1rem;
         }
 
         .alert-btn:hover {
-            background-color: #0099e6;
-            box-shadow: var(--shadow);
+            background: #000;
+            transform: translateY(-2px);
         }
 
         /* ---------------------------------------------------- */
-        /* 5. MAP AND REPORTS (Right Column) */
+        /* 4. MAP AND REPORTS */
         /* ---------------------------------------------------- */
         .map-wrapper { 
-            height: 300px; /* Reduced height for mobile */
-            margin-bottom: 20px; 
-            border: 1px solid var(--border-color); 
-            border-radius: var(--radius); 
+            height: 350px;
+            margin-bottom: 25px; 
+            border-radius: 20px; 
             overflow: hidden; 
-            box-shadow: var(--shadow);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             position: relative;
+            border: 4px solid white;
         }
         
-        /* Map Image/Placeholder */
-        .map-wrapper img {
-             width:100%; 
-             height:100%; 
-             object-fit: cover;
-             display: block;
-        }
+        .map-wrapper img { width:100%; height:100%; object-fit: cover; }
         
-        /* Dynamic Overlay for Alert Zone Message */
         #alertZoneMessage {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 102, 204, 0.85); 
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 119, 182, 0.85); 
             color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 1.2em; /* Smaller font for mobile */
-            font-weight: 700;
             text-align: center;
             padding: 20px;
             opacity: 0;
-            transition: opacity 0.5s ease;
-            pointer-events: none; 
-        }
-
-        #alertZoneMessage i {
-            margin-bottom: 10px;
+            transition: 0.4s ease;
+            backdrop-filter: blur(4px);
         }
         
-        #alertZoneMessage.show {
-            opacity: 1;
-        }
-
-        .report-list-container {
-            background: var(--bg-card);
-            padding: 20px; /* Reduced padding for mobile */
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
+        #alertZoneMessage.show { opacity: 1; }
 
         .report-item { 
-            border-bottom: 1px dashed var(--border-color); 
-            padding: 10px 0; /* Reduced padding */
+            background: white;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            transition: 0.3s;
+        }
+
+        .report-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
         .report-title { 
             font-weight: 700; 
             color: var(--primary); 
-            font-size: 1em; 
-            margin-bottom: 3px;
-            display: block; 
+            font-size: 1.1rem; 
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
         }
         
-        .report-content {
-            font-size: 0.9em; /* Smaller font for mobile */
-            color: var(--text-dark);
-            margin-bottom: 3px;
-        }
+        .report-content { font-size: 0.9rem; color: var(--text-dark); margin-bottom: 12px; }
 
-        .report-date {
-            font-size: 0.8em; /* Smaller font for mobile */
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        /* PAGINATION */
-        .pagination {
+        .report-meta {
+            font-size: 0.8rem;
+            color: var(--muted);
             display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 10px;
+            gap: 15px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 10px;
         }
+
+        .pagination { display: flex; justify-content: center; margin-top: 30px; gap: 10px; }
 
         .pagination button {
-            padding: 8px 15px;
-            border-radius: 6px;
-            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
             cursor: pointer;
-            background: var(--primary);
-            color: white;
-            font-size: 0.9em;
+            background: white;
+            color: var(--primary);
             font-weight: 600;
             transition: 0.3s;
         }
 
-        /* FOOTER */
-        footer { 
-            text-align: center; 
-            padding: 20px 10px; /* Reduced padding */
-            font-size: 0.8em; /* Smaller font */
-            color: var(--text-muted); 
-            margin-top: 20px; 
-            border-top: 1px solid var(--border-color);
-            background-color: var(--bg-card);
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
         }
 
         /* ---------------------------------------------------- */
-        /* RESPONSIVE MEDIA QUERY (The core change for mobile) */
+        /* FOOTER & MOBILE RESPONSIVENESS */
         /* ---------------------------------------------------- */
+        footer { 
+            text-align: center; 
+            padding: 40px 20px;
+            color: white; 
+            background: var(--accent);
+            margin-top: 50px; 
+        }
+
         @media (max-width: 900px) {
-            .main-grid {
-                /* Stacks the 1fr and 2fr columns into a single column on small screens */
-                grid-template-columns: 1fr; 
-            }
-            .container {
-                margin: 20px auto;
-            }
-            #nav ul {
-                /* Ensures nav items wrap if necessary */
-                flex-wrap: wrap; 
-            }
-            #nav a {
-                /* Give each nav item more space */
-                padding: 12px 10px;
-                flex-grow: 1; 
-                justify-content: center;
-            }
+            .header { flex-direction: column; padding: 10px; gap: 10px; }
+            .scroll-container { width: 100%; }
+            .topnav { top: 0; padding: 8px; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; }
+            .topnav a { white-space: nowrap; }
             
-            /* Remove white background from h2 in the right column, as its parent is now stacked below a white box */
-            div > h2[style] {
-                background-color: transparent !important;
-                padding: 0 !important;
-            }
+            .main-grid { grid-template-columns: 1fr; }
+            .container { margin-top: 15px; }
+            .section-title { font-size: 1.4rem; }
+            .map-wrapper { height: 250px; }
         }
     </style>
 </head>
@@ -387,48 +361,49 @@
 <body>
     <video autoplay muted loop id="video-background">
         <source src="videos/vid.mp4" type="video/mp4">
-        Your browser does not support the video tag.
     </video>
     
-    <div id="header">
-        <h1>CIEPD Watch Center</h1>
-        <span>Submit Reports via: **09056454523** | <i class="fab fa-whatsapp"></i> WhatsApp/SMS</span>
-    </div>
+    <header class="header">
+        <div class="brand">
+            <i class="fas fa-paper-plane"></i> CIEPD Watch Center
+        </div>
+        <div class="scroll-container">
+            <div class="scroll-text">Submit Reports via: 09056454523 — Stay Safe, Stay Informed — WhatsApp/SMS Active</div>
+        </div>
+    </header>
 
-    <nav id="nav">
-        <ul>
-            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
-            <li><a href="submit.html"><i class="fas fa-plus-circle"></i> Submit Report</a></li>
-            <li><a href="getalert.html" class="active"><i class="fas fa-bell"></i> Get Alerts</a></li>
-            <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
-            <li><a href="admin-map.html"><i class="fas fa-map-marked-alt"></i> Big Map</a></li>
-        </ul>
+    <nav class="topnav">
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a>
+        <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
+        <a href="getalert.html" class="active"><i class="fas fa-bell"></i> Get Alerts</a>
+        <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+        <a href="admin-map.html"><i class="fas fa-map-marked-alt"></i> Big Map</a>
     </nav>
 
     <div class="container">
-        <h2 style="text-align: center;"><i class="fas fa-bell"></i> Real-Time Alert Subscription</h2>
-        <p class="section-intro" style="text-align: center;">Get instant notifications about conflict and peace events in your locality. Your safety is our priority. You will receive alerts when a report is submitted within a 20km radius of your chosen location.</p>
+        <h2 class="section-title"><i class="fas fa-shield-alt"></i> Real-Time Alert Subscription</h2>
+        <p class="section-intro">Get instant notifications about conflict and peace events in your locality. We monitor a 20km radius of your chosen location to keep you ahead of danger.</p>
 
         <div class="main-grid">
-            <div class="alert-box">
-                <h3><i class="fas fa-cogs"></i> Setup Your Alert Profile</h3>
+            <div class="glass-card alert-box">
+                <h3><i class="fas fa-user-plus"></i> Subscription Profile</h3>
                 
                 <form id="alertForm">
                     <div class="form-group">
-                        <label for="alertPhone"><i class="fas fa-phone"></i> Your Phone Number (SMS / WhatsApp)</label>
+                        <label><i class="fas fa-phone"></i> Phone Number</label>
                         <input id="alertPhone" type="text" placeholder="e.g. 09012345678" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="alertEmail"><i class="fas fa-at"></i> Your Email (Optional for Email Alerts)</label>
+                        <label><i class="fas fa-envelope"></i> Email Address (Optional)</label>
                         <input id="alertEmail" type="email" placeholder="example@mail.com">
                     </div>
 
                     <div class="form-group">
-                        <label for="alertLocation"><i class="fas fa-map-marker-alt"></i> Select Your Location (State/LGA)</label>
+                        <label><i class="fas fa-map-marker-alt"></i> Coverage Location</label>
                         <select id="alertLocation" required onchange="updateAlertZoneVisual()">
-                            <option value="">-- Select Location --</option>
+                            <option value="">-- Select State/LGA --</option>
                             <option>Rivers State</option>
                             <option>Akwaibom State</option>
                             <option>Edo State</option>
@@ -442,7 +417,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="alertMethod"><i class="fas fa-inbox"></i> Preferred Alert Method</label>
+                        <label><i class="fas fa-paper-plane"></i> Preferred Method</label>
                         <select id="alertMethod">
                             <option>WhatsApp</option>
                             <option>SMS</option>
@@ -450,28 +425,28 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="alert-btn"><i class="fas fa-paper-plane"></i> Subscribe Now</button>
-                    <p id="subscriptionMessage" style="margin-top: 15px; text-align: center; font-weight: 600;"></p>
+                    <button type="submit" class="alert-btn">
+                        <i class="fas fa-check-circle"></i> Activate Alerts
+                    </button>
+                    <p id="subscriptionMessage" style="margin-top: 15px; text-align: center; font-weight: 600; font-size: 0.9rem;"></p>
                 </form>
             </div>
             
             <div>
-                <h2 style="background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 10px; border-bottom: none;"><i class="fas fa-globe-africa"></i> Alert Zone Visualizer</h2>
                 <div class="map-wrapper" id="divMap">
-                    <img id="mapImage" src="Nigerdelta.jpg" alt="Map of the Niger Delta Region">
+                    <img id="mapImage" src="Nigerdelta.jpg" alt="Map">
                     <div id="alertZoneMessage"></div>
                 </div>
-                <p style="text-align: center; font-size: 0.9em; color: var(--text-muted); background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 10px;">The map visually represents the 20km radius alert zone you selected.</p>
 
-                <div class="report-list-container" style="margin-top: 30px;">
-                    <h2><i class="fas fa-clipboard-list"></i> Latest Field Reports</h2>
+                <div class="glass-card">
+                    <h3 style="margin-top:0; color:var(--accent);"><i class="fas fa-list-ul"></i> Recent Intelligence Reports</h3>
                     <div class="report-list" id="reportList">
-                        <p>Loading reports...</p>
+                        <p style="text-align:center; padding:20px;">Gathering latest data...</p>
                     </div>
 
                     <div class="pagination">
-                        <button id="prevBtn" onclick="prevPage()" disabled>Previous</button>
-                        <button id="nextBtn" onclick="nextPage()" disabled>Next</button>
+                        <button id="prevBtn" onclick="prevPage()" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                        <button id="nextBtn" onclick="nextPage()" disabled>Next <i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
             </div>
@@ -479,7 +454,8 @@
     </div>
 
     <footer> 
-        &copy; 2025 CIEPD Conflict/Peace Watch Center. Powered by <a href="">SammyTech</a> Platform.
+        <p>&copy; 2026 CIEPD Conflict/Peace Watch Center. <br> 
+        <small>Securing the Niger Delta through community intelligence.</small></p>
     </footer>
 
     <script>
@@ -491,103 +467,74 @@
             const messageEl = el("alertZoneMessage");
 
             if (location) {
-                messageEl.innerHTML = `<i class="fas fa-location-arrow fa-2x"></i><br>Alert Zone Active in<br>**${location}** (20km Radius)`;
+                messageEl.innerHTML = `<i class="fas fa-broadcast-tower fa-3x" style="margin-bottom:15px;"></i><br><b style="font-size:1.4rem;">Alert Zone Active</b><br>Monitoring ${location}<br>(20km Coverage Enabled)`;
                 messageEl.classList.add('show');
             } else {
                 messageEl.classList.remove('show');
             }
         }
 
-        /* ------------- REPORT PAGINATION SETTINGS ------------- */
+        /* ------------- REPORT LOGIC ------------- */
         let currentPage = 1;
         const pageSize = 5;
         let allReports = [];
 
-        /* ---------------- FETCH LATEST REPORTS ---------------- */
         async function fetchReports() {
             try {
-                // NOTE: Ensure your API endpoint 'http://localhost:3000/get-news' is correct and running.
-                const response = await fetch('http://localhost:3000/get-news');
-                if (!response.ok) throw new Error('Failed to fetch reports.');
-                
-                const reports = await response.json();
+                // Point to your production or local backend
+                const apiURL = window.location.hostname.includes("localhost") 
+                               ? 'http://localhost:3000/get-news' 
+                               : 'https://ciepd-backend.onrender.com/get-news';
 
-                // Sort reports by date (most recent first)
+                const response = await fetch(apiURL);
+                if (!response.ok) throw new Error('Fetch failed');
+                const reports = await response.json();
                 allReports = reports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 renderPage();
-
             } catch (err) {
-                console.error("Error fetching reports:", err);
-                el('reportList').innerHTML = '<p style="color: red; text-align: center;">Could not load reports. Please check the backend server.</p>';
+                el('reportList').innerHTML = '<p style="color: var(--danger); text-align: center;">Unable to sync with live data.</p>';
             }
         }
 
         function renderPage() {
             const container = el('reportList');
-
             if (allReports.length === 0) {
-                container.innerHTML = "<p style='text-align: center;'>No reports available at this time.</p>";
-                updatePaginationButtons();
+                container.innerHTML = "<p style='text-align: center;'>No reports found.</p>";
                 return;
             }
 
             const start = (currentPage - 1) * pageSize;
-            const end = start + pageSize;
-            const pageItems = allReports.slice(start, end);
-
-            container.innerHTML = ""; // Clear existing content
+            const pageItems = allReports.slice(start, start + pageSize);
+            container.innerHTML = "";
 
             pageItems.forEach(report => {
                 const div = document.createElement('div');
                 div.className = 'report-item';
+                const summary = report.content ? report.content.substring(0, 120) + '...' : 'Details pending...';
                 
-                const contentSummary = report.content ? report.content.substring(0, 150) + '...' : 'No summary provided.';
-                const reportUrl = `report-details.html?id=${report._id || ''}`;
-
                 div.innerHTML = `
-                    <a href="${reportUrl}" class="report-title">${report.title || 'Untitled Report'}</a>
-                    <div class="report-content">${contentSummary}</div>
-                    <div class="report-date">
-                        <i class="fas fa-calendar-alt"></i> ${new Date(report.createdAt).toLocaleString()} 
-                        | <i class="fas fa-map-pin"></i> ${report.location || 'N/A'}
+                    <a href="report-details.html?id=${report._id}" class="report-title">${report.title || 'Untitled'}</a>
+                    <div class="report-content">${summary}</div>
+                    <div class="report-meta">
+                        <span><i class="fas fa-calendar-alt"></i> ${new Date(report.createdAt).toLocaleDateString()}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${report.location || 'Unknown'}</span>
                     </div>
                 `;
-
                 container.appendChild(div);
             });
-
             updatePaginationButtons();
         }
 
         function updatePaginationButtons() {
-            const totalPages = Math.ceil(allReports.length / pageSize);
-
             el("prevBtn").disabled = currentPage === 1;
-            el("nextBtn").disabled = currentPage >= totalPages || totalPages === 0;
+            el("nextBtn").disabled = currentPage >= Math.ceil(allReports.length / pageSize);
         }
 
-        function nextPage() {
-            currentPage++;
-            renderPage();
-            window.scrollTo({
-                top: el('reportList').offsetTop - 50,
-                behavior: 'smooth'
-            });
-        }
-
-        function prevPage() {
-            currentPage--;
-            renderPage();
-            window.scrollTo({
-                top: el('reportList').offsetTop - 50,
-                behavior: 'smooth'
-            });
-        }
+        function nextPage() { currentPage++; renderPage(); }
+        function prevPage() { currentPage--; renderPage(); }
 
         /* ---------------- ALERT SUBSCRIPTION ---------------- */
-        el('alertForm').addEventListener('submit', subscribeAlert);
-
-        async function subscribeAlert(event) {
+        el('alertForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const messageEl = el('subscriptionMessage');
             
@@ -596,52 +543,37 @@
             const location = el("alertLocation").value.trim();
             const method = el("alertMethod").value.trim();
 
-            if (!phone || !location) {
-                messageEl.textContent = "Phone number and location are required.";
-                messageEl.style.color = 'red';
-                return;
-            }
-            
-            messageEl.textContent = "Subscribing...";
+            messageEl.textContent = "Processing subscription...";
             messageEl.style.color = 'var(--primary)';
 
-            /* ---- Auto-add +234 for WhatsApp/SMS (Standard Nigerian format) ---- */
-            if (phone.startsWith("0")) {
-                phone = "+234" + phone.substring(1); 
-            } else if (!phone.startsWith("+")) {
-                if (phone.length === 10) { 
-                    phone = "+234" + phone;
-                }
-            }
-            
+            if (phone.startsWith("0")) phone = "+234" + phone.substring(1); 
+
             try {
-                // NOTE: Ensure your API endpoint 'http://localhost:3000/subscribe-alert' is correct and running.
-                const response = await fetch("http://localhost:3000/subscribe-alert", {
+                const apiURL = window.location.hostname.includes("localhost") 
+                               ? "http://localhost:3000/subscribe-alert" 
+                               : "https://ciepd-backend.onrender.com/subscribe-alert";
+
+                const response = await fetch(apiURL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ phone, email, location, method })
                 });
 
-                const data = await response.json();
-
                 if (response.ok) {
-                    messageEl.textContent = `✔ Success! You are subscribed for alerts in ${location} via ${method}.`;
-                    messageEl.style.color = 'green';
-                    document.getElementById("alertForm").reset(); 
+                    messageEl.textContent = `✔ Subscription active for ${location}!`;
+                    messageEl.style.color = 'var(--success)';
+                    el("alertForm").reset();
                     updateAlertZoneVisual(); 
                 } else {
-                    messageEl.textContent = "Subscription failed: " + (data.message || "Server Error.");
-                    messageEl.style.color = 'red';
+                    messageEl.textContent = "Subscription error. Try again.";
+                    messageEl.style.color = 'var(--danger)';
                 }
-
             } catch (error) {
-                messageEl.textContent = "Network error. Please check your connection and try again.";
-                messageEl.style.color = 'red';
-                console.error("Subscription Error:", error);
+                messageEl.textContent = "Server connection lost.";
+                messageEl.style.color = 'var(--danger)';
             }
-        }
+        });
 
-        // Initial calls
         document.addEventListener('DOMContentLoaded', () => {
             fetchReports(); 
             updateAlertZoneVisual(); 

@@ -1098,11 +1098,6 @@ function renderItems(items){
         const card = document.createElement("div");
         card.className = "news-card";
         card.setAttribute("data-id", n._id);
-        
-        // Optional: Add a visual cue to the card if it is escalated 
-        // if(n.status === 'Escalated') {
-        //     card.style.borderLeft = '5px solid var(--warning)';
-        // }
 
         const verified = n.verified
             ? `<span class="badge verified">VERIFIED</span>`

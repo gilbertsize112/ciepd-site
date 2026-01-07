@@ -8,361 +8,253 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-
 <style>
-    /* GLOBAL STYLING */
+    /* ---------------------------------------------------- */
+    /* 1. COLOR PALETTE & GLOBAL RESET (Matched to Admin)   */
+    /* ---------------------------------------------------- */
+    :root {
+        --primary: #0077b6;
+        --secondary: #00b4d8;
+        --accent: #023047;
+        --muted: #6b7280;
+        --danger: #e63946;
+        --success: #06d6a0;
+        --card: #ffffff;
+        --bg-light: #f8feff;
+        --radius: 12px;
+        --border-light: #e6eef6;
+        --text-dark: #333;
+        --card-rgb: 255, 255, 255;
+    }
+
+    .dark {
+        --accent: #e6f7ff;
+        --muted: #a0a8b9;
+        --card: #1f2a37;
+        --bg-light: #121820;
+        --border-light: #2c3e50;
+        --text-dark: #e6f7ff;
+        --card-rgb: 31, 42, 55;
+    }
+
+    * { box-sizing: border-box; }
     body {
         margin: 0;
         font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
-        
-        /* Video Background Interaction */
-        background: transparent; /* Allows video to show */
-        overflow-x: hidden;
+        background: transparent !important;
+        color: var(--text-dark);
         min-height: 100vh;
+        line-height: 1.6;
+        transition: background-color 0.3s, color 0.3s;
     }
 
-    /* ---------------------------------------------------- */
-    /* 0. VIDEO BACKGROUND & CONTENT LAYOUT */
-    /* ---------------------------------------------------- */
-    /* ⭐ VIDEO BACKGROUND STYLING ⭐ */
+    /* ⭐ VIDEO BACKGROUND ⭐ */
     #video-background {
-        position: fixed; 
+        position: fixed;
         right: 0;
         bottom: 0;
-        min-width: 100%; 
-        min-height: 100%; 
-        z-index: -200; /* Puts the video beneath everything */
-        object-fit: cover; 
-        filter: brightness(30%); /* Dims the video so content is readable */
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -200;
+        object-fit: cover;
+        filter: brightness(30%);
+        transition: filter 0.3s;
     }
+    .dark #video-background { filter: brightness(20%); }
 
-    /* ⭐ CONTENT WRAPPER ⭐ */
-    #content-wrapper {
-        position: relative; 
-        z-index: 10; /* Ensures content is above the video */
-        min-height: 100vh;
-    }
-
+    #content-wrapper { position: relative; z-index: 10; min-height: 100vh; }
 
     /* ---------------------------------------------------- */
-    /* 1. HEADER (WITH SHIMMER ANIMATION) */
+    /* 2. HEADER AND NAVIGATION (Admin Style)               */
     /* ---------------------------------------------------- */
-    header {
-        background: linear-gradient(135deg, #0d47a1, #1a237e);
-        color: white;
-        padding: 45px 20px;
-        text-align: center;
-        font-size: 40px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
-        border-bottom-left-radius: 25px;
-        border-bottom-right-radius: 25px;
-        animation: fadeDown 0.9s ease-out;
-        
-        /* SHIMMER EFFECT SETUP */
-        position: relative;
-        overflow: hidden;
-    }
-    header::after {
-        content: '';
-        position: absolute;
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 30px;
+        background: rgba(var(--card-rgb), 0.9);
+        backdrop-filter: blur(5px);
+        border-bottom: 1px solid var(--border-light);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        position: sticky;
         top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg, 
-            transparent, 
-            rgba(255, 255, 255, 0.2) 20%, 
-            rgba(255, 255, 255, 0.2) 80%, 
-            transparent
-        );
-        animation: shimmer 5s infinite; /* Slow, elegant shimmer */
-        pointer-events: none; /* Allows clicks to pass through */
+        z-index: 1000;
     }
 
-    @keyframes fadeDown {
-        from { opacity: 0; transform: translateY(-25px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes shimmer {
-        0% { left: -100%; }
-        100% { left: 100%; }
+    .brand {
+        font-weight: 800;
+        color: var(--primary);
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
+    /* SCROLLING MARQUEE */
+    .scroll-container {
+        width: 350px;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .scroll-text {
+        display: inline-block;
+        padding-left: 100%;
+        animation: scroll-left 25s linear infinite;
+        color: var(--primary);
+    }
+    @keyframes scroll-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
 
-    /* ---------------------------------------------------- */
-    /* 2. NAVIGATION BAR (BELOW HEADER) */
-    /* ---------------------------------------------------- */
+    #darkModeToggle {
+        background: var(--primary);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        margin-left: 20px;
+    }
+
     .nav-bar {
         display: flex;
+        gap: 12px;
         justify-content: center;
+        padding: 12px;
+        background: rgba(var(--card-rgb), 0.95);
+        border-bottom: 1px solid var(--border-light);
         flex-wrap: wrap;
-        gap: 8px;
-        padding: 10px 10px;
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(5px);
-        margin-bottom: 20px;
-        border-radius: 8px;
     }
-
-    /* Mobile Responsive Navigation (Horizontal Scroll) */
-    @media (max-width: 768px) {
-        .nav-bar {
-            justify-content: flex-start;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .nav-bar::-webkit-scrollbar {
-            display: none;
-        }
-    }
-
     .nav-bar a {
         text-decoration: none;
         padding: 10px 18px;
         border-radius: 999px;
-        color: #1a237e;
-        font-weight: 600;
-        font-size: 15px;
+        color: var(--text-dark);
+        font-weight: 500;
         transition: 0.2s;
         display: flex;
         align-items: center;
         gap: 8px;
     }
-
-    .nav-bar a.active {
-        background: #0d47a1;
+    .nav-bar a:hover, .nav-bar a.active {
+        background: var(--primary);
         color: white;
     }
 
-    .nav-bar a:not(.active):hover {
-        background: #e3f2fd;
-        transform: translateY(-2px);
-    }
-    
     /* ---------------------------------------------------- */
-    /* 3. MAIN CONTENT LAYOUT AND COMPONENTS */
+    /* 3. MAIN CONTENT (Keeping your layout)               */
     /* ---------------------------------------------------- */
     .container {
         width: 95%;
         max-width: 1300px;
-        margin: 40px auto;
+        margin: 28px auto;
+        background: rgba(var(--card-rgb), 0.95);
+        backdrop-filter: blur(3px);
+        border-radius: var(--radius);
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
-    
-    /* 3a. Stats Boxes */
+
     .stats {
         display: flex;
         gap: 20px;
         flex-wrap: wrap;
         margin-bottom: 30px;
-        animation: fadeUp 1s ease-out;
     }
     .stat-box {
         flex: 1;
-        min-width: 250px;
-        padding: 22px;
-        border-radius: 20px;
-        /* Background for video interaction */
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(8px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        min-width: 200px;
+        padding: 20px;
+        border-radius: var(--radius);
+        background: var(--card);
+        border: 1px solid var(--border-light);
         text-align: center;
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 700;
-        color: #1a237e;
-        transition: 0.25s;
-    }
-    .stat-box:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 35px rgba(0,0,0,0.18);
+        color: var(--primary);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
-    /* 3b. Filters */
     .filters {
         display: flex;
         gap: 15px;
         flex-wrap: wrap;
         margin-bottom: 25px;
-        animation: fadeUp 1.2s ease-out;
     }
     .filters input, .filters select {
-        padding: 16px;
-        border-radius: 12px;
-        border: none;
-        font-size: 16px;
-        width: 100%;
-        max-width: 350px;
-        background: white;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-        outline: none;
-        transition: 0.25s;
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+        min-width: 250px;
+        background: var(--card);
+        color: var(--text-dark);
     }
-    .filters input:focus, .filters select:focus {
-        box-shadow: 0 0 0 3px #1a237e44;
-        transform: scale(1.02);
-    }
-    
-    /* 3c. Report Grid and Cards */
+
     .report-grid {
         display: grid;
-        /* UPDATED: Changed minmax to 220px to allow 4 cards across the 1300px max-width */
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 25px;
-        animation: fadeUp 1.4s ease-out;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
     }
     .report-card {
-        /* Background for video interaction */
-        background: rgba(255, 255, 255, 0.95);
-        padding: 22px;
-        border-radius: 20px;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-        transition: 0.25s;
-        position: relative;
-        overflow: hidden;
-        animation: fadeUpSmall 0.5s ease;
-    }
-    .report-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 6px 25px rgba(0,0,0,0.18);
-    }
-    .report-card::after {
-        content: "";
-        position: absolute;
-        top: -40%;
-        right: -40%;
-        width: 150px;
-        height: 150px;
-        background: #1a237e22;
-        border-radius: 50%;
-        transition: 0.35s;
-    }
-    .report-card:hover::after {
-        transform: scale(1.4);
-        background: #0d47a133;
-    }
-    .report-title {
-        font-size: 20px; /* Slight reduction for better fit in 4-column layout */
-        font-weight: 800;
-        color: #0d47a1;
-        margin-bottom: 10px;
-        display: block;
-        text-decoration: none;
+        background: var(--card);
+        padding: 20px;
+        border-radius: var(--radius);
+        border-left: 5px solid var(--primary);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         transition: 0.2s;
-        line-height: 1.3;
+        border: 1px solid var(--border-light);
     }
-    .report-title:hover {
-        color: #002171;
+    .report-card:hover { transform: translateY(-5px); }
+
+    .report-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 10px;
     }
-    .report-location {
-        font-size: 16px;
-        color: #424242;
-        margin-bottom: 6px;
-    }
-    .report-date {
-        color: #616161;
-        font-size: 15px;
-        margin-bottom: 12px;
-    }
-    
-    /* 3d. Status Tags */
+
     .status {
         display: inline-block;
-        padding: 7px 14px;
-        border-radius: 25px;
-        font-size: 12px;
-        font-weight: bold;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
         color: white;
-        letter-spacing: 0.3px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        text-transform: uppercase;
     }
-    .verified { background: #2e7d32; } /* Green */
-    .unverified { background: #c62828; } /* Red */
+    .verified { background: var(--success); }
+    .unverified { background: var(--danger); }
 
-    /* 3e. Pagination */
     .pagination {
         text-align: center;
-        margin-top: 35px;
-        animation: fadeUp 1.6s ease-out;
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
     }
     .pagination button {
-        padding: 12px 18px;
-        background: #1a237e;
+        background: var(--primary);
         color: white;
         border: none;
-        border-radius: 10px;
-        margin: 5px;
+        padding: 10px 20px;
+        border-radius: 999px;
         cursor: pointer;
-        font-size: 15px;
         font-weight: 600;
-        transition: 0.25s;
-    }
-    .pagination button:hover {
-        background: #0d47a1;
-        transform: translateY(-3px);
     }
 
-    /* ---------------------------------------------------- */
-    /* 4. ANIMATIONS */
-    /* ---------------------------------------------------- */
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeUpSmall {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-
-    /* ---------------------------------------------------- */
-    /* 5. RESPONSIVENESS */
-    /* ---------------------------------------------------- */
-
-    /* New: For tablets/laptops (Up to 1200px) - Switch to 3 columns */
-    @media (max-width: 1200px) {
-        .report-grid {
-             /* 3 columns on medium screens */
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-        }
-    }
-
-    /* Existing: For mobile devices (Up to 768px) - Switch to 1 column */
+    /* MOBILE RESPONSIVENESS */
     @media (max-width: 768px) {
-        header {
-            font-size: 30px;
-            padding: 30px 15px;
-        }
-        .container {
-            margin: 20px auto;
-        }
-        .stat-box {
-            min-width: calc(50% - 10px);
-            padding: 15px;
-            font-size: 18px;
-        }
-        .filters {
-            flex-direction: column;
-        }
-        .filters input, .filters select {
-            max-width: 100%;
-        }
-        .nav-bar {
-            gap: 8px;
-            padding: 10px 10px;
-        }
-        .nav-bar a {
-            padding: 8px 12px;
-            font-size: 13px;
-        }
-        .report-grid {
-             /* 1 column on small screens */
-            grid-template-columns: repeat(auto-fill, minmax(90%, 1fr));
-        }
+        .header { flex-direction: column; gap: 15px; }
+        .scroll-container { width: 100%; }
+        .nav-bar { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; }
+        .nav-bar a { white-space: nowrap; }
     }
 </style>
 </head>
@@ -370,12 +262,22 @@
 
 <video autoplay muted loop id="video-background">
     <source src="videos/vid.mp4" type="video/mp4">
-    Your browser does not support the video tag.
 </video>
 
 <div id="content-wrapper">
-
-    <header>CIEPD Conflict/Peace Watch Center - Reports</header>
+    <header class="header">
+        <div class="brand">
+            <i class="fas fa-shield-alt"></i> CIEPD Reports
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div class="scroll-container">
+                <div class="scroll-text">CIEPD Conflict Watch: Monitoring Peace and Security.</div>
+            </div>
+            <button id="darkModeToggle">
+                <i class="fas fa-sun"></i>
+            </button>
+        </div>
+    </header>
 
     <nav class="nav-bar">
         <a href="home.html"><i class="fas fa-home"></i> Home</a>
@@ -385,8 +287,8 @@
         <a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a>
         <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
     </nav>
-    <div class="container">
 
+    <div class="container">
         <div class="stats">
             <div class="stat-box" id="total-count">Total: 0</div>
             <div class="stat-box" id="verified-count">Verified: 0</div>
@@ -401,27 +303,35 @@
         </div>
 
         <div class="report-grid" id="report-grid"></div>
-
         <div class="pagination" id="pagination"></div>
-
     </div>
+</div>
 
-</div> 
 <script>
 let allReports = [];
 let currentPage = 1;
 const perPage = 12;
 
+/* DARK MODE LOGIC */
+const darkModeToggle = document.getElementById('darkModeToggle');
+darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const icon = darkModeToggle.querySelector('i');
+    if(document.body.classList.contains('dark')) {
+        icon.classList.replace('fa-sun', 'fa-moon');
+    } else {
+        icon.classList.replace('fa-moon', 'fa-sun');
+    }
+});
+
 /* LOAD DATA */
 loadReports();
 setInterval(loadReports, 30000);
 
-/* FETCH REPORTS */
 async function loadReports() {
     try {
         const res = await fetch("/api/news?limit=5000&page=1"); 
         const data = await res.json();
-
         if (!data.items) return;
 
         const seen = new Set();
@@ -433,143 +343,71 @@ async function loadReports() {
         });
 
         allReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
         updateStats(allReports);
         populateCategoryDropdown(allReports);
         displayReports();
-
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) { console.error(e); }
 }
 
-/* UPDATE STATS */
 function updateStats(data) {
     let verified = data.filter(n => n.verified).length;
-    let unverified = data.length - verified;
-
     document.getElementById("total-count").innerText = "Total: " + data.length;
     document.getElementById("verified-count").innerText = "Verified: " + verified;
-    document.getElementById("unverified-count").innerText = "Unverified: " + unverified;
+    document.getElementById("unverified-count").innerText = "Unverified: " + (data.length - verified);
 }
 
-/* CATEGORY DROPDOWN */
 function populateCategoryDropdown(data) {
     const categories = new Set();
-    data.forEach(r => {
-        if (Array.isArray(r.categories)) {
-            r.categories.forEach(c => categories.add(c));
-        }
-    });
-
+    data.forEach(r => { if (Array.isArray(r.categories)) r.categories.forEach(c => categories.add(c)); });
     const dropdown = document.getElementById("category-filter");
     dropdown.innerHTML = `<option value="">All Categories</option>`;
-
-    categories.forEach(c => {
-        dropdown.innerHTML += `<option value="${c}">${c}</option>`;
-    });
+    categories.forEach(c => { dropdown.innerHTML += `<option value="${c}">${c}</option>`; });
 }
 
-/* FILTERING */
-function applyFilters() {
-    const search = document.getElementById("search-input").value.toLowerCase();
-    const category = document.getElementById("category-filter").value;
-
-    return allReports.filter(r => {
-        const titleMatch = r.title?.toLowerCase().includes(search);
-        const descMatch = (r.description || "").toLowerCase().includes(search);
-        const categoryMatch = category === "" || (Array.isArray(r.categories) && r.categories.includes(category));
-        return (titleMatch || descMatch) && categoryMatch;
-    });
-}
-
-/* DISPLAY REPORTS */
 function displayReports() {
     const grid = document.getElementById("report-grid");
     grid.innerHTML = "";
+    const search = document.getElementById("search-input").value.toLowerCase();
+    const cat = document.getElementById("category-filter").value;
 
-    const filtered = applyFilters();
+    const filtered = allReports.filter(r => {
+        const titleMatch = r.title?.toLowerCase().includes(search);
+        const catMatch = cat === "" || (Array.isArray(r.categories) && r.categories.includes(cat));
+        return titleMatch && catMatch;
+    });
+
     const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
 
     paginated.forEach(report => {
-        const isVerified = report.verified;
-        const id = report._id || report.id;
-
         grid.innerHTML += `
             <div class="report-card">
-                <a class="report-title" href="news-details.html?id=${id}">
+                <a class="report-title" href="news-details.html?id=${report._id || report.id}">
                     ${report.title}
                 </a>
-                <div class="report-location">
-                    <i class="fas fa-map-marker-alt" style="color: #0d47a1;"></i> ${report.location || "Unknown"}
+                <div style="font-size:14px; color:var(--muted); margin-bottom:10px;">
+                    <i class="fas fa-map-marker-alt"></i> ${report.location || "Nigeria"}
                 </div>
-                <div class="report-date">
-                    <i class="fas fa-calendar-alt" style="color: #616161;"></i> ${report.createdAt ? new Date(report.createdAt).toLocaleDateString() : "Unknown"}
-                </div>
-                <div>
-                    <span class="status ${isVerified ? "verified" : "unverified"}">
-                        <i class="fas fa-check-circle"></i> ${isVerified ? "Verified" : "Unverified"}
-                    </span>
-                </div>
+                <span class="status ${report.verified ? "verified" : "unverified"}">
+                    ${report.verified ? "Verified" : "Unverified"}
+                </span>
             </div>
         `;
     });
-
     renderPagination(filtered.length);
 }
 
-/* UPDATED PAGINATION (Prev + Page X of Y + Next) */
 function renderPagination(total) {
     const pages = Math.ceil(total / perPage);
     const pag = document.getElementById("pagination");
-
     pag.innerHTML = "";
     if (pages <= 1) return;
-
-    if (currentPage > 1) {
-        pag.innerHTML += `<button onclick="gotoPrev()">⬅ Previous</button>`;
-    }
-
-    pag.innerHTML += `
-        <span style="margin:0 10px;font-size:16px;color:#333;">
-            Page ${currentPage} of ${pages}
-        </span>
-    `;
-
-    if (currentPage < pages) {
-        pag.innerHTML += `<button onclick="gotoNext()">Next ➡</button>`;
-    }
+    if (currentPage > 1) pag.innerHTML += `<button onclick="currentPage--; displayReports();">Previous</button>`;
+    pag.innerHTML += `<span>Page ${currentPage} of ${pages}</span>`;
+    if (currentPage < pages) pag.innerHTML += `<button onclick="currentPage++; displayReports();">Next</button>`;
 }
 
-function gotoPrev() {
-    if (currentPage > 1) {
-        currentPage--;
-        displayReports();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function gotoNext() {
-    const filtered = applyFilters();
-    const pages = Math.ceil(filtered.length / perPage);
-
-    if (currentPage < pages) {
-        currentPage++;
-        displayReports();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-/* EVENT LISTENERS */
-document.getElementById("search-input").addEventListener("input", () => {
-    currentPage = 1;
-    displayReports();
-});
-document.getElementById("category-filter").addEventListener("change", () => {
-    currentPage = 1;
-    displayReports();
-});
+document.getElementById("search-input").addEventListener("input", () => { currentPage = 1; displayReports(); });
+document.getElementById("category-filter").addEventListener("change", () => { currentPage = 1; displayReports(); });
 </script>
-
 </body>
 </html>
