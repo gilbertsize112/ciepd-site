@@ -510,11 +510,11 @@ async function findReport(id) {
     return null;
 }
 
-// ==========================
-// NEWS & REPORTS ACTIONS (ORDER SENSITIVE)
-// ==========================
+// ===========================================================
+// NEWS ACTIONS (ORDER SENSITIVE: Specific routes first!)
+// ===========================================================
 
-// 1. ESCALATE (MUST BE ABOVE GENERIC /:id)
+// 1. ESCALATE
 app.put("/api/news/escalate/:id", async (req, res) => {
     try {
         const item = await findNews(req.params.id);
@@ -538,7 +538,37 @@ app.put("/api/news/escalate/:id", async (req, res) => {
     }
 });
 
-// 2. URGENT QUEUE API (DEDICATED)
+// 2. VERIFY NEWS
+app.put("/api/news/verify/:id", async (req, res) => {
+    try {
+        const item = await findNews(req.params.id);
+        if (!item) return res.status(404).json({ error: "News item not found" });
+
+        item.verified = true;
+        await item.save();
+
+        res.json({ success: true, message: "News verified successfully" });
+    } catch (err) {
+        console.error("VERIFY ERROR:", err);
+        res.status(500).json({ error: "Verification failed" });
+    }
+});
+
+// 3. DELETE NEWS
+app.delete("/api/news/delete/:id", async (req, res) => {
+    try {
+        const item = await findNews(req.params.id);
+        if (!item) return res.status(404).json({ error: "News item not found" });
+
+        await News.deleteOne({ _id: item._id });
+        res.json({ success: true, message: "News deleted successfully" });
+    } catch (err) {
+        console.error("DELETE ERROR:", err);
+        res.status(500).json({ error: "Deletion failed" });
+    }
+});
+
+// 4. URGENT QUEUE API (DEDICATED)
 app.get("/api/news/urgent", async (req, res) => {
     try {
         const urgentItems = await News.find({ 
@@ -554,7 +584,7 @@ app.get("/api/news/urgent", async (req, res) => {
     }
 });
 
-// 3. GENERIC ID ROUTE (MUST BE BELOW ESCALATE)
+// 5. GENERIC ID ROUTE (MUST BE BELOW ALL OTHER NEWS ROUTES)
 app.get("/api/news/:id", async (req, res) => {
     try {
         const item = await findNews(req.params.id);
@@ -564,6 +594,7 @@ app.get("/api/news/:id", async (req, res) => {
         res.status(500).json({ error: "Failed to load article" });
     }
 });
+
 // ===========================================================
 // AI INITIALIZATION (Ensure this is done once)
 // ===========================================================
