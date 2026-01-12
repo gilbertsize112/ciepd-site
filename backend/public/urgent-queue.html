@@ -3,244 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 Urgent Queue - CIEPD Admin</title>
+    <title>🔥 Urgent Queue | CIEPD Conflict Watch</title>
     
     <style>
-        /* --- GLOBAL STYLES --- */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #343a40;
+        /* --- BRANDING & RESET --- */
+        :root {
+            --primary-blue: #003366;
+            --urgent-red: #d9534f;
+            --success-green: #28a745;
+            --bg-gray: #f4f7f6;
+            --text-dark: #333;
         }
-        
-        /* --- HEADER & NAVIGATION --- */
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+        }
+
+        /* --- HEADER (Matching admin.html) --- */
         header {
-            background-color: #007bff; /* Primary Blue */
-            color: white;
-            padding: 15px 30px;
+            background-color: white;
+            padding: 10px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 3px solid var(--primary-blue);
         }
-        header h1 {
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Logo removed as requested, keeping text branding */
+        .logo-section h1 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
+            color: var(--primary-blue);
+            letter-spacing: 1px;
+            font-weight: 800;
         }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         nav a {
-            color: white;
             text-decoration: none;
-            padding: 8px 15px;
-            margin-left: 10px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        nav a:hover {
-            background-color: #0056b3;
-        }
-        nav a.active {
-            background-color: #0056b3;
-            font-weight: bold;
-        }
-        #logout-btn {
-            background-color: #dc3545; /* Danger Red */
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 20px;
-            transition: background-color 0.2s;
-        }
-        #logout-btn:hover {
-            background-color: #c82333;
-        }
-        
-        /* --- MAIN CONTENT & CONTAINER --- */
-        .container {
-            max-width: 1300px;
-            margin: 40px auto;
-            padding: 0 30px;
-        }
-        h2 {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-        }
-        
-        /* --- TABLE STYLES --- */
-        #urgent-news-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 30px;
-            background-color: white;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-            border-radius: 8px;
-            overflow: hidden; /* Ensures rounded corners work */
-        }
-        #urgent-news-table th, #urgent-news-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #dee2e6;
-        }
-        #urgent-news-table th {
-            background-color: #e9ecef;
-            color: #495057;
+            color: #555;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
         }
-        #urgent-news-list tr:hover {
-            background-color: #f1f1f1;
+
+        nav a:hover {
+            background: #e9ecef;
+            color: var(--primary-blue);
         }
-        
-        /* Status Tag */
-        .status-tag {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        .status-escalated {
-            background-color: #28a745; /* Success Green */
+
+        nav a.active {
+            background: var(--primary-blue);
             color: white;
         }
 
-        /* Action Link */
-        #urgent-news-list a {
-            color: #007bff;
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 2rem;
+            color: var(--urgent-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- DATA TABLE --- */
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #eee;
+        }
+
+        th {
+            padding: 18px;
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 18px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr:hover { background-color: #fff9f9; }
+
+        /* --- UI COMPONENTS --- */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-urgent {
+            background: #fff0f0;
+            color: #d9534f;
+            border: 1px solid #ffcccc;
+        }
+
+        .view-btn {
+            background: var(--primary-blue);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 4px;
             text-decoration: none;
-            font-weight: 500;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
         }
-        #urgent-news-list a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Loading/Empty Message */
-        #loading-message {
+
+        .view-btn:hover { opacity: 0.8; }
+
+        #loading-overlay {
             text-align: center;
-            padding: 30px;
-            font-size: 1.1rem;
-            color: #6c757d;
+            padding: 50px;
+            color: #666;
         }
-        
+
+        .empty-state {
+            padding: 60px;
+            text-align: center;
+            color: #999;
+        }
     </style>
 </head>
 <body>
+
     <header>
-        <h1>CIEPD Admin Dashboard</h1>
+        <div class="logo-section">
+            <h1>CIEPD ADMIN</h1>
+        </div>
         <nav>
-            <a href="admin.html">All News & Reports</a>
-            <a href="urgent-queue.html" class="active">Urgent Queue</a> 
-            <button id="logout-btn">Logout</button>
+            <a href="admin.html">Dashboard</a>
+            <a href="urgent-queue.html" class="active">Urgent Queue</a>
+            <button class="btn-logout" onclick="location.href='/logout'">Logout</button>
         </nav>
     </header>
 
     <main class="container">
-        <h2>🔥 Urgent Escalated Items</h2>
-        <p>This queue shows all news items that have been **approved** and **verified** (escalated to the urgent status).</p>
-        
-        <table id="urgent-news-table">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Location</th>
-                    <th>Categories</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="urgent-news-list">
-                </tbody>
-        </table>
-        
-        <p id="loading-message">Loading urgent items...</p>
+        <div class="page-header">
+            <h2>🔥 High-Priority Urgent Queue</h2>
+            <div id="stats-counter" style="background: #eee; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
+                Loading...
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40%">Incident Title</th>
+                        <th>Location</th>
+                        <th>Category</th>
+                        <th>Date Escalated</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="urgent-list">
+                    </tbody>
+            </table>
+            <div id="loading-overlay">Checking for urgent reports...</div>
+        </div>
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urgentNewsList = document.getElementById('urgent-news-list');
-            const loadingMessage = document.getElementById('loading-message');
+        const socket = io();
+        const urgentList = document.getElementById('urgent-list');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const statsCounter = document.getElementById('stats-counter');
 
-            function createNewsRow(item) {
-                const row = document.createElement('tr');
-                const itemId = item._id || item.id; 
-                const categories = Array.isArray(item.categories) ? item.categories.join(', ') : 'N/A';
+        async function loadUrgentQueue() {
+            try {
+                // Prevent caching by adding a timestamp
+                const res = await fetch('/api/news/urgent?t=' + Date.now());
                 
-                // Use the new class for styling the status tag
-                const statusHtml = '<span class="status-tag status-escalated">ESCALATED</span>';
+                if (!res.ok) throw new Error("Server Error");
 
-                row.innerHTML = `
-                    <td>${item.title.substring(0, 70)}${item.title.length > 70 ? '...' : ''}</td>
-                    <td>${item.location}</td>
-                    <td>${categories}</td>
-                    <td>${new Date(item.createdAt).toLocaleDateString()}</td>
-                    <td>${statusHtml}</td>
-                    <td>
-                        <a href="news-details.html?id=${itemId}" target="_blank">View Details</a>
-                    </td>
-                `;
-                return row;
+                const data = await res.json();
+                console.log("Urgent Data received:", data);
+
+                // ⭐ FLEXIBLE DATA CHECK:
+                // This handles both direct arrays [] and objects { items: [] }
+                let items = [];
+                if (Array.isArray(data)) {
+                    items = data;
+                } else if (data && data.items && Array.isArray(data.items)) {
+                    items = data.items;
+                }
+
+                // SECURITY BLOCK: If somehow the filter fails and returns the whole DB
+                if (items.length > 1000) {
+                    console.error("Data volume too high - possible filter bypass.");
+                    renderTable([]);
+                    return;
+                }
+
+                renderTable(items);
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                renderTable([]);
             }
+        }
 
-            function fetchUrgentNews() {
-                fetch('/api/news')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Server returned an error status.');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        loadingMessage.style.display = 'none';
-
-                        // 1. FILTER: Select items that meet the 'Escalated' criteria
-                        const urgentItems = data.items.filter(
-                            item => item.approved === true && item.verified === true
-                        );
-                        
-                        urgentNewsList.innerHTML = '';
-                        
-                        if (urgentItems.length === 0) {
-                            // Display a cleaner message when the queue is empty
-                            urgentNewsList.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #6c757d;">🥳 The Urgent Queue is clear! All critical items have been handled.</td></tr>';
-                            return;
-                        }
-
-                        // 2. RENDER: Display the filtered items
-                        urgentItems.forEach(item => {
-                            const row = createNewsRow(item);
-                            urgentNewsList.appendChild(row);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error loading urgent news:', error);
-                        loadingMessage.textContent = '❌ Error loading data. Please check the network and server status.';
-                        loadingMessage.style.color = '#dc3545'; /* Red error color */
-                    });
-            }
-
-            // --- Authentication and Initialization ---
+        function renderTable(items) {
+            loadingOverlay.style.display = 'none';
+            urgentList.innerHTML = '';
             
-            // NOTE: Add your authentication check here (e.g., check session cookie or token)
-            // Example:
-            /*
-            if (!localStorage.getItem('userToken')) {
-                window.location.href = 'login.html'; 
+            const itemList = Array.isArray(items) ? items : [];
+            const count = itemList.length;
+            statsCounter.innerText = `${count} Critical Items`;
+
+            if (count === 0) {
+                urgentList.innerHTML = `<tr><td colspan="6" class="empty-state">
+                    <h3>✅ Queue is Clear</h3>
+                    <p>No reports currently require urgent escalation.</p>
+                </td></tr>`;
                 return;
             }
-            */
 
-            fetchUrgentNews();
+            itemList.forEach(item => {
+                const row = document.createElement('tr');
+                const displayTitle = item.title || item.incidentType || "Untitled Report";
+                const itemId = item._id || item.id;
+                
+                row.innerHTML = `
+                    <td><strong>${displayTitle}</strong></td>
+                    <td>${item.location || 'N/A'}</td>
+                    <td>${item.category || 'General'}</td>
+                    <td>${new Date(item.createdAt).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}</td>
+                    <td><span class="badge badge-urgent">CRITICAL</span></td>
+                    <td><a href="news-details.html?id=${itemId}" class="view-btn">Review Report</a></td>
+                `;
+                urgentList.appendChild(row);
+            });
+        }
+
+        // Listen for updates from the server
+        socket.on("news:updated", (data) => {
+            console.log("Real-time update received");
+            loadUrgentQueue();
         });
+        
+        socket.on("report:updated", () => loadUrgentQueue());
+
+        // Initial Load
+        loadUrgentQueue();
     </script>
 </body>
 </html>

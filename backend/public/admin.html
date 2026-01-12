@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+       
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <script src="theme.js" defer></script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>CIEPD Admin Dashboard – Manage News/Reports</title>
@@ -647,9 +656,9 @@
             <div class="scroll-container">
                 <div class="scroll-text">Conflict Watch Center: Stay alert, stay informed.</div>
             </div>
-            <button id="darkModeToggle" aria-label="Toggle Dark Mode">
-                <i class="fas fa-sun"></i>
-            </button>
+            <button id="darkModeToggle" onclick="toggleDarkMode()" aria-label="Toggle Dark Mode">
+    <i class="fas fa-sun"></i>
+</button>
         </div>
         <button onclick="window.location.href='login.html'" class="logout-btn">
             <i class="fas fa-sign-out-alt"></i> Logout
@@ -755,42 +764,6 @@ const BASE_URL =
 let currentPage = 1;
 const pageSize = 40;
 let currentMode = "news"; // "news" or "reports"
-
-/***********************
-    HELPER: DARK/LIGHT MODE TOGGLE
-************************/
-function toggleDarkMode() {
-    const isDark = document.body.classList.toggle('dark');
-    const toggleButton = el('darkModeToggle');
-
-    if (isDark) {
-        localStorage.setItem('theme', 'dark');
-        toggleButton.innerHTML = '<i class="fas fa-moon"></i>'; // Change icon to moon
-    } else {
-        localStorage.setItem('theme', 'light');
-        toggleButton.innerHTML = '<i class="fas fa-sun"></i>'; // Change icon to sun
-    }
-}
-
-// Function to apply the saved theme on load
-function applyTheme() {
-    const savedTheme = localStorage.getItem('theme');
-
-    // Check localStorage first, then check system preference
-    if (savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.body.classList.add('dark');
-        el('darkModeToggle').innerHTML = '<i class="fas fa-moon"></i>';
-    } else {
-        document.body.classList.remove('dark');
-        el('darkModeToggle').innerHTML = '<i class="fas fa-sun"></i>';
-    }
-}
-
-// Attach event listener to the toggle button
-document.addEventListener('DOMContentLoaded', () => {
-    applyTheme(); // Apply theme immediately on load
-    el('darkModeToggle').addEventListener('click', toggleDarkMode);
-});
 
 /***********************
     HELPER: MODE SWITCHING
@@ -916,7 +889,6 @@ el("panelBack").onclick = () => el("sidePanel").classList.remove("open");
 // ----------------------------------------------------
 async function analyzeItem(analyzeBtn, id, title, content) {
     const contentBlock = el('panelContent');
-    // Removed document.querySelector('.btn-analyze'); as the button is now passed.
 
     // Save original content for restoration
     const originalContent = contentBlock.innerText;
@@ -925,7 +897,6 @@ async function analyzeItem(analyzeBtn, id, title, content) {
     contentBlock.innerHTML = `<p style="text-align:center; color: var(--primary); font-weight: 600;">
         <i class="fas fa-spinner fa-spin"></i> Sending to AI for analysis...
     </p>`;
-    // Use the passed button element
     analyzeBtn.disabled = true;
     analyzeBtn.innerHTML = `<i class="fas fa-cog fa-spin"></i> Analyzing...`;
 
@@ -934,7 +905,6 @@ async function analyzeItem(analyzeBtn, id, title, content) {
         const response = await fetch(`${BASE_URL}/api/ai/analyze-item`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // Send necessary data for the AI to analyze
             body: JSON.stringify({
                 itemId: id,
                 mode: currentMode,
@@ -979,8 +949,6 @@ async function analyzeItem(analyzeBtn, id, title, content) {
         `;
         console.error("AI Analysis Error:", error);
     } finally {
-        // 5. Reset Button State
-        // Use the passed button element
         analyzeBtn.disabled = false;
         analyzeBtn.innerHTML = `<i class="fas fa-brain"></i> AI Analyze`;
     }
@@ -1002,20 +970,21 @@ const deleteItem = (id) => performAction(id, 'delete', 'DELETE');
 ************************/
 async function performAction(id, action, method = 'PUT', successMessage) {
     const modeEndpoint = currentMode === "news" ? "news" : "reports";
-    // For general actions, the path is /action/:id. For delete, it's just /:id
-    const endpoint = action === 'delete' 
-        ? `/api/${modeEndpoint}/${id}`
-        : `/api/${modeEndpoint}/${action}/${id}`;
+    const endpoint = `/api/${modeEndpoint}/${action}/${id}`;
 
     try {
         if (action === 'delete' && !confirm("Are you sure you want to permanently delete this item?")) return;
         
-        // This is where the prompt code was. It is now gone.
-
         const res = await fetch(`${BASE_URL}${endpoint}`, { method: method });
-        const data = await res.json();
 
-        if (!data.success) throw new Error(`${action} failed.`);
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error("Server Error:", errorText);
+            throw new Error(`Server returned error ${res.status}. Check your routes.`);
+        }
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || `${action} failed.`);
 
         if (action === 'verify') {
             el("panelVerifiedBadge").className = "badge verified";
@@ -1026,20 +995,22 @@ async function performAction(id, action, method = 'PUT', successMessage) {
             el("panelApprovedBadge").className = "badge approved";
             el("panelApprovedBadge").innerText = "APPROVED";
             document.querySelector(".btn-approve").style.display = "none";
+        } else if (action === 'escalate') {
+            // ⭐ Update UI immediately for Escalation
+            el("panelVerifiedBadge").className = "badge verified";
+            el("panelVerifiedBadge").innerText = "VERIFIED";
+            el("panelApprovedBadge").style.display = "inline-block";
+            el("panelApprovedBadge").className = "badge approved";
+            el("panelApprovedBadge").innerText = "APPROVED";
+            alert(successMessage);
         } else if (action === 'delete') {
             el("sidePanel").classList.remove("open");
             document.querySelector(`[data-id="${id}"]`)?.remove();
         }
         
-        // Alert on success for critical actions like escalation
-        if (successMessage && action === 'escalate') {
-            alert(successMessage);
-        }
-
-        // Re-render item card to update badges/status in the grid (important for escalation too)
         loadItems();
     } catch (error) {
-        alert(error.message);
+        alert("Action Error: " + error.message);
         console.error(`Error during ${action}:`, error);
     }
 }
@@ -1107,10 +1078,6 @@ function renderItems(items){
             ? `<span class="badge approved">APPROVED</span>`
             : "";
             
-        // You could add an "Escalated" badge here too if your backend returns the status
-        // const escalated = n.status === 'Escalated' ? `<span class="badge" style="background:var(--warning); color:var(--accent);">URGENT</span>` : '';
-
-
         const title = n.title || n.incidentType || "Untitled Incident";
         const desc = n.description || n.summary || n.details || "No description provided.";
         const displayDesc = desc.length > 120 ? desc.slice(0, 117) + '...' : desc;

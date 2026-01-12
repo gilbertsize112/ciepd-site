@@ -196,6 +196,18 @@ button.ghost:hover {
   100% { box-shadow: 0 0 0 0 rgba(239, 35, 60, 0); }
 }
 
+/* Conflict Alert Pulse */
+.conflict-active {
+    border: 2px solid var(--danger) !important;
+    animation: alert-flash 1.5s infinite;
+}
+
+@keyframes alert-flash {
+    0% { background: rgba(255, 255, 255, 0.98); }
+    50% { background: rgba(239, 35, 60, 0.05); }
+    100% { background: rgba(255, 255, 255, 0.98); }
+}
+
 /* Forms */
 input[type="text"], textarea, input[type="number"] {
   padding: 14px 20px;
@@ -305,7 +317,7 @@ footer {
 
       <div class="col" style="display:flex; flex-direction:column;">
         <label>Region keywords</label>
-        <input id="regionKeys" type="text" value="niger delta,port harcourt,warri,yenagoa,bayelsa,rivers,akwa ibom,delta state,edo,uyo" />
+        <input id="regionKeys" type="text" value="niger delta,port harcourt,warri,yenagoa,bayelsa,rivers,akwa ibom,delta state,edo,uyo,ogoni,bonny,brass,asaba" />
       </div>
 
       <div class="col" style="display:flex; flex-direction:column;">
@@ -326,6 +338,7 @@ https://www.bbc.co.uk/africa/rss.xml
 https://www.guardian.ng/feed/
 https://punchng.com/feed/
 https://thenationonlineng.net/feed/
+https://saharareporters.com/feeds/news
         </textarea>
       </div>
       
@@ -347,10 +360,11 @@ https://thenationonlineng.net/feed/
 
   <div class="card" style="display:flex; gap:25px; align-items:center; flex-wrap:wrap;">
     <div style="flex:1; min-width:300px">
-      <label>Twitter/X Search Link</label>
-      <div style="display:flex; gap:10px;">
-        <input id="twitterLink" type="text" style="flex:1" readonly>
-        <button id="openTwitter" class="tiny"><i class="fab fa-twitter"></i> Search X</button>
+      <label>Social Media Scout (Live Links)</label>
+      <div style="display:flex; gap:10px; flex-wrap: wrap;">
+        <input id="socialQuery" type="text" style="flex:1; min-width: 200px;" readonly>
+        <button id="openTwitter" class="tiny" style="background:#1DA1F2;"><i class="fab fa-twitter"></i> Search X</button>
+        <button id="openTelegram" class="tiny" style="background:#0088cc;"><i class="fab fa-telegram-plane"></i> Telegram Scout</button>
       </div>
     </div>
     <div style="display:flex; gap:10px;">
@@ -375,7 +389,6 @@ https://thenationonlineng.net/feed/
 </div>
 
 <script>
-// --- [SCRIPTS REMAIN 100% IDENTICAL TO YOURS] ---
 let socket = null;
 const PROXY = (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 const parser = new DOMParser();
@@ -399,7 +412,7 @@ let soundEnabled = false;
 let matchCount = 0;
 let isConflictMode = false;
 
-const DEFAULT_CONFLICT_KEYWORDS = "killing,killed,kidnap,abduct,clash,gunmen,bandit,attack,pipeline explosion,militant,bloodshed,hostage,violent protest,armed invasion";
+const DEFAULT_CONFLICT_KEYWORDS = "militant,insurgency,oil theft,illegal refinery,pipeline vandalism,kidnap,security forces,clash,gunmen,army,civil unrest,hostage,bunkering,amnesty,protest,explosion,killing,killed,abduct,armed invasion";
 let conflictKeywords = DEFAULT_CONFLICT_KEYWORDS;
 
 let audioCtx = null;
@@ -468,14 +481,30 @@ function indicateSaved(){
   setTimeout(()=> b.textContent = "Save Config", 1400);
 }
 
-function updateTwitterLink(){
+function updateSocialLinks(){
   const currentKeywords = isConflictMode ? conflictKeywords : $("keywords").value;
   const kws = currentKeywords.trim();
   const region = $("regionKeys").value.trim();
   const joinTerms = (s) => s.split(",").map(x=>x.trim()).filter(Boolean).join(" OR ");
+  
   const q = `(${joinTerms(kws)}) ${joinTerms(region)}`.trim();
-  const url = `https://twitter.com/search?q=${encodeURIComponent(q)}&src=typed_query&f=live`;
-  $("twitterLink").value = url;
+  $("socialQuery").value = q;
+}
+
+function openTwitterSearch(){
+    const url = `https://twitter.com/search?q=${encodeURIComponent($("socialQuery").value)}&src=typed_query&f=live`;
+    window.open(url, "_blank");
+}
+
+function openTelegramSearch(){
+    // FIX: Cleaner search for Google to find Telegram channels without breaking syntax
+    const currentKeywords = isConflictMode ? conflictKeywords : $("keywords").value;
+    // Take the first 3 keywords and first 3 regions to keep the URL safe
+    const kArray = currentKeywords.split(",").slice(0, 3).map(k => k.trim()).join(" ");
+    const rArray = $("regionKeys").value.split(",").slice(0, 3).map(r => r.trim()).join(" ");
+    
+    const cleanQuery = `site:t.me ${kArray} ${rArray}`;
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(cleanQuery)}`, "_blank");
 }
 
 function updateNotifUI(){
@@ -495,11 +524,13 @@ function updateMonitorModeUI(){
 }
 
 // Event Listeners
-$("keywords").addEventListener("input", updateTwitterLink);
-$("regionKeys").addEventListener("input", updateTwitterLink);
+$("keywords").addEventListener("input", updateSocialLinks);
+$("regionKeys").addEventListener("input", updateSocialLinks);
 $("saveBtn").addEventListener("click", saveSettings);
 $("resetBtn").addEventListener("click", ()=> confirm("Reset settings?") && resetSettings());
-$("openTwitter").addEventListener("click", ()=> window.open($("twitterLink").value, "_blank"));
+$("openTwitter").addEventListener("click", openTwitterSearch);
+$("openTelegram").addEventListener("click", openTelegramSearch);
+
 $("notifToggle").addEventListener("click", async () => {
   if (Notification.permission === "granted") { notifEnabled = !notifEnabled; updateNotifUI(); saveSettings(); }
   else { const p = await Notification.requestPermission(); notifEnabled = (p === "granted"); updateNotifUI(); saveSettings(); }
@@ -562,7 +593,7 @@ function handleMatches(matches, opts = { fromServer:false }){
 
   for(const m of matches){
     const el = document.createElement("div");
-    el.className = "card result";
+    el.className = isConflictMode ? "card result conflict-active" : "card result";
     el.style.borderLeft = isConflictMode ? "8px solid var(--danger)" : "8px solid var(--success)";
     
     el.innerHTML = `
@@ -588,7 +619,7 @@ function startConflictWatch(){
   originalKeywords = $("keywords").value;
   $("keywords").value = conflictKeywords;
   updateMonitorModeUI();
-  updateTwitterLink();
+  updateSocialLinks();
   startMonitoringInternal();
 }
 
@@ -597,7 +628,7 @@ function stopConflictWatch(){
   isConflictMode = false;
   $("keywords").value = originalKeywords;
   updateMonitorModeUI();
-  updateTwitterLink();
+  updateSocialLinks();
 }
 
 function startMonitoringInternal(){
@@ -631,7 +662,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-window.onload = () => { loadSettings(); updateTwitterLink(); };
+window.onload = () => { loadSettings(); updateSocialLinks(); };
 </script>
 </body>
 </html>

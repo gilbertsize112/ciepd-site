@@ -347,56 +347,49 @@ async function ensureAdmin() {
         console.log("🔐 Admin Already Exists");
     }
 }
-
 // ==========================
 // HELPERS
 // ==========================
-async function findNews(id) {
-    if (mongoose.Types.ObjectId.isValid(id)) {
-        let item = await News.findById(id);
-        if (item) return item;
-    }
-    return await News.findOne({ id });
-}
+// ⭐ DUPLICATE REMOVED: Using the most robust version below
 
 function normalizeStateName(s) {
-    if (!s) return "";
-    return s.toLowerCase().replace(/state/gi, "").trim();
+    if (!s) return "";
+    return s.toLowerCase().replace(/state/gi, "").trim();
 }
 
 function locationMatchesState(newsLocation, subLocation) {
-    if (!newsLocation || !subLocation) return false;
-    const nl = newsLocation.toLowerCase();
-    const sl = subLocation.toLowerCase();
-    return nl.includes(sl) || sl.includes(nl);
+    if (!newsLocation || !subLocation) return false;
+    const nl = newsLocation.toLowerCase();
+    const sl = subLocation.toLowerCase();
+    return nl.includes(sl) || sl.includes(nl);
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
-    function toRad(x) {
-        return (x * Math.PI) / 180;
-    }
-    const R = 6371;
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon1 - lon2);
-    const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+    function toRad(x) {
+        return (x * Math.PI) / 180;
+    }
+    const R = 6371;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon1 - lon2);
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }
 
 const STATE_COORDS = {
-    rivers: { lat: 4.85, lon: 6.99 },
-    delta: { lat: 5.9, lon: 6.3 },
-    edo: { lat: 6.34, lon: 5.62 },
-    "akwa ibom": { lat: 4.99, lon: 7.93 },
-    bayelsa: { lat: 4.93, lon: 6.27 },
-    imo: { lat: 5.49, lon: 7.03 },
-    abia: { lat: 5.53, lon: 7.44 },
-    ondo: { lat: 7.1, lon: 5.2 },
-    "cross river": { lat: 5.96, lon: 8.32 },
+    rivers: { lat: 4.85, lon: 6.99 },
+    delta: { lat: 5.9, lon: 6.3 },
+    edo: { lat: 6.34, lon: 5.62 },
+    "akwa ibom": { lat: 4.99, lon: 7.93 },
+    bayelsa: { lat: 4.93, lon: 6.27 },
+    imo: { lat: 5.49, lon: 7.03 },
+    abia: { lat: 5.53, lon: 7.44 },
+    ondo: { lat: 7.1, lon: 5.2 },
+    "cross river": { lat: 5.96, lon: 8.32 },
 };
 
 
@@ -411,7 +404,7 @@ app.use("/api", hateAlertRoutes);
 
 // ⭐ FIX 404 ERROR — ADD THIS HERE
 app.get("/api/alerts", (req, res) => {
-    res.json({ message: "Alerts endpoint working!" });
+    res.json({ message: "Alerts endpoint working!" });
 });
 
 
@@ -419,164 +412,164 @@ app.get("/api/alerts", (req, res) => {
 // LOGIN ROUTE
 // ==========================
 app.post("/login", async (req, res) => {
-    try {
-        const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-        console.log("LOGIN ATTEMPT:", email);
+        console.log("LOGIN ATTEMPT:", email);
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(401).json({ error: "Invalid login details" });
-        }
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ error: "Invalid login details" });
+        }
 
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) {
-            return res.status(401).json({ error: "Invalid login details" });
-        }
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res.status(401).json({ error: "Invalid login details" });
+        }
 
-        req.session.user = { id: user._id, email: user.email };
+        req.session.user = { id: user._id, email: user.email };
 
-        return res.json({ success: true, redirect: "/admin.html" });
-    } catch (err) {
-        console.error("LOGIN ERROR:", err);
-        return res.status(500).json({ error: "Server error" });
-    }
+        return res.json({ success: true, redirect: "/admin.html" });
+    } catch (err) {
+        console.error("LOGIN ERROR:", err);
+        return res.status(500).json({ error: "Server error" });
+    }
 });
 
 // ==========================
 // CATEGORY LIST API
 // ==========================
 app.get("/api/news/categories", async (req, res) => {
-    try {
-        const cats = await News.distinct("categories");
-        res.json(cats.filter((c) => c && c.trim() !== ""));
-    } catch (err) {
-        res.status(500).json({ error: "Could not load categories" });
-    }
+    try {
+        const cats = await News.distinct("categories");
+        res.json(cats.filter((c) => c && c.trim() !== ""));
+    } catch (err) {
+        res.status(500).json({ error: "Could not load categories" });
+    }
 });
 
 // ==========================
 // SEARCH & FILTER API
 // ==========================
 app.get("/api/news", async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
 
-    const search = req.query.search?.toLowerCase() || "";
-    const location = req.query.location || "";
+    const search = req.query.search?.toLowerCase() || "";
+    const location = req.query.location || "";
 
-    let filter = {};
+    let filter = {};
 
-    if (search) {
-        filter.$or = [
-            { title: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } },
-            { content: { $regex: search, $options: "i" } },
-            { location: { $regex: search, $options: "i" } },
-        ];
-    }
+    if (search) {
+        filter.$or = [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { content: { $regex: search, $options: "i" } },
+            { location: { $regex: search, $options: "i" } },
+        ];
+    }
 
-    if (location && location.trim() !== "") {
-        filter.location = location;
-    }
+    if (location && location.trim() !== "") {
+        filter.location = location;
+    }
 
-    const totalItems = await News.countDocuments(filter);
-    const totalPages = Math.ceil(totalItems / limit);
+    const totalItems = await News.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / limit);
 
-    const items = await News.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
+    const items = await News.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
 
-    res.json({
-        items,
-        totalItems,
-        totalPages,
-        currentPage: page,
-    });
+    res.json({
+        items,
+        totalItems,
+        totalPages,
+        currentPage: page,
+    });
 });
 
 // ==========================
-// VERIFY NEWS
+// HELPERS (Strict Fix for News & Reports)
 // ==========================
-app.put("/api/news/verify/:id", async (req, res) => {
-    try {
-        const item = await findNews(req.params.id);
-        if (!item) return res.status(404).json({ error: "News not found" });
+async function findNews(id) {
+    // 1. Try finding by MongoDB Internal ID
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        const item = await News.findById(id);
+        if (item) return item;
+    }
+    // 2. Fallback to custom CSV ID (e.g., "#" column)
+    return await News.findOne({ id: id });
+}
 
-        item.verified = true;
-        await item.save();
+async function findReport(id) {
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        return await Report.findById(id);
+    }
+    return null;
+}
 
-        res.json({ success: true });
-    } catch (err) {
-        console.error("VERIFY ERROR:", err);
-        res.status(500).json({ error: "Verify failed" });
-    }
+// ==========================
+// NEWS & REPORTS ACTIONS (ORDER SENSITIVE)
+// ==========================
+
+// 1. ESCALATE (MUST BE ABOVE GENERIC /:id)
+app.put("/api/news/escalate/:id", async (req, res) => {
+    try {
+        const item = await findNews(req.params.id);
+        if (!item) return res.status(404).json({ error: "News item not found in database" });
+
+        // Force both flags to true for the Urgent Queue filter
+        item.verified = true;
+        item.approved = true; 
+        await item.save();
+
+        // Emit update so the Urgent Queue refreshes automatically
+        io.emit("news:updated", item);
+        
+        res.json({ 
+            success: true, 
+            message: "Item successfully escalated and alerts dispatched." 
+        });
+    } catch (err) {
+        console.error("ESCALATE ERROR:", err);
+        res.status(500).json({ error: "Escalate failed" });
+    }
 });
 
-// ==========================
-// APPROVE NEWS
-// ==========================
-app.put("/api/news/approve/:id", async (req, res) => {
-    try {
-        const item = await findNews(req.params.id);
-        if (!item) return res.status(404).json({ error: "News not found" });
+// 2. URGENT QUEUE API (DEDICATED)
+app.get("/api/news/urgent", async (req, res) => {
+    try {
+        const urgentItems = await News.find({ 
+            verified: true, 
+            approved: true 
+        }).sort({ createdAt: -1 });
 
-        item.approved = true;
-        await item.save();
-
-        res.json({ success: true });
-    } catch (err) {
-        console.error("APPROVE ERROR:", err);
-        res.status(500).json({ error: "Approve failed" });
-    }
+        console.log(`Urgent Queue Polled: Found ${urgentItems.length} items.`);
+        res.json(urgentItems); 
+    } catch (err) {
+        console.error("URGENT FETCH ERROR:", err);
+        res.status(500).json([]); 
+    }
 });
 
-// ==========================
-// DELETE NEWS
-// ==========================
-app.delete("/api/news/delete/:id", async (req, res) => {
-    try {
-        const item = await findNews(req.params.id);
-        if (!item) return res.status(404).json({ error: "News not found" });
-
-        await item.deleteOne();
-
-        res.json({ success: true });
-    } catch (err) {
-        console.error("DELETE ERROR:", err);
-        res.status(500).json({ error: "Delete failed" });
-    }
-});
-
-// ==========================
-// GET SINGLE NEWS
-// ==========================
+// 3. GENERIC ID ROUTE (MUST BE BELOW ESCALATE)
 app.get("/api/news/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        const item = await findNews(id);
-        if (!item) {
-            return res.status(404).json({ error: "News not found" });
-        }
-
-        res.json(item);
-    } catch (err) {
-        console.error("GET SINGLE NEWS ERROR:", err);
-        res.status(500).json({ error: "Failed to load article" });
-    }
+    try {
+        const item = await findNews(req.params.id);
+        if (!item) return res.status(404).json({ error: "News not found" });
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to load article" });
+    }
 });
-
 // ===========================================================
 // AI INITIALIZATION (Ensure this is done once)
 // ===========================================================
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
-/* ===========================================================
+    apiKey: process.env.OPENAI_API_KEY,
+});/* ===========================================================
     AI ANALYSIS ROUTE 1 (Using URL Parameter :id)
 ===========================================================
 */
