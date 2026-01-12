@@ -52,48 +52,48 @@ let storage;
 const isS3Configured = process.env.S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID;
 
 if (isS3Configured) {
-    console.log("☁️ Using AWS S3 for file storage.");
-    
-    // Configure AWS SDK
-    AWS.config.update({
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        region: process.env.AWS_REGION
-    });
+    console.log("☁️ Using AWS S3 for file storage.");
+    
+    // Configure AWS SDK
+    AWS.config.update({
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        region: process.env.AWS_REGION
+    });
 
-    const s3 = new AWS.S3();
+    const s3 = new AWS.S3();
 
-    // S3 Storage Setup
-    storage = multerS3({
-        s3: s3,
-        bucket: process.env.S3_BUCKET_NAME,
-        acl: 'public-read', 
-        metadata: function (req, file, cb) {
-            cb(null, { fieldName: file.fieldname });
-        },
-        key: function (req, file, cb) {
-            // Ensure unique name with a 'reports/' prefix
-            cb(null, 'reports/' + uuidv4() + path.extname(file.originalname)); 
-        }
-    });
+    // S3 Storage Setup
+    storage = multerS3({
+        s3: s3,
+        bucket: process.env.S3_BUCKET_NAME,
+        acl: 'public-read', 
+        metadata: function (req, file, cb) {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
+            // Ensure unique name with a 'reports/' prefix
+            cb(null, 'reports/' + uuidv4() + path.extname(file.originalname)); 
+        }
+    });
 
 } else {
-    console.warn("💾 Using Local Disk Storage (Not suitable for Render/Cloud deployment).");
-    
-    // Local Disk Storage Setup (for development)
-    storage = multer.diskStorage({
-        destination: function (req, file, cb) {
-            const uploadPath = process.env.MULTER_STORAGE_PATH || './public/uploads';
-            if (!fs.existsSync(uploadPath)) {
-                fs.mkdirSync(uploadPath, { recursive: true });
-            }
-            cb(null, uploadPath);
-        },
-        filename: function (req, file, cb) {
-            const extension = path.extname(file.originalname);
-            cb(null, uuidv4() + extension);
-        }
-    });
+    console.warn("💾 Using Local Disk Storage (Not suitable for Render/Cloud deployment).");
+    
+    // Local Disk Storage Setup (for development)
+    storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            const uploadPath = process.env.MULTER_STORAGE_PATH || './public/uploads';
+            if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath, { recursive: true });
+            }
+            cb(null, uploadPath);
+        },
+        filename: function (req, file, cb) {
+            const extension = path.extname(file.originalname);
+            cb(null, uuidv4() + extension);
+        }
+    });
 }
 
 const upload = multer({ storage: storage });
@@ -118,23 +118,23 @@ const __dirname = path.dirname(__filename);
 // CORS (UPDATED FOR LOGIN)
 // ==========================
 app.use(
-    cors({
-        origin: [
-            "http://localhost:3000",
-            "http://localhost:5500",
-            "https://ciepdcwc.onrender.com",
-            "https://ciepd.org"
-        ],
-        credentials: true,
-    })
+    cors({
+        origin: [
+            "http://localhost:3000",
+            "http://localhost:5500",
+            "https://ciepdcwc.onrender.com",
+            "https://ciepd.org"
+        ],
+        credentials: true,
+    })
 );
 
 app.use(
-    session({
-        secret: process.env.SESSION_SECRET || "secret",
-        resave: false,
-        saveUninitialized: true,
-    })
+    session({
+        secret: process.env.SESSION_SECRET || "secret",
+        resave: false,
+        saveUninitialized: true,
+    })
 );
 
 
@@ -145,16 +145,16 @@ app.use(express.urlencoded({ extended: true }));
 // SESSION (REQUIRED ON RENDER)
 // ==========================
 app.use(
-    session({
-        secret: process.env.SESSION_SECRET || "ciepd_secret_key",
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure: false,
-            httpOnly: true,
-            sameSite: "lax",
-        },
-    })
+    session({
+        secret: process.env.SESSION_SECRET || "ciepd_secret_key",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: false,
+            httpOnly: true,
+            sameSite: "lax",
+        },
+    })
 );
 
 // STATIC FILES
@@ -166,45 +166,49 @@ app.use(express.static(path.join(__dirname, "public")));
 // ==========================
 // Define a simple config/setting model to hold the CSV import flag
 const ConfigSchema = new mongoose.Schema({
-    key: { type: String, required: true, unique: true },
-    value: mongoose.Schema.Types.Mixed,
-    updatedAt: { type: Date, default: Date.now },
+    key: { type: String, required: true, unique: true },
+    value: mongoose.Schema.Types.Mixed,
+    updatedAt: { type: Date, default: Date.now },
 });
 const Config = mongoose.model("Config", ConfigSchema);
 
 async function connectDB() {
-    try {
-        console.log("DEBUG:: MONGODB_URI =", process.env.MONGODB_URI);
+    try {
+        console.log("DEBUG:: MONGODB_URI =", process.env.MONGODB_URI);
 
-        await mongoose.connect(process.env.MONGODB_URI, {
-            dbName: "ciepd",
-            serverSelectionTimeoutMS: 30000,
-        });
+        await mongoose.connect(process.env.MONGODB_URI, {
+            dbName: "ciepd",
+            serverSelectionTimeoutMS: 30000,
+        });
 
-        console.log("✅ MongoDB Connected Successfully");
-    } catch (err) {
-        console.error("❌ MongoDB Connection Error:", err);
-        // It's critical to exit if DB fails
-        process.exit(1); 
-    }
+        console.log("✅ MongoDB Connected Successfully");
+    } catch (err) {
+        console.error("❌ MongoDB Connection Error:", err);
+        // It's critical to exit if DB fails
+        process.exit(1); 
+    }
 }
 
 // ==========================
 // SCHEMAS
 // ==========================
 const NewsSchema = new mongoose.Schema({
-    id: String,
-    title: String,
-    description: String,
-    content: String,
-    location: String,
-    categories: [String],
-    // ⚠️ UPDATED: Image now stores an array of photo URLs/paths
-    photos: [String], 
-    videoLink: String, // Can be a URL (if videoLink field is used) or the file path/URL (if file upload is used)
-    verified: { type: Boolean, default: false },
-    approved: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now },
+    id: String,
+    title: String,
+    description: String,
+    content: String,
+    location: String,
+    categories: [String],
+    photos: [String], 
+    videoLink: String,
+    // ⭐ ADDED FOR MERGER: These allow user-submitted data to fit in News
+    reporterName: String,
+    reporterEmail: String,
+    escalated: { type: Boolean, default: false },
+    newsSource: String,
+    verified: { type: Boolean, default: false },
+    approved: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
 });
 
 const News = mongoose.model("News", NewsSchema);
@@ -212,11 +216,11 @@ const News = mongoose.model("News", NewsSchema);
 
 
 const SubscriptionSchema = new mongoose.Schema({
-    phone: String,
-    email: String,
-    location: String,
-    method: String,
-    createdAt: { type: Date, default: Date.now },
+    phone: String,
+    email: String,
+    location: String,
+    method: String,
+    createdAt: { type: Date, default: Date.now },
 });
 
 const Subscription = mongoose.model("Subscription", SubscriptionSchema);
@@ -311,41 +315,41 @@ async function importCSV() {
 // REMOVE DUPLICATES — FIX
 // ==========================
 async function cleanDuplicates() {
-    // This is optional and probably not needed if you fix the import logic
-    // Keeping it here for completeness
-    try {
-        const items = await News.find().lean();
-        const seen = new Set();
+    // This is optional and probably not needed if you fix the import logic
+    // Keeping it here for completeness
+    try {
+        const items = await News.find().lean();
+        const seen = new Set();
 
-        for (let item of items) {
-            if (seen.has(item.id)) {
-                await News.deleteOne({ _id: item._id });
-            } else {
-                seen.add(item.id);
-            }
-        }
+        for (let item of items) {
+            if (seen.has(item.id)) {
+                await News.deleteOne({ _id: item._id });
+            } else {
+                seen.add(item.id);
+            }
+        }
 
-        console.log("🧹 Duplicate news cleaned!");
-    } catch (err) {
-        console.error("Duplicate-clean error:", err);
-    }
+        console.log("🧹 Duplicate news cleaned!");
+    } catch (err) {
+        console.error("Duplicate-clean error:", err);
+    }
 }
 
 // ==========================
 // CREATE ADMIN
 // ==========================
 async function ensureAdmin() {
-    const email = process.env.ADMIN_EMAIL;
-    const password = process.env.ADMIN_PASSWORD;
+    const email = process.env.ADMIN_EMAIL;
+    const password = process.env.ADMIN_PASSWORD;
 
-    const exist = await User.findOne({ email });
-    if (!exist) {
-        const hashed = await bcrypt.hash(password, 10);
-        await User.create({ email, password: hashed });
-        console.log(`👤 Default Admin Created: ${email} | pass: ${password}`);
-    } else {
-        console.log("🔐 Admin Already Exists");
-    }
+    const exist = await User.findOne({ email });
+    if (!exist) {
+        const hashed = await bcrypt.hash(password, 10);
+        await User.create({ email, password: hashed });
+        console.log(`👤 Default Admin Created: ${email} | pass: ${password}`);
+    } else {
+        console.log("🔐 Admin Already Exists");
+    }
 }
 // ==========================
 // HELPERS
@@ -523,6 +527,7 @@ app.put("/api/news/escalate/:id", async (req, res) => {
         // Force both flags to true for the Urgent Queue filter
         item.verified = true;
         item.approved = true; 
+        item.escalated = true; // Added specifically for your new workflow
         await item.save();
 
         // Emit update so the Urgent Queue refreshes automatically
@@ -571,9 +576,12 @@ app.delete("/api/news/delete/:id", async (req, res) => {
 // 4. URGENT QUEUE API (DEDICATED)
 app.get("/api/news/urgent", async (req, res) => {
     try {
+        // Updated to include escalated items specifically
         const urgentItems = await News.find({ 
-            verified: true, 
-            approved: true 
+            $or: [
+                { verified: true, approved: true },
+                { escalated: true }
+            ]
         }).sort({ createdAt: -1 });
 
         console.log(`Urgent Queue Polled: Found ${urgentItems.length} items.`);
@@ -596,36 +604,80 @@ app.get("/api/news/:id", async (req, res) => {
 });
 
 // ===========================================================
+// ⭐ NEW: CONSOLIDATED SUBMISSION ROUTE
+// ===========================================================
+app.post("/api/news", async (req, res) => {
+    try {
+        const { title, content, location, categories, reporterName, reporterEmail, escalated, newsSource, videoLink } = req.body;
+
+        const newsDoc = new News({
+            id: `user-${Date.now()}`,
+            title,
+            content,
+            description: content ? content.substring(0, 200) : "",
+            location,
+            categories: Array.isArray(categories) ? categories : [categories].filter(Boolean),
+            reporterName,
+            reporterEmail,
+            escalated: escalated === true || escalated === 'true',
+            newsSource,
+            videoLink,
+            verified: false,
+            // If user marks it as escalated, we can auto-approve or keep for review
+            approved: escalated === true || escalated === 'true',
+            createdAt: new Date()
+        });
+
+        const saved = await newsDoc.save();
+
+        // Push to admin dashboard live
+        io.emit("news:created", saved);
+
+        // If it's urgent, notify immediately
+        if (saved.escalated) {
+             notifySubscribers(saved).catch(err => console.error("Notification error:", err));
+        }
+
+        res.status(201).json({ success: true, item: saved });
+    } catch (err) {
+        console.error("SUBMISSION ERROR:", err);
+        res.status(500).json({ success: false, error: "Failed to process submission" });
+    }
+});
+
+// ===========================================================
 // AI INITIALIZATION (Ensure this is done once)
 // ===========================================================
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-});/* ===========================================================
-    AI ANALYSIS ROUTE 1 (Using URL Parameter :id)
+});
+
+/* ===========================================================
+    AI ANALYSIS ROUTE 1 (Using URL Parameter :id)
 ===========================================================
 */
 app.post("/api/ai/analyze-report/:id", async (req, res) => {
-    try {
-        const itemId = req.params.id;
-        
-        // Attempt to find the item in both News and Report collections
-        let item = await News.findById(itemId);
-        if (!item) {
-            item = await Report.findById(itemId);
-        }
+    try {
+        const itemId = req.params.id;
+        
+        // Attempt to find the item in both News and Report collections
+        let item = await News.findById(itemId);
+        if (!item) {
+            item = await Report.findById(itemId);
+        }
 
-        if (!item) {
-            return res.status(404).json({ error: "Item not found for analysis" });
-        }
+        if (!item) {
+            return res.status(404).json({ error: "Item not found for analysis" });
+        }
 
-        // Extract data for the prompt, handling differences between News and Report schemas
-        const title = item.title || item.incidentType || 'Untitled Report';
-        const content = item.content || item.description || item.details || 'No content available.';
-        const location = item.location || item.state || 'Unknown Location';
-        // Ensure categories is an array before joining
-        const categories = (item.categories || item.tags || []).filter(c => c).join(', ');
+        // Extract data for the prompt, handling differences between News and Report schemas
+        const title = item.title || item.incidentType || 'Untitled Report';
+        const content = item.content || item.description || item.details || 'No content available.';
+        const location = item.location || item.state || 'Unknown Location';
+        // Ensure categories is an array before joining
+        const categories = (item.categories || item.tags || []).filter(c => c).join(', ');
 
-        const prompt = `
+        const prompt = `
 You are a crisis-analysis AI for a peace & conflict early-warning system in Nigeria.
 Analyze this incident report and return a structured JSON response.
 
@@ -637,77 +689,77 @@ Incident Details:
 
 Return ONLY the JSON object, following this exact format and structure. Do not add any text before or after the JSON.
 {
-    "severity": [NUMBER 1-10, where 10 is highest risk/severity],
-    "incidentType": "[Concise type, e.g., Communal Clash, Oil Theft, Kidnapping]",
-    "summary": "[One concise paragraph summarizing the crisis, its cause, potential impact, and a brief recommendation.]"
+    "severity": [NUMBER 1-10, where 10 is highest risk/severity],
+    "incidentType": "[Concise type, e.g., Communal Clash, Oil Theft, Kidnapping]",
+    "summary": "[One concise paragraph summarizing the crisis, its cause, potential impact, and a brief recommendation.]"
 }
 `;
 
-        // Call OpenAI using the Chat Completions API with JSON mode
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Use the capable mini model
-            messages: [
-                { role: "system", content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary." },
-                { role: "user", content: prompt }
-            ],
-            response_format: { type: "json_object" } // Enforce JSON response
-        });
+        // Call OpenAI using the Chat Completions API with JSON mode
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini", // Use the capable mini model
+            messages: [
+                { role: "system", content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary." },
+                { role: "user", content: prompt }
+            ],
+            response_format: { type: "json_object" } // Enforce JSON response
+        });
 
-        // Extract and Parse the JSON Response
-        const jsonText = completion.choices[0].message.content;
-        
-        let result;
-        try {
-            result = JSON.parse(jsonText);
-        } catch (e) {
-            console.error("JSON PARSING ERROR:", jsonText);
-            throw new Error("AI returned invalid JSON: " + jsonText.substring(0, 50));
-        }
+        // Extract and Parse the JSON Response
+        const jsonText = completion.choices[0].message.content;
+        
+        let result;
+        try {
+            result = JSON.parse(jsonText);
+        } catch (e) {
+            console.error("JSON PARSING ERROR:", jsonText);
+            throw new Error("AI returned invalid JSON: " + jsonText.substring(0, 50));
+        }
 
-        // Send the structured result back to the frontend
-        return res.json(result);
+        // Send the structured result back to the frontend
+        return res.json(result);
 
-    } catch (err) {
-        console.error("AI ANALYSIS ERROR (Route :id):", err.message || err);
-        // Send 500 status and a clear message for the frontend to display
-        return res.status(500).json({ 
-            error: "AI processing failed",
-            message: err.message || "An unknown error occurred during AI processing."
-        });
-    }
+    } catch (err) {
+        console.error("AI ANALYSIS ERROR (Route :id):", err.message || err);
+        // Send 500 status and a clear message for the frontend to display
+        return res.status(500).json({ 
+            error: "AI processing failed",
+            message: err.message || "An unknown error occurred during AI processing."
+        });
+    }
 });
 
 /* ===========================================================
-    ⭐ CORRECTED AI ANALYSIS ROUTE 2 (Using Request Body)
-    FIX: ROUTE NOW MATCHES FRONTEND POST /api/ai/analyze-item
+    ⭐ CORRECTED AI ANALYSIS ROUTE 2 (Using Request Body)
+    FIX: ROUTE NOW MATCHES FRONTEND POST /api/ai/analyze-item
 ===========================================================
 */
 app.post("/api/ai/analyze-item", async (req, res) => {
-    try {
-        // 💡 Extract the necessary data from the request BODY
-        const { itemId, title: bodyTitle, content: bodyContent } = req.body; 
-        
-        // This part attempts to find the full item data in the DB
-        let item = null;
-        if (itemId) {
-            item = await News.findById(itemId);
-            if (!item) {
-                item = await Report.findById(itemId);
-            }
-        }
+    try {
+        // 💡 Extract the necessary data from the request BODY
+        const { itemId, title: bodyTitle, content: bodyContent } = req.body; 
+        
+        // This part attempts to find the full item data in the DB
+        let item = null;
+        if (itemId) {
+            item = await News.findById(itemId);
+            if (!item) {
+                item = await Report.findById(itemId);
+            }
+        }
 
-        if (!item) {
-            console.warn(`Item ID ${itemId} not found in DB for analysis. Using raw content.`);
-        }
+        if (!item) {
+            console.warn(`Item ID ${itemId} not found in DB for analysis. Using raw content.`);
+        }
 
-        // Use data from DB if available, otherwise fall back to data sent from frontend (req.body)
-        const incidentTitle = item?.title || item?.incidentType || bodyTitle || 'Untitled Report';
-        const incidentContent = item?.content || item?.description || item?.details || bodyContent || 'No content available.';
-        const location = item?.location || item?.state || 'Unknown Location';
-        const categories = (item?.categories || item?.tags || []).filter(c => c).join(', ');
+        // Use data from DB if available, otherwise fall back to data sent from frontend (req.body)
+        const incidentTitle = item?.title || item?.incidentType || bodyTitle || 'Untitled Report';
+        const incidentContent = item?.content || item?.description || item?.details || bodyContent || 'No content available.';
+        const location = item?.location || item?.state || 'Unknown Location';
+        const categories = (item?.categories || item?.tags || []).filter(c => c).join(', ');
 
 
-        const prompt = `
+        const prompt = `
 You are a crisis-analysis AI for a peace & conflict early-warning system in Nigeria.
 Analyze this incident report and return a structured JSON response.
 
@@ -719,341 +771,272 @@ Incident Details:
 
 Return ONLY the JSON object, following this exact format and structure. Do not add any text before or after the JSON.
 {
-    "severity": [NUMBER 1-10, where 10 is highest risk/severity],
-    "incidentType": "[Concise type, e.g., Communal Clash, Oil Theft, Kidnapping]",
-    "summary": "[One concise paragraph summarizing the crisis, its cause, potential impact, and a brief recommendation.]"
+    "severity": [NUMBER 1-10, where 10 is highest risk/severity],
+    "incidentType": "[Concise type, e.g., Communal Clash, Oil Theft, Kidnapping]",
+    "summary": "[One concise paragraph summarizing the crisis, its cause, potential impact, and a brief recommendation.]"
 }
 `;
 
-        // Call OpenAI using the Chat Completions API with JSON mode
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Use the capable mini model
-            messages: [
-                { role: "system", content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary." },
-                { role: "user", content: prompt }
-            ],
-            response_format: { type: "json_object" } // Enforce JSON response
-        });
+        // Call OpenAI using the Chat Completions API with JSON mode
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini", // Use the capable mini model
+            messages: [
+                { role: "system", content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary." },
+                { role: "user", content: prompt }
+            ],
+            response_format: { type: "json_object" } // Enforce JSON response
+        });
 
-        // Extract and Parse the JSON Response
-        const jsonText = completion.choices[0].message.content;
-        
-        let result;
-        try {
-            result = JSON.parse(jsonText);
-        } catch (e) {
-            console.error("JSON PARSING ERROR:", jsonText);
-            throw new Error("AI returned invalid JSON: " + jsonText.substring(0, 50));
-        }
+        // Extract and Parse the JSON Response
+        const jsonText = completion.choices[0].message.content;
+        
+        let result;
+        try {
+            result = JSON.parse(jsonText);
+        } catch (e) {
+            console.error("JSON PARSING ERROR:", jsonText);
+            throw new Error("AI returned invalid JSON: " + jsonText.substring(0, 50));
+        }
 
-        // Send the structured result back to the frontend
-        return res.json(result);
+        // Send the structured result back to the frontend
+        return res.json(result);
 
-    } catch (err) {
-        console.error("AI ANALYSIS ERROR (Route /analyze-item):", err.message || err);
-        // Send 500 status and a clear message for the frontend to display
-        return res.status(500).json({ 
-            error: "AI processing failed",
-            message: err.message || "An unknown error occurred during AI processing."
-        });
-    }
+    } catch (err) {
+        console.error("AI ANALYSIS ERROR (Route /analyze-item):", err.message || err);
+        // Send 500 status and a clear message for the frontend to display
+        return res.status(500).json({ 
+            error: "AI processing failed",
+            message: err.message || "An unknown error occurred during AI processing."
+        });
+    }
 });
 
 
 /* =========================================================
-    NEW: Get latest news route
-    ========================================================= */
+    NEW: Get latest news route
+    ========================================================= */
 app.get("/get-news", async (req, res) => {
-    try {
-        const items = await News.find().sort({ createdAt: -1 }).limit(200);
-        res.json(items);
-    } catch (err) {
-        console.error("GET-NEWS ERROR:", err);
-        res.status(500).json([]);
-    }
+    try {
+        const items = await News.find().sort({ createdAt: -1 }).limit(200);
+        res.json(items);
+    } catch (err) {
+        console.error("GET-NEWS ERROR:", err);
+        res.status(500).json([]);
+    }
 });
 
 /* =========================================================
-    NEW: Subscribe alert endpoint
-    ========================================================= */
+    NEW: Subscribe alert endpoint
+    ========================================================= */
 app.post("/subscribe-alert", async (req, res) => {
-    try {
-        let { phone, email, location, method } = req.body;
+    try {
+        let { phone, email, location, method } = req.body;
 
-        if (!phone || !location) {
-            return res.status(400).json({ message: "phone and location required" });
-        }
+        if (!phone || !location) {
+            return res.status(400).json({ message: "phone and location required" });
+        }
 
-        phone = String(phone).trim();
-        if (!phone.startsWith("+")) {
-            if (phone.startsWith("0")) {
-                phone = "+234" + phone.substring(1);
-            } else {
-                phone = "+234" + phone;
-            }
-        }
+        phone = String(phone).trim();
+        if (!phone.startsWith("+")) {
+            if (phone.startsWith("0")) {
+                phone = "+234" + phone.substring(1);
+            } else {
+                phone = "+234" + phone;
+            }
+        }
 
-        const sub = await Subscription.create({ phone, email, location, method });
-        console.log("New subscription:", sub);
+        const sub = await Subscription.create({ phone, email, location, method });
+        console.log("New subscription:", sub);
 
-        res.json({ success: true, subscriptionId: sub._id });
-    } catch (err) {
-        console.error("SUBSCRIBE ERROR:", err);
-        res.status(500).json({ message: "Subscription failed" });
-    }
+        res.json({ success: true, subscriptionId: sub._id });
+    } catch (err) {
+        console.error("SUBSCRIBE ERROR:", err);
+        res.status(500).json({ message: "Subscription failed" });
+    }
 });
 
 /* =========================================================
-    NEW: submit-report endpoint (OLD - not used by new frontend)
-    ========================================================= */
+    NEW: submit-report endpoint (OLD - preserved as requested)
+    ========================================================= */
 app.post("/api/submit-report", async (req, res) => {
-    try {
-        const { title, content, category, location, firstName, lastName, email } =
-            req.body;
+    try {
+        const { title, content, category, location, firstName, lastName, email } =
+            req.body;
 
-        if (!title || !content || !location) {
-            return res.status(400).json({ success: false, message: "Missing fields" });
-        }
+        if (!title || !content || !location) {
+            return res.status(400).json({ success: false, message: "Missing fields" });
+        }
 
-        const doc = {
-            id: `web-${Date.now()}`,
-            title,
-            description: content.slice(0, 200),
-            content,
-            location,
-            categories: Array.isArray(category) ? category : [category].filter(Boolean),
-            photos: [], // Default empty array for image/photo field
-            videoLink: "",
-            verified: false,
-            approved: false,
-            createdAt: new Date(),
-        };
+        const doc = {
+            id: `web-${Date.now()}`,
+            title,
+            description: content.slice(0, 200),
+            content,
+            location,
+            categories: Array.isArray(category) ? category : [category].filter(Boolean),
+            photos: [], 
+            videoLink: "",
+            verified: false,
+            approved: false,
+            createdAt: new Date(),
+        };
 
-        const created = await News.create(doc);
+        const created = await News.create(doc);
 
-        try {
-            io.emit("news:created", created);
-        } catch {}
+        try {
+            io.emit("news:created", created);
+        } catch {}
 
-        notifySubscribers(created).catch((err) => {
-            console.error("notifySubscribers error:", err);
-        });
+        notifySubscribers(created).catch((err) => {
+            console.error("notifySubscribers error:", err);
+        });
 
-        return res.json({ success: true, news: created });
-    } catch (err) {
-        console.error("SUBMIT REPORT ERROR:", err);
-        res.status(500).json({ success: false, message: "Failed to submit report" });
-    }
+        return res.json({ success: true, news: created });
+    } catch (err) {
+        console.error("SUBMIT REPORT ERROR:", err);
+        res.status(500).json({ success: false, message: "Failed to submit report" });
+    }
 });
 
 /* =========================================================
-    EMAIL + WHATSAPP HELPERS
+    EMAIL + WHATSAPP HELPERS
 ========================================================= */
 
 async function sendEmail(to, subject, text) {
-    try {
-        const host = process.env.SMTP_HOST;
-        const port = process.env.SMTP_PORT;
-        const user = process.env.SMTP_USER;
-        const pass = process.env.SMTP_PASS;
-        const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
+    try {
+        const host = process.env.SMTP_HOST;
+        const port = process.env.SMTP_PORT;
+        const user = process.env.SMTP_USER;
+        const pass = process.env.SMTP_PASS;
+        const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
 
-        if (!host || !port || !user || !pass) {
-            console.log(`[Email mock] To: ${to} | Subject: ${subject} | Text: ${text}`);
-            return { ok: true, mock: true };
-        }
+        if (!host || !port || !user || !pass) {
+            console.log(`[Email mock] To: ${to} | Subject: ${subject} | Text: ${text}`);
+            return { ok: true, mock: true };
+        }
 
-        const transporter = nodemailer.createTransport({
-            host,
-            port: Number(port),
-            secure: Number(port) === 465,
-            auth: {
-                user,
-                pass,
-            },
-        });
+        const transporter = nodemailer.createTransport({
+            host,
+            port: Number(port),
+            secure: Number(port) === 465,
+            auth: {
+                user,
+                pass,
+            },
+        });
 
-        const info = await transporter.sendMail({
-            from: from,
-            to,
-            subject,
-            text,
-        });
+        const info = await transporter.sendMail({
+            from: from,
+            to,
+            subject,
+            text,
+        });
 
-        console.log("Email sent:", info.messageId);
-        return { ok: true, info };
-    } catch (err) {
-        console.error("sendEmail error:", err);
-        return { ok: false, error: err.message || err };
-    }
+        console.log("Email sent:", info.messageId);
+        return { ok: true, info };
+    } catch (err) {
+        console.error("sendEmail error:", err);
+        return { ok: false, error: err.message || err };
+    }
 }
 
 async function sendWhatsApp(to, message) {
-    try {
-        const token = process.env.WHATSAPP_API_TOKEN;
-        const phoneId = process.env.WHATSAPP_PHONE_ID;
-        if (!token || !phoneId) {
-            console.log(`[WhatsApp mock] To: ${to} — Message: ${message}`);
-            return { ok: true, mock: true };
-        }
+    try {
+        const token = process.env.WHATSAPP_API_TOKEN;
+        const phoneId = process.env.WHATSAPP_PHONE_ID;
+        if (!token || !phoneId) {
+            console.log(`[WhatsApp mock] To: ${to} — Message: ${message}`);
+            return { ok: true, mock: true };
+        }
 
-        const url = `https://graph.facebook.com/v17.0/${phoneId}/messages`;
-        const payload = {
-            messaging_product: "whatsapp",
-            to: to.replace("+", ""),
-            type: "text",
-            text: { body: message },
-        };
+        const url = `https://graph.facebook.com/v17.0/${phoneId}/messages`;
+        const payload = {
+            messaging_product: "whatsapp",
+            to: to.replace("+", ""),
+            type: "text",
+            text: { body: message },
+        };
 
-        const r = await fetch(url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-        });
+        const r = await fetch(url, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
 
-        const json = await r.json();
-        if (!r.ok) {
-            console.error("WHATSAPP API ERROR:", json);
-            return { ok: false, error: json };
-        }
-        return { ok: true, result: json };
-    } catch (err) {
-        console.error("sendWhatsApp error:", err);
-        return { ok: false, error: err.message || err };
-    }
+        const json = await r.json();
+        if (!r.ok) {
+            console.error("WHATSAPP API ERROR:", json);
+            return { ok: false, error: json };
+        }
+        return { ok: true, result: json };
+    } catch (err) {
+        console.error("sendWhatsApp error:", err);
+        return { ok: false, error: err.message || err };
+    }
 }
 
 async function notifySubscribers(news) {
-    try {
-        if (!news || !news.location) return;
+    try {
+        if (!news || !news.location) return;
 
-        const subs = await Subscription.find().lean();
-        const newsLoc = String(news.location || "").toLowerCase();
+        const subs = await Subscription.find().lean();
+        const newsLoc = String(news.location || "").toLowerCase();
 
-        const message = `CIEPD Alert — ${news.title}
+        const message = `CIEPD Alert — ${news.title}
 Location: ${news.location}
 Categories: ${
-            Array.isArray(news.categories) ? news.categories.join(", ") : news.categories
-        }
+            Array.isArray(news.categories) ? news.categories.join(", ") : news.categories
+        }
 Date: ${new Date(news.createdAt).toLocaleString()}
 
 Details: ${news.description || (news.content || "").slice(0, 150)}
 `;
 
-        for (let s of subs) {
-            try {
-                const subLoc = String(s.location || "").toLowerCase().trim();
-                if (!subLoc) continue;
+        for (let s of subs) {
+            try {
+                const subLoc = String(s.location || "").toLowerCase().trim();
+                if (!subLoc) continue;
 
-                if (
-                    newsLoc.includes(subLoc) ||
-                    subLoc.includes(newsLoc) ||
-                    locationMatchesState(news.location, s.location)
-                ) {
-                    if (s.method && s.method.toLowerCase().includes("email")) {
-                        const to = s.email || s.phone;
-                        if (!to) continue;
+                if (
+                    newsLoc.includes(subLoc) ||
+                    subLoc.includes(newsLoc) ||
+                    locationMatchesState(news.location, s.location)
+                ) {
+                    if (s.method && s.method.toLowerCase().includes("email")) {
+                        const to = s.email || s.phone;
+                        if (!to) continue;
 
-                        const subject = `CIEPD Alert — ${news.title}`;
-                        const text = `${message}\nVisit admin for more.`;
-                        const sent = await sendEmail(to, subject, text);
-                        console.log("Email notify:", to, sent.ok);
-                    } else if (s.method && s.method.toLowerCase().includes("whatsapp")) {
-                        const to = s.phone || "";
-                        const sent = await sendWhatsApp(to, message);
-                        console.log("WA notify:", to, sent.ok);
-                    } else if (s.method && s.method.toLowerCase().includes("sms")) {
-                        console.log(`[SMS mock] To: ${s.phone} — ${message}`);
-                    } else {
-                        if (s.email) {
-                            const to = s.email;
-                            const subject = `CIEPD Alert — ${news.title}`;
-                            const text = `${message}\nVisit admin for more.`;
-                            const sent = await sendEmail(to, subject, text);
-                            console.log("Default email notify:", to, sent.ok);
-                        }
-                    }
-                }
-            } catch (innerErr) {
-                console.error("notifySubscribers inner error:", s, innerErr);
-            }
-        }
-    } catch (err) {
-        console.error("notifySubscribers ERROR:", err);
-    }
+                        const subject = `CIEPD Alert — ${news.title}`;
+                        const text = `${message}\nVisit admin for more.`;
+                        const sent = await sendEmail(to, subject, text);
+                        console.log("Email notify:", to, sent.ok);
+                    } else if (s.method && s.method.toLowerCase().includes("whatsapp")) {
+                        const to = s.phone || "";
+                        const sent = await sendWhatsApp(to, message);
+                        console.log("WA notify:", to, sent.ok);
+                    } else if (s.method && s.method.toLowerCase().includes("sms")) {
+                        console.log(`[SMS mock] To: ${s.phone} — ${message}`);
+                    }
+                }
+            } catch (err) {
+                console.error("Notify single sub error:", err);
+            }
+        }
+    } catch (err) {
+        console.error("notifySubscribers overall error:", err);
+    }
 }
-
-/**
- * Sends a critical, immediate alert to primary contacts/agencies
- * This is triggered ONLY by the RED 'Dispatch IMMEDIATE Alert' button.
- * @param {object} reportData - The report data
- */
-async function sendCriticalAlerts(reportData) {
-    console.log("🚨 INITIATING CRITICAL ALERT DISPATCH...");
-
-    const primaryRecipientEmail = process.env.PRIMARY_ALERT_EMAIL || "primary.alert@ciepd.org";
-    const primaryRecipientPhone = process.env.PRIMARY_ALERT_PHONE || "+2348000000000";
-
-    const subject = `🔥 CRITICAL CIEPD ALERT: ${reportData.title || reportData.incidentType || 'New Report'}`;
-    const emailText = `
-        IMMEDIATE ATTENTION REQUIRED!
-        
-        Report Title: ${reportData.title || reportData.incidentType}
-        Location: ${reportData.location || reportData.state}
-        Categories: ${reportData.categories}
-        
-        Details:
-        ${reportData.content || reportData.description || reportData.details}
-
-        ---
-        Submitted by: ${reportData.firstName || 'Anonymous'} (${reportData.email || 'N/A'})
-        Time: ${new Date().toLocaleString()}
-    `;
-    // ⭐ FIX: Completed the WhatsApp text here
-    const whatsappText = `
-        🚨 *CRITICAL ALERT* - CIEPD
-        *Title:* ${reportData.title || reportData.incidentType}
-        *Location:* ${reportData.location || reportData.state}
-        *Categories:* ${reportData.categories}
-        
-        *Summary:*
-        ${reportData.content || reportData.description || reportData.details}
-        
-        Please take immediate action.
-    `;
-    
-    // 1. Send Email
-    const emailResult = await sendEmail(primaryRecipientEmail, subject, emailText);
-    console.log(`Critical Email Sent to ${primaryRecipientEmail}:`, emailResult.ok);
-    
-    // 2. Send WhatsApp
-    const waResult = await sendWhatsApp(primaryRecipientPhone, whatsappText);
-    console.log(`Critical WhatsApp Sent to ${primaryRecipientPhone}:`, waResult.ok);
-    
-    return { email: emailResult.ok, whatsapp: waResult.ok };
-}
-
 
 // ==========================
-// STARTUP FUNCTION
+// SERVER START
 // ==========================
-async function startServer() {
-    await connectDB();
-    await ensureAdmin();
-    await importCSV();
-    // await cleanDuplicates(); // Note: This is commented out because the new import logic handles duplication checks efficiently.
-
-    // Start listening after all initial setup is complete
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, () => {
-        console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    });
-}
-
-startServer().catch((err) => {
-    console.error("FATAL SERVER STARTUP ERROR:", err);
-    process.exit(1);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, async () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    await connectDB();
+    await ensureAdmin();
+    await importCSV();
 });

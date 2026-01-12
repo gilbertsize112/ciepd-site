@@ -19,6 +19,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 
+
 <style>
     :root{
         --primary: #0077b6; /* CIEPD Blue */
@@ -50,12 +51,13 @@
     }
 
     * { box-sizing: border-box; }
+    
     body{
         margin:0;
         font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
         /* BACKGROUND IS SET TO TRANSPARENT BELOW TO SHOW VIDEO */
-        background: var(--bg-light); 
-        color: var(--accent);
+        background: transparent !important; 
+        color: var(--text-dark);
         min-height:100vh;
         line-height: 1.6;
         transition: background-color 0.3s, color 0.3s; 
@@ -86,14 +88,6 @@
         min-height: 100vh;
     }
 
-    /* Adjust main body background so the video shows */
-    body {
-        background: transparent !important; 
-        color: var(--text-dark); /* Ensure text is readable */
-    }
-    /* ---------------------------------------------------- */
-
-
     /* ---------------------------------------------------- */
     /* 2. HEADER AND NAVIGATION */
     /* ---------------------------------------------------- */
@@ -103,7 +97,7 @@
         justify-content:space-between;
         padding:18px 30px;
         /* Semi-transparent background for header */
-        background: rgba(var(--card-rgb, 255, 255, 255), 0.9); 
+        background: rgba(var(--card-rgb), 0.9); 
         backdrop-filter: blur(5px); 
         border-bottom: 1px solid var(--border-light);
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -135,12 +129,14 @@
         font-size: 18px;
         transition: background 0.2s, transform 0.2s;
         margin-left: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     #darkModeToggle:hover {
         background: var(--secondary);
         transform: rotate(15deg);
     }
-    /* --------------------------------------- */
 
     .logout-btn{
         background:var(--danger);
@@ -154,17 +150,16 @@
     }
     .logout-btn:hover { background: #cc2a37; }
 
-    /* FIX APPLIED HERE: Navigation bar is now near-opaque for link visibility */
     .nav-bar{
         display:flex;
         gap:12px;
         justify-content:center;
         padding:12px;
         /* UPDATED: Use opaque card color for better contrast over video */
-        background: rgba(var(--card-rgb, 255, 255, 255), 0.95); 
+        background: rgba(var(--card-rgb), 0.95); 
         backdrop-filter: blur(2px);
         border-bottom: 1px solid var(--border-light);
-        box-shadow: 0 1px 5px rgba(0,0,0,0.05); /* Added subtle shadow for depth */
+        box-shadow: 0 1px 5px rgba(0,0,0,0.05); 
         transition: background-color 0.3s, border-bottom 0.3s;
         flex-wrap: wrap; 
     }
@@ -219,7 +214,7 @@
         max-width:1300px;
         margin:28px auto;
         /* Semi-transparent background for main content area */
-        background: rgba(var(--card-rgb, 255, 255, 255), 0.95); 
+        background: rgba(var(--card-rgb), 0.95); 
         backdrop-filter: blur(3px);
         border-radius:var(--radius);
         padding:30px;
@@ -282,7 +277,6 @@
     #showNewsBtn, #showReportsBtn {
         border-radius: 999px !important;
     }
-    /* Updated selector for inactive button style */
     .btn-viewmode.inactive {
         background: var(--border-light) !important;
         color: var(--accent) !important;
@@ -418,7 +412,6 @@
         transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, box-shadow 0.3s;
         z-index:9999;
     }
-    /* Default desktop width */
     .side-panel.open{ width:min(700px, 95%); } 
 
     .panel-inner{ padding:30px; }
@@ -463,7 +456,7 @@
     .panel-meta i { color: var(--primary); }
 
     .panel-block { margin-bottom: 25px; }
-    .panel-text { margin: 10px 0; }
+    .panel-text { margin: 10px 0; color: var(--text-dark); }
 
     .panel-actions {
         display: flex;
@@ -480,10 +473,9 @@
     .btn-analyze{ background:var(--accent); color:white; } 
     .btn-delete{ background:var(--danger); color:white; }
 
-    /* ⭐ NEW ESCALATE BUTTON STYLE ⭐ */
     .btn-escalate{ 
         background: var(--warning); 
-        color: var(--accent); 
+        color: #333; /* Dark text for contrast on yellow */
         font-weight: 800;
         box-shadow: 0 4px 10px rgba(255, 183, 3, 0.4);
         animation: pulse-escalate 1.5s infinite; 
@@ -497,149 +489,63 @@
         70% { box-shadow: 0 0 0 10px rgba(255, 183, 3, 0); }
         100% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0); }
     }
-    /* ⭐ END NEW ESCALATE BUTTON STYLE ⭐ */
-
 
     /* ---------------------------------------------------- */
-    /* 9. MEDIA QUERIES FOR MOBILE RESPONSIVENESS (EXISTING) */
+    /* 9. MEDIA QUERIES FOR MOBILE RESPONSIVENESS */
     /* ---------------------------------------------------- */
-
     @media (max-width: 1200px) {
-        .news-grid {
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        }
+        .news-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
     }
 
     @media (max-width: 900px) {
-        /* A. HEADER and NAVIGATION */
-        .header {
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 15px 20px;
-            gap: 10px;
-        }
-        .header > div { 
-            order: 3; 
-            width: 100%;
-            justify-content: space-between;
-            display: flex;
-        }
-        .brand {
-            font-size: 20px;
-            order: 1;
-        }
-        .logout-btn {
-            order: 2;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-        .scroll-container {
-            width: 70%; 
-        }
+        .header { flex-wrap: wrap; justify-content: center; padding: 15px 20px; gap: 10px; }
+        .header > div { order: 3; width: 100%; justify-content: space-between; display: flex; }
+        .brand { font-size: 20px; order: 1; }
+        .logout-btn { order: 2; padding: 8px 15px; font-size: 14px; }
+        .scroll-container { width: 70%; }
         
-        /* UPDATED: Horizontal scroll for nav bar on mobile */
         .nav-bar {
             flex-wrap: nowrap; 
             overflow-x: auto;
             justify-content: flex-start;
             gap: 12px;
             padding: 10px 20px;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
-            /* Hide scrollbar for cleaner look but keep functionality */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE 10+ */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
-        .nav-bar::-webkit-scrollbar { 
-            display: none;  /* Chrome/Safari */
-        }
-        .nav-bar a {
-            flex: 0 0 auto; /* Prevent shrinking */
-            white-space: nowrap;
-            padding: 8px 14px;
-            font-size: 13px;
-        }
+        .nav-bar::-webkit-scrollbar { display: none; }
+        .nav-bar a { flex: 0 0 auto; white-space: nowrap; padding: 8px 14px; font-size: 13px; }
 
-        /* B. MAIN CONTENT */
-        .container {
-            padding: 20px;
-            margin: 15px auto;
-        }
-        .top-row {
-            flex-direction: column; 
-            align-items: flex-start;
-            gap: 15px;
-        }
-        .filters {
-            flex-direction: column; 
-            gap: 10px;
-        }
-        .filters input, .filters select {
-            min-width: 100%; 
-        }
-
-        /* C. NEWS GRID */
-        .news-grid {
-            grid-template-columns: 1fr; 
-        }
-
-        /* D. DETAIL PANEL */
-        .side-panel.open { 
-            width: 100%; 
-        } 
-        .panel-inner { 
-            padding: 20px; 
-            padding-top: 0; /* Let sticky header handle spacing */
-        }
+        .container { padding: 20px; margin: 15px auto; }
+        .top-row { flex-direction: column; align-items: flex-start; gap: 15px; }
+        .filters { flex-direction: column; gap: 10px; }
+        .filters input, .filters select { min-width: 100%; }
+        .news-grid { grid-template-columns: 1fr; }
+        .side-panel.open { width: 100%; } 
+        .panel-inner { padding: 20px; padding-top: 0; }
         .panel-header {
             position: sticky;
             top: 0;
             background: var(--card);
             z-index: 10;
             padding-top: 15px;
-            margin-top: 0;
             border-bottom: 1px solid var(--border-light);
         }
-        .panel-title {
-            font-size: 22px;
-        }
-        .panel-actions button {
-            width: 100%; 
-            justify-content: center;
-        }
+        .panel-title { font-size: 22px; }
+        .panel-actions button { width: 100%; justify-content: center; }
     }
 
     @media (max-width: 500px) {
-        /* Further adjustments for narrow phones */
-        .header > div {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .scroll-container {
-            width: 100%; 
-            margin-bottom: 10px;
-        }
-        #darkModeToggle {
-            margin-left: 0;
-            position: absolute; 
-            top: 15px;
-            right: 15px;
-        }
-        .logout-btn {
-            margin-top: 10px;
-        }
-        .top-row > div {
-            flex-direction: column; 
-            width: 100%;
-        }
-        .top-row > div button {
-             width: 100%;
-             justify-content: center;
-        }
-        #pagination {
-            flex-wrap: wrap; 
-        }
+        .header > div { flex-direction: column; align-items: flex-start; }
+        .scroll-container { width: 100%; margin-bottom: 10px; }
+        #darkModeToggle { margin-left: 0; position: absolute; top: 15px; right: 15px; }
+        .logout-btn { margin-top: 10px; }
+        .top-row > div { flex-direction: column; width: 100%; }
+        .top-row > div button { width: 100%; justify-content: center; }
+        #pagination { flex-wrap: wrap; }
     }
 </style>
+
 </head>
 <body>
 
@@ -683,8 +589,8 @@
         <h1 id="modeTitle">Manage News</h1>
 
         <div style="display:flex; gap:10px;">
-            <button id="showNewsBtn" class="btn btn-viewmode"><i class="fas fa-newspaper"></i> View News</button>
-            <button id="showReportsBtn" class="btn btn-viewmode"><i class="fas fa-clipboard-list"></i> View Reports</button>
+            <button id="showNewsBtn" class="btn btn-viewmode"><i class="fas fa-newspaper"></i> </button>
+            <button id="showReportsBtn" class="btn btn-viewmode"><i class="fas fa-clipboard-list"></i> </button>
         </div>
     </div>
 
@@ -715,11 +621,10 @@
         </div>
 
         <div class="panel-meta">
-            <p id="panelDate"><i class="fas fa-calendar-alt"></i> Date: N/A</p>
-            <p id="panelLocation"><i class="fas fa-map-marker-alt"></i> Location: N/A</p>
-            <p id="panelCats"><i class="fas fa-tags"></i> Categories: N/A</p>
-        </div>
-
+    <p id="panelDate"><i class="fas fa-calendar-alt"></i> Date: N/A</p>
+    <p id="panelLocation"><i class="fas fa-map-marker-alt"></i> Location: N/A</p>
+    <p id="panelReporter"><i class="fas fa-user-edit"></i> Reporter: N/A</p> <p id="panelSource"><i class="fas fa-link"></i> Source: N/A</p>      <p id="panelCats"><i class="fas fa-tags"></i> Categories: N/A</p>
+     </div>
         <div class="panel-actions" style="border-top:none; padding-top: 0;">
             <span id="panelVerifiedBadge" class="badge" style="display:none"></span>
             <span id="panelApprovedBadge" class="badge" style="display:none"></span>
@@ -740,83 +645,43 @@
 
     </div>
 </aside>
+
 <script>
 // =================================================================
-// 🚀 CIEPD ADMIN DASHBOARD JAVASCRIPT LOGIC
+// 🚀 CIEPD ADMIN DASHBOARD JAVASCRIPT LOGIC (NEWS ONLY MODE)
 // =================================================================
 
-// Helper function to get element by ID
 const el = (id) => document.getElementById(id);
 
-// ⭐ FIX: Add helper function to escape strings for use in HTML onclick attributes
 function escapeHtmlAttribute(str) {
     if (str === null || str === undefined) return '';
-    // Escapes single quotes ('), backslashes (\), newlines (\n), and carriage returns (\r)
     return String(str).replace(/'/g, "\\'").replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '');
 }
-// ⭐ END FIX
 
 const BASE_URL =
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
         ? "http://localhost:3000"
-        : ""; // Use relative path for deployed service
+        : "";
+
+const socket = io(BASE_URL);
 
 let currentPage = 1;
 const pageSize = 40;
-let currentMode = "news"; // "news" or "reports"
+
+// Listen for real-time news events
+socket.on("news:new", () => { loadItems(); });
 
 /***********************
-    HELPER: MODE SWITCHING
-************************/
-function setMode(mode) {
-    currentMode = mode;
-    currentPage = 1;
-
-    // Update Title
-    el("modeTitle").innerText = mode === "news" ? "Manage News" : "Manage Reports";
-
-    // Update Button Active State
-    const newsBtn = el("showNewsBtn");
-    const reportsBtn = el("showReportsBtn");
-
-    newsBtn.classList.toggle('inactive', mode !== 'news');
-    newsBtn.style.background = mode === 'news' ? 'var(--primary)' : '';
-    newsBtn.style.color = mode === 'news' ? 'white' : '';
-
-    reportsBtn.classList.toggle('inactive', mode !== 'reports');
-    reportsBtn.style.background = mode === 'reports' ? 'var(--primary)' : '';
-    reportsBtn.style.color = mode === 'reports' ? 'white' : '';
-
-    // Toggle Category Filter
-    if (mode === 'news') {
-        loadCategories();
-    } else {
-        el("categoryFilter").style.display = 'none';
-        el("categoryFilter").value = ""; // Reset filter
-    }
-
-    loadItems();
-}
-
-el("showNewsBtn").onclick = () => setMode("news");
-el("showReportsBtn").onclick = () => setMode("reports");
-
-
-/***********************
-    LOAD CATEGORIES (NEWS ONLY)
+    LOAD CATEGORIES
 ************************/
 async function loadCategories(){
-    el("categoryFilter").style.display = 'block';
     try{
         const res = await fetch(`${BASE_URL}/api/news/categories`);
         const data = await res.json();
-
         const filter = el("categoryFilter");
         filter.innerHTML = `<option value="">All Categories</option>`;
-        data.forEach(c => {
-            filter.innerHTML += `<option value="${c}">${c}</option>`;
-        });
+        data.forEach(c => { filter.innerHTML += `<option value="${c}">${c}</option>`; });
     }catch(e){ console.error("Error loading categories:", e); }
 }
 
@@ -824,20 +689,22 @@ async function loadCategories(){
     OPEN SIDE PANEL
 ************************/
 function openPanel(n){
-    // Reset side panel scroll
     el("sidePanel").scrollTop = 0;
-
-    // Set content
-    el("panelTitle").innerText = n.title || n.incidentType || "Item Details";
+    el("panelTitle").innerText = n.title || "Item Details";
     el("panelShort").innerText = n.description || n.summary || "No short description provided.";
     el("panelContent").innerText = n.content || n.details || "No full content provided.";
-
-    // Meta Data
     el("panelDate").innerHTML = `<i class="fas fa-calendar-alt"></i> Date: ${new Date(n.createdAt).toLocaleString()}`;
     el("panelLocation").innerHTML = `<i class="fas fa-map-marker-alt"></i> Location: ${n.location || n.state || "N/A"}`;
-    el("panelCats").innerHTML = `<i class="fas fa-tags"></i> Categories: ${(n.categories || n.tags || []).join(", ") || "N/A"}`;
+    
+    const reporter = n.reporterName || n.author || "Anonymous";
+    const source = n.source || n.organization || "Direct Report";
+    
+    el("panelCats").innerHTML = `
+        <i class="fas fa-user-edit"></i> Reporter: ${reporter} <br>
+        <i class="fas fa-link"></i> Source: ${source} <br>
+        <i class="fas fa-tags"></i> Categories: ${(n.categories || n.tags || []).join(", ") || "N/A"}
+    `;
 
-    /* VERIFIED badge */
     const v = el("panelVerifiedBadge");
     v.style.display="inline-block";
     if(n.verified){
@@ -847,274 +714,143 @@ function openPanel(n){
         v.className="badge unverified";
         v.innerText="NOT VERIFIED";
     }
+    if(n.escalated) {
+        v.innerHTML += `</span> <span class="badge" style="background:var(--warning); color:var(--accent); margin-left:5px;">🔥 ESCALATED`;
+    }
 
-    /* APPROVED badge - REMOVED */
-
-    // ⭐ FIX: Escape the variables before inserting them into the HTML string
     const escapedId = escapeHtmlAttribute(n._id);
-    const escapedTitle = escapeHtmlAttribute(n.title || n.incidentType);
+    const escapedTitle = escapeHtmlAttribute(n.title);
     const escapedContent = escapeHtmlAttribute(n.content || n.details);
 
-    /* Action Buttons (Updated to include Escalate, Removed Approve) */
     el("panelButtons").innerHTML = `
-        <button class="btn btn-escalate"
-            onclick="escalateItem('${escapedId}')"><i class="fas fa-exclamation-triangle"></i> Escalate</button>
-
-        <button class="btn btn-verify" style="display:${n.verified?'none':''}"
-            onclick="verifyItem('${escapedId}')"><i class="fas fa-check"></i> Verify</button>
-
+        <button class="btn btn-escalate" onclick="escalateItem('${escapedId}')"><i class="fas fa-exclamation-triangle"></i> Escalate</button>
+        <button class="btn btn-verify" style="display:${n.verified?'none':''}" onclick="verifyItem('${escapedId}')"><i class="fas fa-check"></i> Verify</button>
         <button class="btn btn-analyze" onclick="analyzeItem(this, '${escapedId}', '${escapedTitle}', '${escapedContent}')"><i class="fas fa-brain"></i> AI Analyze</button>
-
-        <button class="btn btn-delete"
-            onclick="deleteItem('${escapedId}')"><i class="fas fa-trash"></i> Delete</button>
+        <button class="btn btn-delete" onclick="deleteItem('${escapedId}')"><i class="fas fa-trash"></i> Delete</button>
     `;
-
     el("sidePanel").classList.add("open");
 }
 
 el("panelBack").onclick = () => el("sidePanel").classList.remove("open");
 
-// ----------------------------------------------------
-// AI Analyze Function (Refined)
-// ----------------------------------------------------
+/***********************
+    AI ANALYZE
+************************/
 async function analyzeItem(analyzeBtn, id, title, content) {
     const contentBlock = el('panelContent');
-
-    // Save original content for restoration
     const originalContent = contentBlock.innerText;
-
-    // 1. Set Loading State
-    contentBlock.innerHTML = `<p style="text-align:center; color: var(--primary); font-weight: 600;">
-        <i class="fas fa-spinner fa-spin"></i> Sending to AI for analysis...
-    </p>`;
+    contentBlock.innerHTML = `<p style="text-align:center; color: var(--primary); font-weight: 600;"><i class="fas fa-spinner fa-spin"></i> Analyzing...</p>`;
     analyzeBtn.disabled = true;
-    analyzeBtn.innerHTML = `<i class="fas fa-cog fa-spin"></i> Analyzing...`;
-
     try {
-        // 2. Send Request to Backend AI Endpoint
         const response = await fetch(`${BASE_URL}/api/ai/analyze-item`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                itemId: id,
-                mode: currentMode,
-                title: title,
-                content: content
-            })
+            body: JSON.stringify({ itemId: id, mode: "news", title, content })
         });
-
-        if (!response.ok) {
-            throw new Error('AI analysis failed or timed out.');
-        }
-
         const result = await response.json();
-
-        // 3. Display Results
-        const severityColor =
-            (result.severity > 7 ? 'var(--danger)' :
-             result.severity > 4 ? 'var(--warning)' :
-             'var(--success)');
-
+        const severityColor = (result.severity > 7 ? 'var(--danger)' : result.severity > 4 ? 'var(--warning)' : 'var(--success)');
         contentBlock.innerHTML = `
             <div style="background: var(--bg-light); padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px;">
-                <h4 style="margin-top: 0; color: var(--primary);">🤖 AI Analysis Result</h4>
-                <p><strong>Severity:</strong> <span style="font-weight: 700; color: ${severityColor}">${result.severity || 'N/A'}</span></p>
-                <p><strong>Type:</strong> ${result.incidentType || 'N/A'}</p>
-                <p style="white-space: pre-wrap;"><strong>Summary:</strong> ${result.summary || 'No summary provided.'}</p>
+                <h4 style="margin-top: 0; color: var(--primary);">🤖 AI Result</h4>
+                <p><strong>Severity:</strong> <span style="color: ${severityColor}">${result.severity || 'N/A'}</span></p>
+                <p style="white-space: pre-wrap;"><strong>Summary:</strong> ${result.summary || 'N/A'}</p>
             </div>
-            <h4>Original Content/Details</h4>
-            <div style="white-space: pre-wrap; font-size: 0.9em;">${originalContent}</div>
-        `;
-
+            <h4>Original Details</h4><div style="white-space: pre-wrap;">${originalContent}</div>`;
     } catch (error) {
-        // 4. Handle Errors
-        contentBlock.innerHTML = `
-            <div style="background: var(--bg-light); padding: 15px; border-radius: 8px; border-left: 5px solid var(--danger); margin-bottom: 20px;">
-                <h4 style="margin-top: 0; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Analysis Error</h4>
-                <p>Could not reach AI service or received an invalid response.</p>
-                <p style="font-size: 0.8em; white-space: pre-wrap;">Details: ${error.message}</p>
-            </div>
-            <h4>Original Content/Details</h4>
-            <div style="white-space: pre-wrap; font-size: 0.9em;">${originalContent}</div>
-        `;
-        console.error("AI Analysis Error:", error);
+        contentBlock.innerHTML = `<p style="color:var(--danger)">Error during analysis.</p><div>${originalContent}</div>`;
     } finally {
         analyzeBtn.disabled = false;
-        analyzeBtn.innerHTML = `<i class="fas fa-brain"></i> AI Analyze`;
     }
 }
 
-
-// ----------------------------------------------------
-// ⭐ NEW ESCALATE ACTION HANDLER ⭐
-// ----------------------------------------------------
-const escalateItem = (id) => performAction(id, 'escalate', 'PUT', 'Item successfully escalated to the Urgent queue!');
-
+/***********************
+    ACTION HANDLERS
+************************/
+const escalateItem = (id) => performAction(id, 'escalate', 'PUT');
 const verifyItem = (id) => performAction(id, 'verify');
 const deleteItem = (id) => performAction(id, 'delete', 'DELETE');
 
-
-/***********************
-    ACTION HANDLERS (Verify, Delete, Escalate)
-************************/
-async function performAction(id, action, method = 'PUT', successMessage) {
-    const modeEndpoint = currentMode === "news" ? "news" : "reports";
-    const endpoint = `/api/${modeEndpoint}/${action}/${id}`;
-
+async function performAction(id, action, method = 'PUT') {
     try {
-        if (action === 'delete' && !confirm("Are you sure you want to permanently delete this item?")) return;
-        
-        const res = await fetch(`${BASE_URL}${endpoint}`, { method: method });
-
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error("Server Error:", errorText);
-            throw new Error(`Server returned error ${res.status}. Check your routes.`);
-        }
-
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || `${action} failed.`);
-
-        if (action === 'verify') {
-            el("panelVerifiedBadge").className = "badge verified";
-            el("panelVerifiedBadge").innerText = "VERIFIED";
-            document.querySelector(".btn-verify").style.display = "none";
-        } else if (action === 'escalate') {
-            // ⭐ Update UI immediately for Escalation
-            el("panelVerifiedBadge").className = "badge verified";
-            el("panelVerifiedBadge").innerText = "VERIFIED";
-            alert(successMessage);
-        } else if (action === 'delete') {
-            el("sidePanel").classList.remove("open");
-            document.querySelector(`[data-id="${id}"]`)?.remove();
-        }
-        
+        if (action === 'delete' && !confirm("Delete permanently?")) return;
+        const res = await fetch(`${BASE_URL}/api/news/${action}/${id}`, { method });
+        if (action === 'delete') el("sidePanel").classList.remove("open");
         loadItems();
-    } catch (error) {
-        alert("Action Error: " + error.message);
-        console.error(`Error during ${action}:`, error);
-    }
+    } catch (error) { alert("Action Error: " + error.message); }
 }
 
-
 /***********************
-    LOAD ITEMS (NEWS + REPORTS)
+    LOAD & RENDER ITEMS
 ************************/
 async function loadItems(){
-    const statusEl = el("status");
-    statusEl.style.display="flex";
-
+    if(el("status")) el("status").style.display="flex";
     const search = el("search").value.toLowerCase();
     const category = el("categoryFilter").value;
-
-    let url = "";
-
-    if(currentMode === "news"){
-        url = `/api/news?page=${currentPage}&limit=${pageSize}&search=${search}&category=${category}`;
-    } else {
-        url = `/api/reports?page=${currentPage}&limit=${pageSize}&search=${search}`;
-    }
-
+    const url = `/api/news?page=${currentPage}&limit=${pageSize}&search=${search}&category=${category}`;
+    
     try {
         const res = await fetch(`${BASE_URL}${url}`);
         const data = await res.json();
-
-        renderItems(data.items);
-        renderPagination(data.totalPages);
-    } catch (error) {
-        console.error("Error fetching items:", error);
-        el("newsGrid").innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--danger);padding:30px;">
-            <i class="fas fa-exclamation-triangle"></i> Failed to load data from the server.
-        </div>`;
-        renderPagination(0);
-    }
-
-    statusEl.style.display="none";
+        renderItems(data.items || data);
+        renderPagination(data.totalPages || 1);
+    } catch (error) { console.error("Load Error:", error); }
+    if(el("status")) el("status").style.display="none";
 }
 
-/***********************
-    RENDER CARDS (NEWS + REPORTS)
-************************/
 function renderItems(items){
     const grid = el("newsGrid");
     grid.innerHTML = "";
-
     if(!items || items.length === 0){
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px;">
-            <i class="fas fa-info-circle"></i> No items found matching the current criteria.
-        </div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;">No news items found.</div>`;
         return;
     }
-
     items.forEach(n => {
         const card = document.createElement("div");
         card.className = "news-card";
-        card.setAttribute("data-id", n._id);
-
-        const verified = n.verified
-            ? `<span class="badge verified">VERIFIED</span>`
-            : `<span class="badge unverified">UNVERIFIED</span>`;
-            
-        const title = n.title || n.incidentType || "Untitled Incident";
-        const desc = n.description || n.summary || n.details || "No description provided.";
-        const displayDesc = desc.length > 120 ? desc.slice(0, 117) + '...' : desc;
-
+        const verified = n.verified ? `<span class="badge verified">VERIFIED</span>` : `<span class="badge unverified">UNVERIFIED</span>`;
+        const escalated = n.escalated ? `<span class="badge" style="background:var(--warning); color:var(--accent); margin-left:5px;">🔥 URGENT</span>` : '';
+        const sourceName = n.source || n.organization || "Direct Report";
+        
         card.innerHTML = `
-            <div class="badge-row">${verified}</div>
-            <h3 class="news-title">${title}</h3>
-            <p class="news-desc">${displayDesc}</p>
-            <div style="font-size: 0.8rem; color: var(--muted); margin-top: auto;">${new Date(n.createdAt).toLocaleDateString()}</div>
-        `;
-
+            <div class="badge-row">${verified} ${escalated}</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase;"><i class="fas fa-link"></i> ${sourceName}</div>
+            <h3 class="news-title">${n.title || "Untitled"}</h3>
+            <p class="news-desc">${(n.description || n.summary || "").slice(0, 100)}...</p>
+            <div style="font-size: 0.8rem; color: var(--muted); margin-top: auto; display: flex; justify-content: space-between;">
+                <span><i class="fas fa-clock"></i> ${new Date(n.createdAt).toLocaleDateString()}</span>
+                <span><i class="fas fa-user"></i> ${n.reporterName || n.author || 'Anon'}</span>
+            </div>`;
         card.onclick = () => openPanel(n);
         grid.appendChild(card);
     });
 }
 
-/***********************
-    PAGINATION
-************************/
 function renderPagination(total){
     const p = el("pagination");
     p.innerHTML = "";
-
     if(!total || total <= 1) return;
-
     const prev = document.createElement("button");
     prev.textContent = "⬅ Previous";
     prev.disabled = currentPage === 1;
     prev.onclick = () => { currentPage--; loadItems(); };
-
     const next = document.createElement("button");
     next.textContent = "Next ➡";
     next.disabled = currentPage === total;
     next.onclick = () => { currentPage++; loadItems(); };
-
     const info = document.createElement("span");
     info.className = "page-info";
     info.textContent = `Page ${currentPage} of ${total}`;
-
     p.append(prev, info, next);
 }
 
-/***********************
-    EVENTS & INIT
-************************/
-el("search").addEventListener("input", () => {
-    currentPage = 1;
-    loadItems();
-});
-
-el("categoryFilter").addEventListener("change", () => {
-    currentPage = 1;
-    loadItems();
-});
-
+// Events
+el("search").addEventListener("input", () => { currentPage = 1; loadItems(); });
+el("categoryFilter").addEventListener("change", () => { currentPage = 1; loadItems(); });
 el("refreshBtn").onclick = loadItems;
 
-// Initial Setup
-setMode("news"); // Start in 'news' mode
+// Initialize
+loadCategories();
+loadItems();
 </script>
-
 </body>
 </html>

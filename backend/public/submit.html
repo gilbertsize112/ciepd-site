@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
+    <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
             const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -431,42 +431,77 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const clickedButton = e.submitter; 
   
+  // Get values
   const title = document.getElementById("title").value.trim();
   const content = document.getElementById("content").value.trim();
   const location = document.getElementById("location").value.trim();
   const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(c => c.value);
+  const newsSource = document.getElementById("newsSource").value.trim();
+  const videoLink = document.getElementById("videoLink").value.trim();
+  const firstName = document.getElementById("firstName").value.trim();
+  const email = document.getElementById("email").value.trim();
 
   if (!title || !content || !location || categories.length === 0) {
     alert("Please fill required fields and select at least one Category.");
     return;
   }
 
-  const formData = new FormData(form); 
+  // Determine if this is an Urgent/Escalated item
   const isCriticalAlert = clickedButton.classList.contains('btn-alert-dispatch');
-  formData.append('isCriticalAlert', isCriticalAlert ? 'true' : 'false');
   
+  // Logic: If it's a critical alert, we add "Urgent" to the categories
+  if(isCriticalAlert && !categories.includes("Urgent")) {
+      categories.push("Urgent");
+  }
+
+  // Create clean JSON object for the News collection
+  const newsData = {
+    title,
+    content,
+    description: `Citizen report from ${location}`, // Helper description
+    location,
+    categories,
+    newsSource,
+    videoLink,
+    reporterName: firstName || "Anonymous",
+    reporterEmail: email,
+    verified: false, 
+    escalated: isCriticalAlert // Marking it as escalated if Dispatch was clicked
+  };
+
+  // UPDATED: Points to /api/news
   const apiURL = window.location.hostname.includes("localhost")
-    ? "http://localhost:3000/api/report"
-    : "https://ciepd-backend.onrender.com/api/report";
+    ? "http://localhost:3000/api/news"
+    : "/api/news";
 
   try {
-    const res = await fetch(apiURL, { method: "POST", body: formData });
+    const res = await fetch(apiURL, { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newsData) 
+    });
+
     if (res.ok) {
-      popup.innerHTML = isCriticalAlert ? "🚨 Alert Dispatched Successfully!" : "✅ Report Submitted Successfully!";
+      popup.innerHTML = isCriticalAlert ? "🚨 Critical Alert Dispatched!" : "✅ News Submitted Successfully!";
       popup.style.display = "block";
-      setTimeout(() => { popup.style.display = "none"; form.reset(); }, 4000); 
+      setTimeout(() => { 
+          popup.style.display = "none"; 
+          form.reset(); 
+          document.getElementById("aiOutput").style.display = "none";
+      }, 4000); 
     } else {
-      alert("Error submitting report.");
+      const err = await res.json();
+      alert("Error: " + (err.error || "Submission failed"));
     }
   } catch (error) { alert("Connection error."); }
 });
 
 async function generateAI() {
   const title = document.getElementById("title").value.trim();
-  const description = document.getElementById("content").value.trim();
+  const content = document.getElementById("content").value.trim();
   const output = document.getElementById("aiOutput");
 
-  if (!description) {
+  if (!content) {
     output.style.display = "block";
     output.innerHTML = "⚠️ Please type a description first.";
     return;
@@ -475,14 +510,19 @@ async function generateAI() {
   output.style.display = "block";
   output.innerHTML = "⏳ AI is generating…";
 
+  const aiURL = window.location.hostname.includes("localhost")
+    ? "http://localhost:3000/api/ai/analyze-item"
+    : "/api/ai/analyze-item";
+
   try {
-    const res = await fetch("https://ciepd-backend.onrender.com/api/ai/analyze-report", {
+    const res = await fetch(aiURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description })
+      body: JSON.stringify({ title, content, mode: "news" })
     });
     const data = await res.json();
-    output.innerHTML = data.analysis || "AI returned no analysis.";
+    
+    output.innerHTML = `<strong>AI Analysis:</strong><br>${data.summary || "AI could not generate a summary."}`;
   } catch (e) { output.innerHTML = "❌ AI Service Error."; }
 }
 </script>
