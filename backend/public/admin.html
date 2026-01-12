@@ -20,9 +20,6 @@
 <script src="/socket.io/socket.io.js"></script>
 
 <style>
-    /* ---------------------------------------------------- */
-    /* 1. COLOR PALETTE & GLOBAL RESET */
-    /* ---------------------------------------------------- */
     :root{
         --primary: #0077b6; /* CIEPD Blue */
         --secondary: #00b4d8;
@@ -369,7 +366,13 @@
     }
     .verified{ background:var(--success); }
     .unverified{ background:var(--danger); }
-    .approved{ background:var(--primary); }
+    
+    /* REMOVAL UPDATE: Hide Approved badges and buttons via CSS */
+    .approved, 
+    .btn-approve,
+    #panelApprovedBadge { 
+        display: none !important; 
+    }
 
     /* ---------------------------------------------------- */
     /* 7. PAGINATION */
@@ -474,7 +477,6 @@
     }
     
     .btn-verify{ background:var(--success); color:white; }
-    .btn-approve{ background:var(--primary); color:white; }
     .btn-analyze{ background:var(--accent); color:white; } 
     .btn-delete{ background:var(--danger); color:white; }
 
@@ -738,7 +740,6 @@
 
     </div>
 </aside>
-
 <script>
 // =================================================================
 // 🚀 CIEPD ADMIN DASHBOARD JAVASCRIPT LOGIC
@@ -847,31 +848,20 @@ function openPanel(n){
         v.innerText="NOT VERIFIED";
     }
 
-    /* APPROVED badge */
-    const a = el("panelApprovedBadge");
-    if(n.approved){
-        a.style.display="inline-block";
-        a.className="badge approved";
-        a.innerText="APPROVED";
-    } else {
-        a.style.display="none";
-    }
+    /* APPROVED badge - REMOVED */
 
     // ⭐ FIX: Escape the variables before inserting them into the HTML string
     const escapedId = escapeHtmlAttribute(n._id);
     const escapedTitle = escapeHtmlAttribute(n.title || n.incidentType);
     const escapedContent = escapeHtmlAttribute(n.content || n.details);
 
-    /* Action Buttons (Updated to include Escalate) */
+    /* Action Buttons (Updated to include Escalate, Removed Approve) */
     el("panelButtons").innerHTML = `
         <button class="btn btn-escalate"
             onclick="escalateItem('${escapedId}')"><i class="fas fa-exclamation-triangle"></i> Escalate</button>
 
         <button class="btn btn-verify" style="display:${n.verified?'none':''}"
             onclick="verifyItem('${escapedId}')"><i class="fas fa-check"></i> Verify</button>
-
-        <button class="btn btn-approve" style="display:${n.approved?'none':''}"
-            onclick="approveItem('${escapedId}')"><i class="fas fa-thumbs-up"></i> Approve</button>
 
         <button class="btn btn-analyze" onclick="analyzeItem(this, '${escapedId}', '${escapedTitle}', '${escapedContent}')"><i class="fas fa-brain"></i> AI Analyze</button>
 
@@ -961,12 +951,11 @@ async function analyzeItem(analyzeBtn, id, title, content) {
 const escalateItem = (id) => performAction(id, 'escalate', 'PUT', 'Item successfully escalated to the Urgent queue!');
 
 const verifyItem = (id) => performAction(id, 'verify');
-const approveItem = (id) => performAction(id, 'approve');
 const deleteItem = (id) => performAction(id, 'delete', 'DELETE');
 
 
 /***********************
-    ACTION HANDLERS (Verify, Approve, Delete, Escalate)
+    ACTION HANDLERS (Verify, Delete, Escalate)
 ************************/
 async function performAction(id, action, method = 'PUT', successMessage) {
     const modeEndpoint = currentMode === "news" ? "news" : "reports";
@@ -990,18 +979,10 @@ async function performAction(id, action, method = 'PUT', successMessage) {
             el("panelVerifiedBadge").className = "badge verified";
             el("panelVerifiedBadge").innerText = "VERIFIED";
             document.querySelector(".btn-verify").style.display = "none";
-        } else if (action === 'approve') {
-            el("panelApprovedBadge").style.display = "inline-block";
-            el("panelApprovedBadge").className = "badge approved";
-            el("panelApprovedBadge").innerText = "APPROVED";
-            document.querySelector(".btn-approve").style.display = "none";
         } else if (action === 'escalate') {
             // ⭐ Update UI immediately for Escalation
             el("panelVerifiedBadge").className = "badge verified";
             el("panelVerifiedBadge").innerText = "VERIFIED";
-            el("panelApprovedBadge").style.display = "inline-block";
-            el("panelApprovedBadge").className = "badge approved";
-            el("panelApprovedBadge").innerText = "APPROVED";
             alert(successMessage);
         } else if (action === 'delete') {
             el("sidePanel").classList.remove("open");
@@ -1073,17 +1054,13 @@ function renderItems(items){
         const verified = n.verified
             ? `<span class="badge verified">VERIFIED</span>`
             : `<span class="badge unverified">UNVERIFIED</span>`;
-
-        const approved = n.approved
-            ? `<span class="badge approved">APPROVED</span>`
-            : "";
             
         const title = n.title || n.incidentType || "Untitled Incident";
         const desc = n.description || n.summary || n.details || "No description provided.";
         const displayDesc = desc.length > 120 ? desc.slice(0, 117) + '...' : desc;
 
         card.innerHTML = `
-            <div class="badge-row">${verified}${approved}</div>
+            <div class="badge-row">${verified}</div>
             <h3 class="news-title">${title}</h3>
             <p class="news-desc">${displayDesc}</p>
             <div style="font-size: 0.8rem; color: var(--muted); margin-top: auto;">${new Date(n.createdAt).toLocaleDateString()}</div>
