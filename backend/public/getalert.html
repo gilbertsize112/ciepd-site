@@ -11,7 +11,7 @@
     </script>
     <script src="theme.js" defer></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CIEPD Get Alerts – Real-Time Safety Notifications</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -30,13 +30,16 @@
             --success: #06d6a0;
             --card: #ffffff;
             --bg-light: #f8feff;
-            --radius: 12px;
+            --radius: 16px;
             --border-light: #e6eef6;
-            --text-dark: #333;
+            --text-dark: #1a1a1a;
             --card-rgb: 255, 255, 255;
         }
 
-        * { box-sizing: border-box; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body { 
             margin: 0; 
@@ -44,7 +47,8 @@
             color: var(--text-dark); 
             line-height: 1.6;
             min-height: 100vh;
-            background: #f0f4f8; /* Fallback */
+            background: #f0f4f8; 
+            overflow-x: hidden;
         }
 
         /* ---------------------------------------------------- */
@@ -60,17 +64,18 @@
         }
 
         /* ========================================================== */
-        /* 1. HEADER & NAVIGATION (Matched to Admin/Submit Styles) */
+        /* 1. HEADER & NAVIGATION */
         /* ========================================================== */
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 15px 30px;
-            background: rgba(var(--card-rgb), 0.95);
-            backdrop-filter: blur(10px);
+            padding: 15px 5%;
+            background: rgba(var(--card-rgb), 0.98);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--border-light);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -79,29 +84,31 @@
         .brand {
             font-weight: 800;
             color: var(--primary);
-            font-size: 20px;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             gap: 10px;
+            text-transform: uppercase;
         }
 
-        /* MARQUEE CONTACT INFO */
         .scroll-container {
-            width: 350px;
+            width: 320px;
             overflow: hidden;
             white-space: nowrap;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            background: rgba(0, 119, 182, 0.1);
-            padding: 5px 15px;
+            background: rgba(0, 119, 182, 0.08);
+            padding: 6px 15px;
             border-radius: 20px;
             color: var(--primary);
         }
+
         .scroll-text {
             display: inline-block;
             padding-left: 100%;
             animation: scroll-left 20s linear infinite;
         }
+
         @keyframes scroll-left {
             0% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
@@ -110,37 +117,41 @@
         .topnav {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            background: rgba(var(--card-rgb), 0.85);
-            backdrop-filter: blur(8px);
+            gap: 8px;
+            padding: 12px 10px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-light);
-            flex-wrap: wrap;
             position: sticky;
-            top: 70px; /* Sits below the brand header */
+            top: 60px;
             z-index: 999;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
+
+        .topnav::-webkit-scrollbar { display: none; }
 
         .topnav a {
             text-decoration: none;
-            padding: 8px 18px;
-            border-radius: 999px;
+            padding: 10px 20px;
+            border-radius: 50px;
             color: var(--text-dark);
             font-weight: 600;
             font-size: 14px;
-            transition: 0.2s;
-            background: rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            background: white;
             border: 1px solid var(--border-light);
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
         .topnav a:hover, .topnav a.active {
             background: var(--primary);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,119,182,0.2);
+            box-shadow: 0 6px 15px rgba(0,119,182,0.2);
         }
 
         /* ========================================================== */
@@ -160,12 +171,14 @@
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(12px);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.5);
+            animation: slideIn 0.6s ease-out;
         }
 
         h2.section-title {
@@ -173,173 +186,187 @@
             font-weight: 800;
             text-align: center;
             margin-bottom: 10px;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
         .section-intro {
             text-align: center;
             color: var(--muted);
-            margin-bottom: 30px;
-            background: rgba(255,255,255,0.8);
-            padding: 15px;
-            border-radius: 12px;
+            margin-bottom: 40px;
+            background: rgba(255,255,255,0.85);
+            padding: 20px;
+            border-radius: 15px;
             max-width: 800px;
             margin-left: auto;
             margin-right: auto;
+            font-size: 1.05rem;
+            border: 1px solid white;
         }
 
         /* ---------------------------------------------------- */
         /* 3. ALERT SUBSCRIPTION FORM */
         /* ---------------------------------------------------- */
         .alert-box {
-            border-top: 6px solid var(--primary);
+            border-top: 8px solid var(--primary);
         }
 
         .alert-box h3 {
             margin-top: 0;
             color: var(--accent);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
             font-weight: 700;
             color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group input, 
         .form-group select {
             width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1.5px solid var(--border-light);
-            font-size: 1rem;
-            background: #fdfdfd;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #f0f4f8;
+            font-size: 16px; /* Prevents iOS auto-zoom */
+            background: #f9fbfd;
             transition: 0.3s;
             font-family: inherit;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(0,119,182,0.1);
+            box-shadow: 0 0 0 4px rgba(0,119,182,0.12);
+            background: white;
         }
 
         .alert-btn {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, #000 100%);
             color: white;
-            padding: 15px;
+            padding: 18px;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
             cursor: pointer;
             font-weight: 700;
             width: 100%;
-            transition: 0.3s;
+            transition: 0.4s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            font-size: 1rem;
+            gap: 12px;
+            font-size: 1.1rem;
+            margin-top: 10px;
         }
 
         .alert-btn:hover {
-            background: #000;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.2);
         }
 
         /* ---------------------------------------------------- */
         /* 4. MAP AND REPORTS */
         /* ---------------------------------------------------- */
         .map-wrapper { 
-            height: 350px;
-            margin-bottom: 25px; 
-            border-radius: 20px; 
+            height: 380px;
+            margin-bottom: 30px; 
+            border-radius: 24px; 
             overflow: hidden; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             position: relative;
-            border: 4px solid white;
+            border: 6px solid white;
         }
         
-        .map-wrapper img { width:100%; height:100%; object-fit: cover; }
+        .map-wrapper img { width:100%; height:100%; object-fit: cover; transition: 0.5s; }
         
         #alertZoneMessage {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 119, 182, 0.85); 
+            background: rgba(0, 119, 182, 0.88); 
             color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             opacity: 0;
-            transition: 0.4s ease;
-            backdrop-filter: blur(4px);
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 5;
         }
         
         #alertZoneMessage.show { opacity: 1; }
 
         .report-item { 
             background: white;
-            margin-bottom: 15px;
-            padding: 20px;
-            border-radius: 12px;
+            margin-bottom: 18px;
+            padding: 25px;
+            border-radius: 18px;
             border: 1px solid var(--border-light);
-            transition: 0.3s;
+            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .report-item:hover {
             border-color: var(--primary);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transform: scale(1.01);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
         .report-title { 
             font-weight: 700; 
             color: var(--primary); 
-            font-size: 1.1rem; 
+            font-size: 1.2rem; 
             text-decoration: none;
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
-        .report-content { font-size: 0.9rem; color: var(--text-dark); margin-bottom: 12px; }
+        .report-content { font-size: 0.95rem; color: #444; margin-bottom: 15px; line-height: 1.5; }
 
         .report-meta {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--muted);
             display: flex;
-            gap: 15px;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 10px;
+            gap: 20px;
+            border-top: 1px solid #f5f7fa;
+            padding-top: 12px;
         }
 
-        .pagination { display: flex; justify-content: center; margin-top: 30px; gap: 10px; }
+        .pagination { display: flex; justify-content: center; margin-top: 35px; gap: 15px; }
 
         .pagination button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-light);
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: 2px solid var(--border-light);
             cursor: pointer;
             background: white;
             color: var(--primary);
-            font-weight: 600;
+            font-weight: 700;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .pagination button:hover:not(:disabled) {
             background: var(--primary);
             color: white;
+            border-color: var(--primary);
         }
 
         /* ---------------------------------------------------- */
@@ -347,22 +374,33 @@
         /* ---------------------------------------------------- */
         footer { 
             text-align: center; 
-            padding: 40px 20px;
-            color: white; 
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.8); 
             background: var(--accent);
-            margin-top: 50px; 
+            margin-top: 80px; 
         }
 
-        @media (max-width: 900px) {
-            .header { flex-direction: column; padding: 10px; gap: 10px; }
-            .scroll-container { width: 100%; }
-            .topnav { top: 0; padding: 8px; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; }
-            .topnav a { white-space: nowrap; }
-            
+        @media (max-width: 992px) {
             .main-grid { grid-template-columns: 1fr; }
-            .container { margin-top: 15px; }
-            .section-title { font-size: 1.4rem; }
-            .map-wrapper { height: 250px; }
+            .container { margin-top: 20px; }
+            .header { padding: 15px 20px; }
+            .scroll-container { display: none; }
+            
+            .topnav { 
+                top: 0; 
+                padding: 10px; 
+                justify-content: flex-start;
+            }
+            
+            .section-title { font-size: 1.8rem; }
+            .section-intro { font-size: 0.95rem; margin-bottom: 25px; }
+            .map-wrapper { height: 280px; }
+            .glass-card { padding: 25px; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -401,7 +439,7 @@
                 <form id="alertForm">
                     <div class="form-group">
                         <label><i class="fas fa-phone"></i> Phone Number</label>
-                        <input id="alertPhone" type="text" placeholder="e.g. 09012345678" required>
+                        <input id="alertPhone" type="tel" placeholder="e.g. 09012345678" required>
                     </div>
 
                     <div class="form-group">
@@ -437,7 +475,7 @@
                     <button type="submit" class="alert-btn">
                         <i class="fas fa-check-circle"></i> Activate Alerts
                     </button>
-                    <p id="subscriptionMessage" style="margin-top: 15px; text-align: center; font-weight: 600; font-size: 0.9rem;"></p>
+                    <p id="subscriptionMessage" style="margin-top: 15px; text-align: center; font-weight: 700; font-size: 0.9rem;"></p>
                 </form>
             </div>
             
@@ -454,7 +492,7 @@
                     </div>
 
                     <div class="pagination">
-                        <button id="prevBtn" onclick="prevPage()" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                        <button id="prevBtn" onclick="prevPage()" disabled><i class="fas fa-chevron-left"></i> Prev</button>
                         <button id="nextBtn" onclick="nextPage()" disabled>Next <i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
@@ -465,6 +503,11 @@
     <footer> 
         <p>&copy; 2026 CIEPD Conflict/Peace Watch Center. <br> 
         <small>Securing the Niger Delta through community intelligence.</small></p>
+        <div style="margin-top: 15px; font-size: 1.2rem;">
+            <i class="fab fa-twitter" style="margin: 0 10px;"></i>
+            <i class="fab fa-facebook" style="margin: 0 10px;"></i>
+            <i class="fab fa-whatsapp" style="margin: 0 10px;"></i>
+        </div>
     </footer>
 
     <script>
@@ -476,7 +519,14 @@
             const messageEl = el("alertZoneMessage");
 
             if (location) {
-                messageEl.innerHTML = `<i class="fas fa-broadcast-tower fa-3x" style="margin-bottom:15px;"></i><br><b style="font-size:1.4rem;">Alert Zone Active</b><br>Monitoring ${location}<br>(20km Coverage Enabled)`;
+                messageEl.innerHTML = `
+                    <div style="background: white; color: var(--primary); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                        <i class="fas fa-broadcast-tower fa-2x"></i>
+                    </div>
+                    <b style="font-size:1.6rem;">Alert Zone Active</b><br>
+                    <span style="font-size: 1.1rem; opacity: 0.9;">Monitoring ${location}</span><br>
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin-top: 10px; display: inline-block;">20km Coverage Enabled</span>
+                `;
                 messageEl.classList.add('show');
             } else {
                 messageEl.classList.remove('show');
@@ -490,7 +540,6 @@
 
         async function fetchReports() {
             try {
-                // Point to your production or local backend
                 const apiURL = window.location.hostname.includes("localhost") 
                                ? 'http://localhost:3000/get-news' 
                                : 'https://ciepd-backend.onrender.com/get-news';
@@ -501,14 +550,14 @@
                 allReports = reports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 renderPage();
             } catch (err) {
-                el('reportList').innerHTML = '<p style="color: var(--danger); text-align: center;">Unable to sync with live data.</p>';
+                el('reportList').innerHTML = '<p style="color: var(--danger); text-align: center; font-weight:600;">Unable to sync with live data.</p>';
             }
         }
 
         function renderPage() {
             const container = el('reportList');
             if (allReports.length === 0) {
-                container.innerHTML = "<p style='text-align: center;'>No reports found.</p>";
+                container.innerHTML = "<p style='text-align: center; padding: 20px;'>No reports found.</p>";
                 return;
             }
 
@@ -522,11 +571,11 @@
                 const summary = report.content ? report.content.substring(0, 120) + '...' : 'Details pending...';
                 
                 div.innerHTML = `
-                    <a href="report-details.html?id=${report._id}" class="report-title">${report.title || 'Untitled'}</a>
+                    <a href="report-details.html?id=${report._id}" class="report-title">${report.title || 'Untitled Report'}</a>
                     <div class="report-content">${summary}</div>
                     <div class="report-meta">
-                        <span><i class="fas fa-calendar-alt"></i> ${new Date(report.createdAt).toLocaleDateString()}</span>
-                        <span><i class="fas fa-map-marker-alt"></i> ${report.location || 'Unknown'}</span>
+                        <span><i class="fas fa-calendar-alt" style="color: var(--primary)"></i> ${new Date(report.createdAt).toLocaleDateString()}</span>
+                        <span><i class="fas fa-map-marker-alt" style="color: var(--danger)"></i> ${report.location || 'Niger Delta'}</span>
                     </div>
                 `;
                 container.appendChild(div);
@@ -539,8 +588,8 @@
             el("nextBtn").disabled = currentPage >= Math.ceil(allReports.length / pageSize);
         }
 
-        function nextPage() { currentPage++; renderPage(); }
-        function prevPage() { currentPage--; renderPage(); }
+        function nextPage() { currentPage++; renderPage(); window.scrollTo({top: 400, behavior: 'smooth'}); }
+        function prevPage() { currentPage--; renderPage(); window.scrollTo({top: 400, behavior: 'smooth'}); }
 
         /* ---------------- ALERT SUBSCRIPTION ---------------- */
         el('alertForm').addEventListener('submit', async (event) => {
@@ -552,7 +601,7 @@
             const location = el("alertLocation").value.trim();
             const method = el("alertMethod").value.trim();
 
-            messageEl.textContent = "Processing subscription...";
+            messageEl.textContent = "⌛ Processing Secure Subscription...";
             messageEl.style.color = 'var(--primary)';
 
             if (phone.startsWith("0")) phone = "+234" + phone.substring(1); 
@@ -569,16 +618,16 @@
                 });
 
                 if (response.ok) {
-                    messageEl.textContent = `✔ Subscription active for ${location}!`;
+                    messageEl.textContent = `✔ SUCCESS: Alert active for ${location}!`;
                     messageEl.style.color = 'var(--success)';
                     el("alertForm").reset();
-                    updateAlertZoneVisual(); 
+                    setTimeout(() => { updateAlertZoneVisual(); }, 3000);
                 } else {
-                    messageEl.textContent = "Subscription error. Try again.";
+                    messageEl.textContent = "❌ Error: Could not process request.";
                     messageEl.style.color = 'var(--danger)';
                 }
             } catch (error) {
-                messageEl.textContent = "Server connection lost.";
+                messageEl.textContent = "❌ Server Connection Failed.";
                 messageEl.style.color = 'var(--danger)';
             }
         });

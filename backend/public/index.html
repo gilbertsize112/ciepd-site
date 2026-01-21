@@ -13,43 +13,16 @@
         /* 1. DESIGN VARIABLES & BASE STYLES */
         /* ---------------------------------------------------- */
         :root {
-            /* Light Mode Defaults */
-            --primary: #0077b6; /* Deep Blue */
-            --secondary: #00b4d8; /* Light Blue/Cyan */
-            --light: #caf0f8;
+            --primary: #004e89; /* Professional Navy Blue */
+            --secondary: #00b4d8; 
+            --accent: #ff9f1c; /* Alert Gold */
+            --danger: #d90429; /* Alert Red */
             --white: #ffffff;
-            --text-dark: #222;
-            --text-light: #f4f4f4;
-            --danger: #ff4d4d;
-            --bg-body: var(--primary);
-            --bg-container: rgba(255, 255, 255, 0.9);
-            --bg-header: rgba(0, 0, 0, 0.3);
-            --bg-footer: rgba(0, 0, 0, 0.3);
-            --border-color: var(--primary);
-            --shadow-color: rgba(0, 0, 0, 0.15);
-            --table-even-bg: #f5faff;
-            --table-text: #333;
-        }
-
-        /* ---------------------------------------------------- */
-        /* 1.1 DARK MODE VARIABLES */
-        /* ---------------------------------------------------- */
-        body.dark-mode {
-            /* Dark Mode Overrides */
-            --primary: #00b4d8; /* Brighter Blue */
-            --secondary: #0077b6;
-            --light: #03045e;
-            --white: #111;
-            --text-dark: #eee;
-            --text-light: #111;
-            --bg-body: #111;
-            --bg-container: rgba(18, 18, 18, 0.95);
-            --bg-header: rgba(18, 18, 18, 0.9);
-            --bg-footer: rgba(18, 18, 18, 0.9);
-            --border-color: var(--primary);
-            --shadow-color: rgba(0, 0, 0, 0.6);
-            --table-even-bg: #2a2a2a;
-            --table-text: #ddd;
+            --text-dark: #1a1a1a;
+            --bg-body: #f0f2f5;
+            --bg-container: rgba(255, 255, 255, 0.98);
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --btn-radius: 6px;
         }
 
         body {
@@ -57,12 +30,58 @@
             font-family: 'Poppins', 'Segoe UI', sans-serif;
             background-color: var(--bg-body); 
             color: var(--text-dark);
-            background-attachment: fixed;
-            transition: background-color 0.5s ease, color 0.5s ease;
+            overflow-x: hidden;
         }
-        
+
         /* ---------------------------------------------------- */
-        /* 1.5 BACKGROUND VIDEO STYLES */
+        /* 1.2 FLASH / SPLASH SCREEN */
+        /* ---------------------------------------------------- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+
+        #splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top: 6px solid var(--white);
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .splash-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 0 20px;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 1.5 BACKGROUND VIDEO */
         /* ---------------------------------------------------- */
         #bg-video {
             position: fixed;
@@ -75,413 +94,251 @@
             z-index: -100; 
             transform: translateX(-50%) translateY(-50%);
             object-fit: cover; 
-            filter: brightness(0.4); /* Slightly darker for contrast */
-            transition: filter 0.5s ease;
-        }
-        body.dark-mode #bg-video {
-             filter: brightness(0.15); /* Even darker in dark mode */
+            filter: brightness(0.5);
         }
 
         /* ---------------------------------------------------- */
-        /* 2. HEADER */
+        /* 2. HEADER & PROFESSIONAL BUTTONS */
         /* ---------------------------------------------------- */
         .header {
-            background: var(--bg-header);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
+            background: var(--primary);
+            padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: var(--text-light);
-            font-size: 20px;
-            font-weight: 600;
-            box-shadow: 0 3px 8px var(--shadow-color);
-            flex-wrap: wrap; 
-            transition: background 0.5s ease, box-shadow 0.5s ease;
-        }
-        .header span {
-            font-size: 1.2em;
+            color: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        .header-actions {
-            display: flex;
+        /* Professional Button Style (Hate Alert style) */
+        .btn-pro {
+            display: inline-flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .action-btn {
-            padding: 8px 18px;
-            background-color: var(--danger);
+            justify-content: center;
+            padding: 10px 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-radius: var(--btn-radius);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            text-decoration: none;
             border: none;
-            border-radius: 20px;
-            color: var(--white); /* White text always on danger button */
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none; 
-            text-align: center;
-        }
-        .action-btn:hover {
-            background-color: #cc0000;
-            transform: scale(1.03);
-        }
-        /* Mobile adjustment for header */
-        @media(max-width: 600px) {
-            .header {
-                flex-direction: column;
-                gap: 10px;
-                padding: 15px 10px;
-            }
-            .header-actions {
-                width: 100%;
-                justify-content: space-around;
-            }
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
+        .btn-login {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-login:hover {
+            background: #b90422;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(217, 4, 41, 0.4);
+        }
 
         /* ---------------------------------------------------- */
-        /* 2.1 DARK MODE TOGGLE STYLES */
-        /* ---------------------------------------------------- */
-        #theme-toggle {
-            cursor: pointer;
-            font-size: 24px;
-            color: var(--text-light); /* Icon color */
-            padding: 5px;
-            border-radius: 50%;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-        #theme-toggle:hover {
-            transform: scale(1.1);
-            color: var(--secondary);
-        }
-        
-        /* ---------------------------------------------------- */
-        /* 3. NAVIGATION BAR (NAV-BAR) */
+        /* 3. NAVIGATION BAR */
         /* ---------------------------------------------------- */
         .nav-bar {
             display: flex;
-            justify-content: center; /* Centered on Desktop */
-            flex-wrap: wrap; /* Allow wrapping on Desktop */
-            gap: 8px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #ffffff;
             padding: 12px 10px;
+            border-bottom: 3px solid var(--secondary);
         }
 
-        /* Mobile Responsive Navigation (Horizontal Scroll) */
+        .nav-link {
+            text-decoration: none;
+            color: var(--primary);
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 2px solid transparent;
+            border-radius: var(--btn-radius);
+            transition: 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 78, 137, 0.05);
+            border-color: var(--primary);
+        }
+
+        /* Special Nav Button */
+        .btn-special {
+            background: var(--primary);
+            color: white !important;
+        }
+
+        .btn-special:hover {
+            background: var(--secondary);
+        }
+
+        /* Mobile Responsive Nav */
         @media (max-width: 768px) {
             .nav-bar {
                 justify-content: flex-start;
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
             }
-            .nav-bar::-webkit-scrollbar {
-                display: none;
-            }
+            .nav-link { white-space: nowrap; }
+            .header { flex-direction: column; text-align: center; gap: 10px; }
         }
-
-        .nav-bar a, .nav-item-wrapper { 
-            text-decoration: none;
-            color: var(--text-light);
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid var(--text-light); /* Border uses light text color */
-            font-weight: 500;
-            transition: all 0.3s ease;
-            white-space: nowrap; 
-            display: inline-flex;
-            align-items: center;
-        }
-        .nav-bar a:hover, .nav-item-wrapper:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-        /* Special button styling (language/map) */
-        .nav-bar a.special-btn, .nav-item-wrapper.special-btn-wrapper {
-            background: var(--primary);
-            color: var(--white) !important;
-            border: 1px solid var(--secondary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .nav-bar a.special-btn:hover, .nav-item-wrapper.special-btn-wrapper:hover {
-            background: var(--secondary);
-            color: var(--white) !important;
-        }
-        body.dark-mode .nav-bar a.special-btn, 
-        body.dark-mode .nav-item-wrapper.special-btn-wrapper {
-             /* In dark mode, primary/secondary are swapped */
-            background: var(--secondary);
-            color: var(--text-light) !important;
-        }
-
 
         /* ---------------------------------------------------- */
-        /* 4. GOOGLE TRANSLATE WIDGET STYLING */
+        /* 4. LANGUAGE SELECTOR (Professionalized) */
         /* ---------------------------------------------------- */
         .language-wrapper {
             position: relative;
-            min-width: 120px; 
+            display: inline-block;
         }
 
         .language-selector-dropdown {
-            background: var(--primary);
-            color: var(--white);
-            border: 1px solid var(--secondary);
-            border-radius: 20px;
+            background: #f8f9fa;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: var(--btn-radius);
             padding: 8px 30px 8px 15px; 
-            font-size: 1em;
-            font-weight: 500;
-            width: 100%;
+            font-weight: 700;
+            font-size: 0.85rem;
             cursor: pointer;
-            
-            -webkit-appearance: none; 
-            -moz-appearance: none;
             appearance: none;
-            
-            /* Custom arrow using white SVG */
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23004e89" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
             background-repeat: no-repeat;
             background-position: right 8px center;
-            background-size: 18px;
-            transition: all 0.3s ease;
-        }
-        .language-selector-dropdown:hover {
-            background: var(--secondary);
-            color: var(--white);
-        }
-        
-        /* Dark Mode Translate Override */
-        body.dark-mode .language-selector-dropdown {
-            background: var(--secondary);
-            color: var(--text-light);
         }
 
-
-        /* Google's Widget Styling (Hidden by default) */
-        #google_translate_element_wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            z-index: 10; 
-            visibility: hidden; 
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        #google_translate_element_wrapper.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        /* Style the actual Google dropdown to match the dark/light mode */
-        #google_translate_element .goog-te-gadget-simple {
-            background: var(--primary) !important; /* Use primary color */
-            border: 1px solid var(--secondary) !important;
-            border-radius: 20px !important;
-        }
-        
-        #google_translate_element .goog-te-combo {
-            color: var(--text-light) !important;
-        }
-
-        /* Hide Google's default flag/text/branding */
-        #google_translate_element_wrapper .goog-logo-link,
-        #google_translate_element_wrapper .VIpgJd-ZVi9od-ORHb-OEVmcd {
-            display: none !important; 
-        }
-        .VIpgJd-ZVi9od-aQOPGd { 
-            display: none !important;
-        }
-        body {
-            top: 0 !important; 
-        }
-        
         /* ---------------------------------------------------- */
-        /* 5. MAIN CONTENT & COMPONENTS */
+        /* 5. MAIN CONTENT */
         /* ---------------------------------------------------- */
         .container {
-            width: 95%; 
+            width: 92%; 
             max-width: 1100px;
-            margin: 30px auto; 
+            margin: 40px auto; 
             background: var(--bg-container);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px; 
-            box-shadow: 0 8px 25px var(--shadow-color);
-            transition: background 0.5s ease, box-shadow 0.5s ease;
+            border-radius: 12px;
+            padding: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        h1, h2 {
+        h1 {
             color: var(--primary);
-            margin-top: 0;
-            border-bottom: 2px solid var(--secondary);
-            padding-bottom: 6px;
-            transition: color 0.5s ease;
+            font-size: 1.8rem;
+            border-left: 5px solid var(--secondary);
+            padding-left: 15px;
+            margin-bottom: 25px;
         }
 
-        p {
-            line-height: 1.6; 
-            font-size: 1em;
-            color: var(--table-text);
-            transition: color 0.5s ease;
-        }
-
-        /* Map Section */
         .map-container {
             display: flex;
-            gap: 20px;
-            margin: 20px 0;
-            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 40px;
             flex-wrap: wrap; 
         }
 
         .map-container img {
             width: 100%; 
-            max-width: 450px; 
-            height: auto;
-            border-radius: 12px;
-            border: 3px solid var(--border-color);
-            box-shadow: 0 8px 18px var(--shadow-color);
-            transition: transform 0.4s ease, border-color 0.5s ease;
+            max-width: 500px; 
+            border-radius: 8px;
+            box-shadow: var(--shadow);
         }
 
         .map-text {
             flex: 1;
             min-width: 300px; 
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: background 0.5s ease;
-        }
-        body.dark-mode .map-text {
-            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
         }
 
-        /* Table (Responsive Table Structure) */
+        /* Table Design */
+        .table-responsive { overflow-x: auto; }
+        
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            transition: box-shadow 0.5s ease;
+            background: white;
         }
 
-        table th, table td {
-            padding: 12px 10px; 
-            text-align: left;
-            border: none; /* Removed internal borders */
-            color: var(--table-text);
-        }
         table th {
             background: var(--primary);
-            color: var(--white);
-        }
-        table tr:nth-child(even) {
-            background-color: var(--table-even-bg);
-        }
-        table tr {
-            transition: background-color 0.5s ease;
-        }
-        table td a {
-            color: var(--primary);
-            transition: color 0.5s ease;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 0.9rem;
         }
 
-        /* Responsive Table (Vertical Layout on Mobile) */
-        @media(max-width: 600px) {
-            /* ... (keep existing mobile table styles) ... */
-            td:before { 
-                content: attr(data-label);
-                font-weight: 700;
-                color: var(--primary);
-                text-align: left;
-                line-height: 35px; 
-            }
+        table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
         }
 
+        table tr:hover { background: #f9f9f9; }
 
-        /* More Button */
-        .more {
-            display: inline-block;
+        /* View More Button */
+        .btn-more {
             background: var(--primary);
-            color: var(--white);
-            padding: 10px 22px;
-            border-radius: 25px;
-            font-weight: 600;
-            text-decoration: none;
-            margin-top: 20px;
-            transition: all 0.3s ease, background 0.5s ease;
-        }
-        .more:hover {
-            background: var(--secondary);
-            transform: scale(1.05);
+            color: white;
+            margin-top: 25px;
+            display: inline-block;
         }
 
         /* ---------------------------------------------------- */
         /* 6. FOOTER */
         /* ---------------------------------------------------- */
         footer {
-            background: var(--bg-footer);
-            backdrop-filter: blur(8px);
-            color: var(--text-light);
+            background: #111;
+            color: #ccc;
             text-align: center;
-            padding: 20px;
-            font-size: 0.9em;
-            transition: background 0.5s ease;
-        }
-        footer a {
-            color: var(--secondary);
-            text-decoration: underline;
-            transition: color 0.5s ease;
+            padding: 40px 20px;
+            margin-top: 50px;
         }
 
-        /* ---------------------------------------------------- */
-        /* 7. GENERAL RESPONSIVENESS */
-        /* ---------------------------------------------------- */
-        @media(min-width: 769px) {
-             /* Adjust map image width back on larger screens */
-            .map-container img {
-                width: 45%; 
-                min-width: 300px;
-            }
+        footer a { color: var(--secondary); }
+
+        /* Mobile adjustments for Tables */
+        @media(max-width: 600px) {
+            table thead { display: none; }
+            table tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; }
+            table td { display: flex; justify-content: space-between; align-items: center; border: none; }
+            table td::before { content: attr(data-label); font-weight: bold; color: var(--primary); }
         }
     </style>
 </head>
 <body>
+
+<div id="splash-screen">
+    <div class="spinner"></div>
+    <div class="splash-text">Welcome to CIEPD Conflict Watch Center</div>
+</div>
+
 <video autoplay loop muted id="bg-video">
     <source src="videos/vid.mp4" type="video/mp4">
     Your browser does not support the video tag.
 </video>
 
 <header class="header">
-    <span>CIEPD Conflict/Peace Watch Center</span>
+    <span style="font-weight: 700; font-size: 1.3rem;">CIEPD Conflict/Peace Watch Center</span>
     <div class="header-actions">
-        <span id="theme-toggle" class="material-icons" title="Toggle Dark/Light Mode">
-            light_mode
-        </span>
-        <a href="login.html" class="action-btn">Login</a>
+        <a href="login.html" class="btn-pro btn-login">Login</a>
     </div>
 </header>
 
 <nav class="nav-bar">
-    <a href="home.html">Home</a>
-    <a href="report.html">Reports</a>
-    <a href="submit.html">Submit a Report</a>
-    <a href="getalert.html">Get Alerts</a>
-    <a href="contact.html">Contact Us</a>
-    <a href="/admin-map.html" class="special-btn">Big Map</a>
+    <a href="home.html" class="nav-link">Home</a>
+    <a href="report.html" class="nav-link">Reports</a>
+    <a href="submit.html" class="nav-link">Submit a Report</a>
+    <a href="getalert.html" class="nav-link">Get Alerts</a>
+    <a href="contact.html" class="nav-link">Contact Us</a>
+    <a href="/admin-map.html" class="nav-link btn-special">Big Map</a>
     
-    <div class="language-wrapper special-btn-wrapper">
+    <div class="language-wrapper">
         <select id="language-menu" class="language-selector-dropdown">
-            <option value="">🌐 Language (Select)</option> 
+            <option value="">🌐 Language</option> 
             <option value="en">English</option>
             <option value="fr">French</option>
             <option value="es">Spanish</option>
@@ -489,8 +346,7 @@
             <option value="ig">Igbo</option>
             <option value="yo">Yoruba</option>
         </select>
-        
-        <div id="google_translate_element_wrapper">
+        <div id="google_translate_element_wrapper" style="display:none;">
             <div id="google_translate_element"></div>
         </div>
     </div>
@@ -502,14 +358,14 @@
     <section class="map-container">
         <img src="Nigerdelta.jpg" alt="Niger Delta Region Map" />
         <div class="map-text">
-            <h2>Our Mission</h2>
+            <h2 style="color: var(--primary);">Our Mission</h2>
             <p>
                 The CIEPD Conflict Watch Center relies on various community-based sources of information and community-specific indicators to generate analysis on potential conflict hotspots. The approach is tuned towards **predicting, tracking, monitoring, and reporting** on situations, events, and actors (individual, group, and institutional) with the capacity to cause violence. It is built on conflict **preventive measures** more than mitigating.
             </p>
         </div>
     </section>
 
-    <h2>Latest Reports</h2>
+    <h2 style="color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px;">Latest Reports</h2>
     <div class="table-responsive">
         <table>
             <thead>
@@ -521,17 +377,17 @@
             </thead>
             <tbody>
                 <tr>
-                    <td data-label="Title"><a href="report.html">Protest Erupts in Ondo Community Over Mysterious...</a></td>
+                    <td data-label="Title"><a href="report.html" style="color: var(--primary); font-weight: 600;">Protest Erupts in Ondo Community Over Mysterious...</a></td>
                     <td data-label="Location">Ondo</td>
                     <td data-label="Date">Aug 22 2025</td>
                 </tr>
                 <tr>
-                    <td data-label="Title"><a href="report.html">Tension in Edo community over alleged sale...</a></td>
+                    <td data-label="Title"><a href="report.html" style="color: var(--primary); font-weight: 600;">Tension in Edo community over alleged sale...</a></td>
                     <td data-label="Location">Edo State</td>
                     <td data-label="Date">Aug 21 2025</td>
                 </tr>
                 <tr>
-                    <td data-label="Title"><a href="report.html">Community Calls for Peace Talks Following Boundary Clash...</a></td>
+                    <td data-label="Title"><a href="report.html" style="color: var(--primary); font-weight: 600;">Community Calls for Peace Talks Following Boundary Clash...</a></td>
                     <td data-label="Location">Rivers State</td>
                     <td data-label="Date">Aug 20 2025</td>
                 </tr>
@@ -539,7 +395,7 @@
         </table>
     </div>
 
-    <a class="more" href="report.html">View More Reports</a>
+    <a class="btn-pro btn-more" href="report.html">View More Reports</a>
 </main>
 
 <footer>
@@ -548,54 +404,16 @@
 </footer>
 
 <script type="text/javascript">
-    
-    // ----------------------------------------------------
-    // 1. THEME TOGGLE LOGIC
-    // ----------------------------------------------------
-    const toggleButton = document.getElementById('theme-toggle');
-    const body = document.body;
-    const THEME_KEY = 'ciepd_theme';
+    // 1. SPLASH SCREEN LOGIC (9 Seconds)
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            const splash = document.getElementById('splash-screen');
+            splash.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Re-enable scrolling
+        }, 9000); 
+    });
 
-    /**
-     * Applies the saved or default theme on page load.
-     */
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            body.classList.add('dark-mode');
-            toggleButton.textContent = 'dark_mode'; // Set icon to Moon
-            toggleButton.title = 'Toggle Light Mode';
-        } else {
-            body.classList.remove('dark-mode');
-            toggleButton.textContent = 'light_mode'; // Set icon to Sun
-            toggleButton.title = 'Toggle Dark Mode';
-        }
-        localStorage.setItem(THEME_KEY, theme);
-    }
-
-    /**
-     * Toggles the theme between light and dark.
-     */
-    function toggleTheme() {
-        const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        applyTheme(newTheme);
-    }
-
-    // Initialize theme from localStorage or default to 'light'
-    const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
-    applyTheme(savedTheme);
-
-    // Add event listener for the toggle button
-    toggleButton.addEventListener('click', toggleTheme);
-
-
-    // ----------------------------------------------------
     // 2. GOOGLE TRANSLATE LOGIC
-    // ----------------------------------------------------
-
-    /**
-     * Initializes the Google Translate widget and includes persistence logic.
-     */
     function googleTranslateElementInit() {
         new google.translate.TranslateElement({
             pageLanguage: 'en', 
@@ -603,62 +421,23 @@
             layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false
         }, 'google_translate_element');
-        
-        const customSelector = document.getElementById('language-menu');
-        const googleWrapper = document.getElementById('google_translate_element_wrapper');
-
-        // Check for Google Translate cookie for persistence on page load
-        setTimeout(() => {
-            const googleCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('googtrans='));
-            
-            // If the cookie exists and it's not the default translation cookie for /en/en
-            if (googleCookie && !googleCookie.trim().endsWith('/en/en')) {
-                // If a translation is active, hide the custom dropdown and show the Google one
-                if (customSelector && googleWrapper) {
-                    customSelector.style.display = 'none';
-                    googleWrapper.classList.add('active');
-                }
-            }
-        }, 300); // Small delay to ensure the widget is loaded
     }
 
-    /**
-     * Handles the change event from the custom language menu.
-     */
     document.getElementById('language-menu').addEventListener('change', function() {
         const selectedLangCode = this.value;
-        const customSelector = this;
-        const googleWrapper = document.getElementById('google_translate_element_wrapper');
+        if (selectedLangCode === "") return;
         
-        if (selectedLangCode === "") {
-            return; // Exit if the user selects the default "Select" option
-        }
-        
-        // Step 1: Hide the custom selector and activate the official Google widget container
-        customSelector.style.display = 'none';
-        googleWrapper.classList.add('active');
-
-        // Step 2: Use a delay to ensure the Google widget has fully rendered its internal components
-        setTimeout(() => {
-            // Find the *actual* dropdown created by Google Translate inside its container
-            var googleSelect = document.querySelector('#google_translate_element select.goog-te-combo');
-            
-            if (googleSelect) {
-                // Set the value of the Google dropdown
-                googleSelect.value = selectedLangCode;
-                
-                // Trigger the 'change' event manually to start translation
-                if ("createEvent" in document) {
-                    var event = document.createEvent('HTMLEvents');
-                    event.initEvent('change', true, true);
-                    googleSelect.dispatchEvent(event);
-                } else {
-                    googleSelect.fireEvent('onchange');
-                }
+        var googleSelect = document.querySelector('#google_translate_element select.goog-te-combo');
+        if (googleSelect) {
+            googleSelect.value = selectedLangCode;
+            if ("createEvent" in document) {
+                var event = document.createEvent('HTMLEvents');
+                event.initEvent('change', true, true);
+                googleSelect.dispatchEvent(event);
             } else {
-                console.error("Google Translate internal select element not found after 500ms.");
+                googleSelect.fireEvent('onchange');
             }
-        }, 500); // 500ms delay for robust rendering
+        }
     });
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
