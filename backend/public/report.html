@@ -345,7 +345,11 @@
             </select>
         </div>
 
-        <div class="report-grid" id="report-grid"></div>
+        <div class="report-grid" id="report-grid">
+            <div style="text-align:center; grid-column: 1/-1; padding: 40px; color: var(--muted);">
+                <i class="fas fa-spinner fa-spin"></i> Loading reports...
+            </div>
+        </div>
         <div class="pagination" id="pagination"></div>
     </div>
 </div>
@@ -354,6 +358,13 @@
 let allReports = [];
 let currentPage = 1;
 const perPage = 12;
+
+// ⭐ BASE URL LOGIC (MATCHED FROM ADMIN.HTML)
+const BASE_URL =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000"
+        : "";
 
 /* DARK MODE LOGIC */
 const darkModeToggle = document.getElementById('darkModeToggle');
@@ -376,16 +387,19 @@ darkModeToggle.addEventListener('click', () => {
 
 /* LOAD DATA */
 loadReports();
-setInterval(loadReports, 30000);
+setInterval(loadReports, 60000);
 
 async function loadReports() {
     try {
-        const res = await fetch("/api/news?limit=5000&page=1"); 
+        // MATCHED URL STRUCTURE TO ADMIN.HTML FOR SUCCESS
+        const res = await fetch(`${BASE_URL}/api/news?limit=1000&page=1`); 
         const data = await res.json();
-        if (!data.items) return;
+        
+        // Match Admin's data handling: data.items OR data
+        const items = data.items || (Array.isArray(data) ? data : []);
 
         const seen = new Set();
-        allReports = data.items.filter(r => {
+        allReports = items.filter(r => {
             const key = r._id || r.id;
             if (seen.has(key)) return false;
             seen.add(key);
@@ -396,11 +410,14 @@ async function loadReports() {
         updateStats(allReports);
         populateCategoryDropdown(allReports);
         displayReports();
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error("Fetch Error:", e); 
+        document.getElementById("report-grid").innerHTML = `<div style="text-align:center; grid-column: 1/-1; padding: 40px; color: var(--danger);">Connection Error. Please check your internet.</div>`;
+    }
 }
 
 function updateStats(data) {
-    let verified = data.filter(n => n.verified).length;
+    let verified = data.filter(n => n.verified === true || n.verified === "true").length;
     document.getElementById("total-count").innerText = "Total: " + data.length;
     document.getElementById("verified-count").innerText = "Verified: " + verified;
     document.getElementById("unverified-count").innerText = "Unverified: " + (data.length - verified);
@@ -408,22 +425,30 @@ function updateStats(data) {
 
 function populateCategoryDropdown(data) {
     const categories = new Set();
-    data.forEach(r => { if (Array.isArray(r.categories)) r.categories.forEach(c => categories.add(c)); });
+    data.forEach(r => { 
+        if (Array.isArray(r.categories)) r.categories.forEach(c => categories.add(c)); 
+        else if (r.category) categories.add(r.category);
+    });
     const dropdown = document.getElementById("category-filter");
     const currentVal = dropdown.value;
-    dropdown.innerHTML = `<option value="">All Categories</option>`;
-    categories.forEach(c => { dropdown.innerHTML += `<option value="${c}" ${currentVal === c ? 'selected' : ''}>${c}</option>`; });
+    
+    // Only rebuild if empty or data changed
+    if(dropdown.options.length <= 1 && categories.size > 0) {
+        dropdown.innerHTML = `<option value="">All Categories</option>`;
+        categories.forEach(c => { 
+            if(c) dropdown.innerHTML += `<option value="${c}" ${currentVal === c ? 'selected' : ''}>${c}</option>`; 
+        });
+    }
 }
 
 function displayReports() {
     const grid = document.getElementById("report-grid");
-    grid.innerHTML = "";
     const search = document.getElementById("search-input").value.toLowerCase();
     const cat = document.getElementById("category-filter").value;
 
     const filtered = allReports.filter(r => {
-        const titleMatch = r.title?.toLowerCase().includes(search);
-        const catMatch = cat === "" || (Array.isArray(r.categories) && r.categories.includes(cat));
+        const titleMatch = (r.title || "").toLowerCase().includes(search);
+        const catMatch = cat === "" || (Array.isArray(r.categories) && r.categories.includes(cat)) || (r.category === cat);
         return titleMatch && catMatch;
     });
 
@@ -431,25 +456,32 @@ function displayReports() {
 
     if(paginated.length === 0) {
         grid.innerHTML = `<div style="text-align:center; grid-column: 1/-1; padding: 40px; color: var(--muted);">No reports found.</div>`;
+        return;
     }
 
+    let html = "";
     paginated.forEach(report => {
-        grid.innerHTML += `
+        // FIXED: Using "news-details.html" to match standard naming, or change to whatever your detail file is named
+        const detailLink = `news-details.html?id=${report._id || report.id}`;
+        const isVerified = report.verified === true || report.verified === "true";
+        
+        html += `
             <div class="report-card">
                 <div>
-                    <a class="report-title" href="newsdetail.html?id=${report._id || report.id}">
-                        ${report.title}
+                    <a class="report-title" href="${detailLink}">
+                        ${report.title || "Untitled"}
                     </a>
                     <div style="font-size:13px; color:var(--muted); margin-bottom:12px; font-weight: 500;">
-                        <i class="fas fa-map-marker-alt" style="color: var(--primary)"></i> ${report.location || "Nigeria"}
+                        <i class="fas fa-map-marker-alt" style="color: var(--primary)"></i> ${report.location || report.state || "Nigeria"}
                     </div>
                 </div>
-                <span class="status ${report.verified ? "verified" : "unverified"}">
-                    ${report.verified ? "<i class='fas fa-check-circle'></i> Verified" : "<i class='fas fa-clock'></i> Unverified"}
+                <span class="status ${isVerified ? "verified" : "unverified"}">
+                    ${isVerified ? "<i class='fas fa-check-circle'></i> Verified" : "<i class='fas fa-clock'></i> Unverified"}
                 </span>
             </div>
         `;
     });
+    grid.innerHTML = html;
     renderPagination(filtered.length);
 }
 
@@ -459,9 +491,23 @@ function renderPagination(total) {
     pag.innerHTML = "";
     if (pages <= 1) return;
     
-    if (currentPage > 1) pag.innerHTML += `<button onclick="currentPage--; displayReports(); scrollContainer();">Prev</button>`;
-    pag.innerHTML += `<span>${currentPage} / ${pages}</span>`;
-    if (currentPage < pages) pag.innerHTML += `<button onclick="currentPage++; displayReports(); scrollContainer();">Next</button>`;
+    if (currentPage > 1) {
+        const btn = document.createElement("button");
+        btn.innerText = "Prev";
+        btn.onclick = () => { currentPage--; displayReports(); scrollContainer(); };
+        pag.appendChild(btn);
+    }
+    
+    const info = document.createElement("span");
+    info.innerText = `${currentPage} / ${pages}`;
+    pag.appendChild(info);
+    
+    if (currentPage < pages) {
+        const btn = document.createElement("button");
+        btn.innerText = "Next";
+        btn.onclick = () => { currentPage++; displayReports(); scrollContainer(); };
+        pag.appendChild(btn);
+    }
 }
 
 function scrollContainer() {
