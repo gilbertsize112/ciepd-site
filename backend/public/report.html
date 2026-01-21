@@ -391,8 +391,8 @@ setInterval(loadReports, 60000);
 
 async function loadReports() {
     try {
-        // MATCHED URL STRUCTURE TO ADMIN.HTML FOR SUCCESS
-        const res = await fetch(`${BASE_URL}/api/news?limit=1000&page=1`); 
+        // ⭐ UPDATED LIMIT TO 5000 TO MATCH ADMIN MAP NUMBERS
+        const res = await fetch(`${BASE_URL}/api/news?limit=5000&page=1`); 
         const data = await res.json();
         
         // Match Admin's data handling: data.items OR data
@@ -407,6 +407,8 @@ async function loadReports() {
         });
 
         allReports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        // Synchronize stats and display
         updateStats(allReports);
         populateCategoryDropdown(allReports);
         displayReports();
@@ -417,10 +419,13 @@ async function loadReports() {
 }
 
 function updateStats(data) {
+    // ⭐ STRICT FILTERING TO MATCH ADMIN LOGIC (BOOLEAN AND STRING CHECK)
     let verified = data.filter(n => n.verified === true || n.verified === "true").length;
-    document.getElementById("total-count").innerText = "Total: " + data.length;
-    document.getElementById("verified-count").innerText = "Verified: " + verified;
-    document.getElementById("unverified-count").innerText = "Unverified: " + (data.length - verified);
+    
+    // Formatting with commas for professional look (e.g., 5,000)
+    document.getElementById("total-count").innerText = "Total: " + data.length.toLocaleString();
+    document.getElementById("verified-count").innerText = "Verified: " + verified.toLocaleString();
+    document.getElementById("unverified-count").innerText = "Unverified: " + (data.length - verified).toLocaleString();
 }
 
 function populateCategoryDropdown(data) {
@@ -461,7 +466,6 @@ function displayReports() {
 
     let html = "";
     paginated.forEach(report => {
-        // FIXED: Using "news-details.html" to match standard naming, or change to whatever your detail file is named
         const detailLink = `news-details.html?id=${report._id || report.id}`;
         const isVerified = report.verified === true || report.verified === "true";
         
