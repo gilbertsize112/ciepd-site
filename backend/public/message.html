@@ -1,282 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Messages | CIEPD Conflict/Peace Watch Center</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Messages | CIEPD Conflict/Peace Watch Center</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<style>
-    /* BASE STYLES & COLOR PALETTE (Consistent) */
-    :root {
-        --primary-color: #0056b3; /* Rich Blue */
-        --primary-dark: #003366; /* Deep Corporate Blue */
-        --secondary-bg: #f5f7f9; /* Off-White/Light Grey */
-        --text-dark: #2c3e50; /* Dark Charcoal */
-        --text-light: #7f8c8d; /* Subtle Grey */
-        --header-bg: #1f2937; /* Dark Grey/Near Black for Header */
-        --border-color: #e0e6ed;
-        --accent-danger: #e74c3c; /* Red for high alerts */
-        --accent-success: #27ae60; /* Green for trusted/verified */
-        --accent-warning: #f39c12; /* Yellow for unread/pending */
-    }
+    <style>
+        /* BASE STYLES & COLOR PALETTE */
+        :root {
+            --primary-color: #0056b3;
+            --primary-dark: #003366;
+            --secondary-bg: #f5f7f9;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --header-bg: #1f2937;
+            --border-color: #e0e6ed;
+            --accent-danger: #e74c3c;
+            --accent-success: #27ae60;
+            --accent-warning: #f39c12;
+            --white: #ffffff;
+        }
 
-    body {
-        font-family: 'Poppins', sans-serif;
-        background: var(--secondary-bg);
-        color: var(--text-dark);
-        margin: 0;
-        padding: 0;
-        line-height: 1.6;
-    }
-    
-    a { text-decoration: none; color: var(--primary-color); transition: 0.3s; }
-    a:hover { color: var(--primary-dark); }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--secondary-bg);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
 
-    /* ------------------------------------------- */
-    /* NEW: PREMIUM HEADER DESIGN */
-    /* ------------------------------------------- */
-    .topbar {
-        background: var(--header-bg);
-        padding: 15px 40px;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.35); /* Deeper shadow */
-    }
-    .topbar-branding {
-        display: flex;
-        align-items: center;
-        font-size: 24px;
-        font-weight: 800; /* Extra bold */
-        letter-spacing: 0.5px;
-    }
-    .topbar-branding i { 
-        margin-right: 12px; 
-        color: var(--primary-color); 
-        font-size: 28px;
-    }
-    .topbar-action-group {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    .topbar-action-group a {
-        color: #ecf0f1;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
-        transition: background-color 0.3s ease;
-    }
-    .topbar-action-group a:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-    }
-    /* Special Logout Button */
-    .topbar-action-group .logout-btn {
-        background: var(--accent-danger);
-        padding: 8px 18px;
-        border-radius: 25px;
-        color: white;
-        transition: all 0.3s ease;
-    }
-    .logout-btn:hover {
-        background: #c0392b;
-        transform: translateY(-2px);
-    }
-    
-    /* NAVIGATION BAR (Enhanced Active State) */
-    .nav-bar {
-        background-color: white; /* Changed to white for a cleaner look below the dark header */
-        padding: 10px 40px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        display: flex;
-        justify-content: flex-start;
-        gap: 25px;
-        border-bottom: 2px solid var(--border-color);
-    }
-    .nav-bar a {
-        color: var(--text-dark);
-        padding: 10px 0; /* Padding for the line effect */
-        border-bottom: 3px solid transparent; /* Base transparent border */
-        font-weight: 600;
-        font-size: 15px;
-        opacity: 0.8;
-    }
-    .nav-bar a:hover {
-        opacity: 1;
-        border-bottom-color: var(--primary-color);
-    }
-    .nav-bar a.active {
-        color: var(--primary-dark);
-        border-bottom-color: var(--primary-color); /* Highlight color */
-        font-weight: 700;
-        opacity: 1;
-    }
-    .nav-bar i { margin-right: 6px; }
+        /* ------------------------------------------- */
+        /* PREMIUM HEADER & TOPBAR */
+        /* ------------------------------------------- */
+        .topbar {
+            background: var(--header-bg);
+            padding: 12px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .topbar-branding {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .topbar-branding i { 
+            margin-right: 10px; 
+            color: var(--primary-color); 
+            font-size: 22px;
+        }
+        .topbar-action-group a {
+            color: #ecf0f1;
+            padding: 8px;
+            font-size: 18px;
+        }
 
+        /* ------------------------------------------- */
+        /* RESPONSIVE NAVIGATION (Scrollable on Mobile) */
+        /* ------------------------------------------- */
+        .nav-bar {
+            background-color: var(--white);
+            padding: 0 20px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch; /* iOS Smooth Scroll */
+        }
+        .nav-bar::-webkit-scrollbar { display: none; } /* Hide scrollbar */
 
-    /* MAIN CONTENT LAYOUT */
-    .main-content {
-        max-width: 1400px;
-        margin: 20px auto;
-        padding: 0 20px;
-    }
+        .nav-bar a {
+            color: var(--text-dark);
+            padding: 15px 5px;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            font-size: 14px;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .nav-bar a.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            opacity: 1;
+        }
 
-    /* FILTER/CHANNEL BAR (Modern Pill Style) */
-    .channel-bar {
-        background-color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-    }
-    .channel-bar a {
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 14px;
-        background: var(--secondary-bg);
-        border: 1px solid var(--border-color);
-        color: var(--text-dark);
-        transition: all 0.2s ease;
-    }
-    .channel-bar a i { color: var(--text-light); transition: color 0.2s ease; }
-    
-    .channel-bar a:hover,
-    .channel-bar a.active {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-        box-shadow: 0 4px 8px rgba(0, 86, 179, 0.2);
-    }
-    .channel-bar a:hover i,
-    .channel-bar a.active i {
-        color: white;
-    }
+        /* ------------------------------------------- */
+        /* MAIN CONTENT LAYOUT */
+        /* ------------------------------------------- */
+        .main-content {
+            max-width: 1400px;
+            margin: 15px auto;
+            padding: 0 15px;
+        }
 
-    /* STATUS FILTER BAR (Pills) */
-    .status-bar {
-        background-color: var(--border-color);
-        padding: 15px 20px;
-        border-radius: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-    }
-    .status-left {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--primary-dark);
-    }
-    /* Pill styles remain the same for consistency */
-    .status-right span {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-        color: white;
-        background-color: var(--text-light);
-    }
-    .status-right .all { background-color: var(--primary-color); }
-    .status-right .trusted { background-color: var(--accent-success); }
-    .status-right .spam { background-color: var(--accent-danger); }
-    .status-right .reporters { background-color: var(--accent-warning); }
+        /* Modern Pill Filter Bar */
+        .channel-bar {
+            background-color: var(--white);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+        .channel-bar::-webkit-scrollbar { display: none; }
+        .channel-bar a {
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .channel-bar a.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
 
+        /* Status Bar / Inbox Stats */
+        .status-bar {
+            background-color: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+        .status-left {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+        }
+        .status-right {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .status-right span {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-right .all { background-color: var(--primary-color); }
+        .status-right .trusted { background-color: var(--accent-success); }
+        .status-right .spam { background-color: var(--accent-danger); }
+        .status-right .reporters { background-color: var(--accent-warning); }
 
-    /* MESSAGE TABLE STYLES */
-    .message-container {
-        overflow-x: auto;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-    .message-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-    }
-    .message-table th, .message-table td {
-        padding: 15px 12px;
-        vertical-align: middle;
-        border-bottom: 1px solid var(--border-color);
-    }
-    .message-table th {
-        background-color: var(--primary-dark);
-        color: white;
-        font-weight: 600;
-        font-size: 12px;
-    }
-    .message-table tr:hover { background-color: #f0f4f8; cursor: pointer; }
-    
-    .post p { margin: 0; word-wrap: break-word; }
-    .info { margin: 5px 0 0 0; font-size: 12px; color: var(--text-light); font-style: italic; }
-    .info strong { color: var(--text-dark); font-weight: 600; }
-    
-    /* ------------------------------------------- */
-    /* NEW: ICON ACTION BUTTONS (IN TABLE) */
-    /* ------------------------------------------- */
-    .actions {
-        display: flex;
-        gap: 8px; /* Spacing between icon buttons */
-        min-width: 150px; /* Ensure space for actions */
-    }
-    .actions button {
-        background: var(--secondary-bg);
-        border: 1px solid var(--border-color);
-        padding: 8px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-    .actions button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .actions .report-btn {
-        color: var(--primary-dark);
-    }
-    .actions .report-btn:hover {
-        background: var(--primary-color);
-        color: white;
-    }
-    .actions .delete-btn {
-        color: white;
-        background: var(--accent-danger);
-        border-color: var(--accent-danger);
-    }
-    .actions .delete-btn:hover {
-        background: #c0392b;
-        border-color: #c0392b;
-    }
+        /* ------------------------------------------- */
+        /* MESSAGE TABLE & MOBILE CARDS */
+        /* ------------------------------------------- */
+        .message-container {
+            background: transparent;
+        }
+        
+        .message-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px; /* Space between rows */
+        }
+        .message-table thead { display: none; } /* Hide headers on mobile */
 
+        .message-table tr {
+            display: block;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
 
-    /* Responsive adjustments */
-    @media (max-width: 900px) {
-        .topbar { flex-direction: column; align-items: flex-start; }
-        .topbar-action-group { margin-top: 10px; width: 100%; justify-content: space-around; }
-        .nav-bar { padding: 10px 20px; justify-content: space-around; gap: 10px; }
-        .nav-bar a { flex-grow: 1; text-align: center; }
-        .status-bar { flex-direction: column; align-items: flex-start; }
-        .status-right { margin-top: 10px; }
-        .message-table th, .message-table td { padding: 10px 8px; }
-    }
-</style>
+        .message-table td {
+            display: block;
+            padding: 5px 0;
+            border: none;
+        }
+
+        /* Custom Labels for mobile cards */
+        .message-table td::before {
+            content: attr(data-label);
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .post p { 
+            margin: 0; 
+            font-size: 14px; 
+            font-weight: 500; 
+            color: var(--text-dark);
+        }
+        .info { 
+            margin: 10px 0 0 0; 
+            padding: 0;
+            list-style: none;
+            font-size: 12px; 
+            color: var(--primary-color);
+            background: #eef6ff;
+            padding: 8px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        /* Action Buttons - Touch Optimized */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px !important;
+        }
+        .actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .report-btn { background: var(--primary-color); color: white; }
+        .delete-btn { background: #fee2e2; color: var(--accent-danger); }
+
+        /* ------------------------------------------- */
+        /* DESKTOP REFINEMENTS (992px+) */
+        /* ------------------------------------------- */
+        @media (min-width: 992px) {
+            .topbar { padding: 15px 40px; }
+            .topbar-branding { font-size: 24px; }
+            .main-content { padding: 0 40px; }
+            
+            .message-table { border-spacing: 0; display: table; background: white; border-radius: 10px; overflow: hidden; }
+            .message-table thead { display: table-header-group; }
+            .message-table tr { display: table-row; background: transparent; box-shadow: none; border-radius: 0; border: none; }
+            .message-table td { display: table-cell; padding: 15px 12px; border-bottom: 1px solid var(--border-color); }
+            .message-table td::before { display: none; }
+            
+            .actions { border: none; padding-top: 0 !important; }
+            .actions button { flex: none; padding: 8px 15px; }
+            .message-table tr:hover { background-color: #f8fbff; }
+            
+            .status-bar { display: flex; justify-content: space-between; align-items: center; }
+            .status-left { margin-bottom: 0; }
+        }
+    </style>
 </head>
 <body>
 
@@ -285,13 +288,12 @@
         <i class="fas fa-inbox"></i> CIEPD Message Center
     </div>
     <div class="topbar-action-group">
-        <a href="#"><i class="fas fa-cog"></i> Settings</a>
-
+        <a href="#"><i class="fas fa-cog"></i></a>
     </div>
 </div>
 
 <div class="nav-bar">
-    <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="admin.html"><i class="fas fa-home"></i> Dashboard</a>
     <a href="report.html"><i class="fas fa-table"></i> Reports</a>
     <a href="message.html" class="active"><i class="fas fa-envelope"></i> Messages</a>
     <a href="#"><i class="fas fa-chart-line"></i> Stats</a>
@@ -305,6 +307,7 @@
         <a href="#" class="active"><i class="fas fa-comment-alt"></i> SMS</a>
         <a href="#"><i class="fas fa-at"></i> Email</a>
         <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+        <a href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
     </div>
 
     <div class="status-bar">
@@ -324,58 +327,71 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th><i class="fas fa-comment-dots"></i> Message Content & Source</th>
-                    <th><i class="fas fa-clock"></i> Date Received</th>
-                    <th><i class="fas fa-cogs"></i> Actions</th>
+                    <th>Message Content & Source</th>
+                    <th>Date Received</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-
                 <tr>
-                    <td>599447</td>
-                    <td>
+                    <td data-label="Message ID">#599447</td>
+                    <td data-label="Content">
                         <div class="post">
                             <p>Example content for message 599447. This message details a minor scuffle during a community town hall meeting.</p>
                         </div>
                         <ul class="info">
-                            <li>From: <strong>+234 803 850 1040</strong> <i class="fas fa-sms"></i></li>
+                            <li><i class="fas fa-sms"></i> From: <strong>+234 803 850 1040</strong></li>
                         </ul>
                     </td>
-                    <td>2018-08-26 23:11</td>
+                    <td data-label="Date">2018-08-26 23:11</td>
                     <td class="actions">
-                        <button class="report-btn" title="Convert to a formal incident report"><i class="fas fa-file-export"></i> Report</button> 
-                        <button class="delete-btn" title="Delete this message"><i class="fas fa-trash-alt"></i></button>
+                        <button class="report-btn"><i class="fas fa-file-export"></i> Report</button> 
+                        <button class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
                     </td>
                 </tr>
 
                 <tr>
-                    <td>599446</td>
-                    <td>
+                    <td data-label="Message ID">#599446</td>
+                    <td data-label="Content">
                         <div class="post">
-                            <p><a href="http://N2000.00">N2,000.00</a> was transferred to you from +234 803 493 6674 via share n sell service.</p>
+                            <p>N2,000.00 was transferred to you from +234 803 493 6674 via share n sell service.</p>
                         </div>
                         <ul class="info">
-                            <li>From: <strong>+234 777</strong> <i class="fas fa-mobile-alt"></i></li>
+                            <li><i class="fas fa-mobile-alt"></i> From: <strong>+234 777</strong></li>
                         </ul>
                     </td>
-                    <td>2018-08-26 20:26</td>
+                    <td data-label="Date">2018-08-26 20:26</td>
                     <td class="actions">
                         <button class="report-btn"><i class="fas fa-file-export"></i> Report</button> 
-                        <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+                        <button class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
                     </td>
                 </tr>
-                
-                <tr><td>599445</td><td><div class="post"><p>*600*08034836674*2000*1234#</p></div><ul class="info"><li>From: <strong>+234 803 493 6674</strong> <i class="fas fa-sms"></i></li></ul></td><td>2018-08-26 20:26</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>598575</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>+234 7070</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-08-25 14:16</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>598116</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>+234 7070</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-08-24 13:05</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>597599</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>+234 7070</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-08-23 13:11</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>597185</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>+234 7070</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-08-22 17:41</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>597184</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>+234 7070</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-08-22 09:24</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>596858</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>+234 7070</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-08-20 11:28</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>596430</td><td><div class="post"><p>Dial *777# or visit <a href="http://hsi.glo.com">hsi.glo.com</a> to buy and manage subscriptions</p></div><ul class="info"><li>From: <strong>+234 7070</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-08-19 12:35</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>584813</td><td><div class="post"><p>Dear users, please dial *577*2227*3# for subscribing gaming service. Continue browsing <a href="http://gln.reycreo.com">http://gln.reycreo.com</a></p></div><ul class="info"><li>From: <strong>+234 2227</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-07-05 17:10</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                <tr><td>584198</td><td><div class="post"><p>Dear users, please dial *577*2227*3# for subscribing gaming service. Continue browsing <a href="http://gln.reycreo.com">http://gln.reycreo.com</a></p></div><ul class="info"><li>From: <strong>+234 2227</strong> <i class="fas fa-mobile-alt"></i></li></ul></td><td>2018-07-04 09:41</td><td class="actions"><button class="report-btn"><i class="fas fa-file-export"></i> Report</button><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td></tr>
-                
+
+                <tr>
+                    <td data-label="Message ID">#599445</td>
+                    <td data-label="Content">
+                        <div class="post"><p>*600*08034836674*2000*1234#</p></div>
+                        <ul class="info"><li><i class="fas fa-sms"></i> From: <strong>+234 803 493 6674</strong></li></ul>
+                    </td>
+                    <td data-label="Date">2018-08-26 20:26</td>
+                    <td class="actions">
+                        <button class="report-btn"><i class="fas fa-file-export"></i> Report</button>
+                        <button class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td data-label="Message ID">#598575</td>
+                    <td data-label="Content">
+                        <div class="post"><p>Dial *777# or visit hsi.glo.com to buy and manage subscriptions</p></div>
+                        <ul class="info"><li><i class="fas fa-mobile-alt"></i> From: <strong>+234 7070</strong></li></ul>
+                    </td>
+                    <td data-label="Date">2018-08-25 14:16</td>
+                    <td class="actions">
+                        <button class="report-btn"><i class="fas fa-file-export"></i> Report</button>
+                        <button class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
