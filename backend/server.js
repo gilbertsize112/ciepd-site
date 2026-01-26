@@ -855,13 +855,55 @@ app.post("/subscribe-alert", async (req, res) => {
     }
 });
 
+
+// ===========================================================
+// ⭐ UPDATED: CONSOLIDATED SUBMISSION ROUTE (WITH AUTO-BACKUP)
+// ===========================================================
+app.post("/api/news", async (req, res) => {
+    try {
+        const { title, content, location, categories, reporterName, reporterEmail, escalated, newsSource, videoLink } = req.body;
+
+        const newsDoc = new News({
+            id: `user-${Date.now()}`,
+            title,
+            content,
+            description: content ? content.substring(0, 200) : "",
+            location,
+            categories: Array.isArray(categories) ? categories : [categories].filter(Boolean),
+            reporterName,
+            reporterEmail,
+            escalated: escalated === true || escalated === 'true',
+            newsSource,
+            videoLink,
+            verified: false,
+            approved: escalated === true || escalated === 'true',
+            createdAt: new Date()
+        });
+
+        const saved = await newsDoc.save();
+        
+        // ⭐ AUTO-BACKUP TO CSV
+        appendToCSV(saved);
+
+        io.emit("news:created", saved);
+
+        if (saved.escalated) {
+             notifySubscribers(saved).catch(err => console.error("Notification error:", err));
+        }
+
+        res.status(201).json({ success: true, item: saved });
+    } catch (err) {
+        console.error("SUBMISSION ERROR:", err);
+        res.status(500).json({ success: false, error: "Failed to process submission" });
+    }
+});
+
 /* =========================================================
-    NEW: submit-report endpoint (OLD - preserved as requested)
-    ========================================================= */
+    ⭐ UPDATED: submit-report endpoint (WITH AUTO-BACKUP)
+========================================================= */
 app.post("/api/submit-report", async (req, res) => {
     try {
-        const { title, content, category, location, firstName, lastName, email } =
-            req.body;
+        const { title, content, category, location } = req.body;
 
         if (!title || !content || !location) {
             return res.status(400).json({ success: false, message: "Missing fields" });
@@ -882,6 +924,9 @@ app.post("/api/submit-report", async (req, res) => {
         };
 
         const created = await News.create(doc);
+
+        // ⭐ AUTO-BACKUP TO CSV
+        appendToCSV(created);
 
         try {
             io.emit("news:created", created);
@@ -1029,6 +1074,18 @@ Details: ${news.description || (news.content || "").slice(0, 150)}
         console.error("notifySubscribers overall error:", err);
     }
 }
+
+// Helper to save new items to CSV automatically
+const appendToCSV = (item) => {
+    const filePath = path.join(__dirname, "news.csv");
+    // Format: "#", "INCIDENT TITLE", "DESCRIPTION", "LOCATION", "CATEGORY", "VERIFIED", "APPROVED", "INCIDENT DATE"
+    const row = `\n"${item.id}","${item.title}","${item.description}","${item.location}","${item.categories?.[0] || ''}","${item.verified ? 'YES' : 'NO'}","${item.approved ? 'YES' : 'NO'}","${item.createdAt}"`;
+    
+    fs.appendFile(filePath, row, (err) => {
+        if (err) console.error("❌ Failed to backup to CSV:", err);
+        else console.log("💾 News backed up to news.csv");
+    });
+};
 
 // ==========================
 // SERVER START
