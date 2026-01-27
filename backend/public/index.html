@@ -375,21 +375,9 @@
                     <th>Date</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="news-table-body">
                 <tr>
-                    <td data-label="Title"><a href="report.html" style="color: var(--primary); font-weight: 600;">Protest Erupts in Ondo Community Over Mysterious...</a></td>
-                    <td data-label="Location">Ondo</td>
-                    <td data-label="Date">Aug 22 2025</td>
-                </tr>
-                <tr>
-                    <td data-label="Title"><a href="report.html" style="color: var(--primary); font-weight: 600;">Tension in Edo community over alleged sale...</a></td>
-                    <td data-label="Location">Edo State</td>
-                    <td data-label="Date">Aug 21 2025</td>
-                </tr>
-                <tr>
-                    <td data-label="Title"><a href="report.html" style="color: var(--primary); font-weight: 600;">Community Calls for Peace Talks Following Boundary Clash...</a></td>
-                    <td data-label="Location">Rivers State</td>
-                    <td data-label="Date">Aug 20 2025</td>
+                    <td colspan="3" style="text-align:center;">Loading latest reports...</td>
                 </tr>
             </tbody>
         </table>
@@ -404,6 +392,13 @@
 </footer>
 
 <script type="text/javascript">
+    // 0. CONFIGURATION - POINTING TO RAILWAY
+    const BASE_URL =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+            ? "http://localhost:3000"
+            : "https://ciepdcwc.up.railway.app";
+
     // 1. SPLASH SCREEN LOGIC (9 Seconds)
     window.addEventListener('load', function() {
         setTimeout(function() {
@@ -439,6 +434,66 @@
             }
         }
     });
+
+    // 3. UPDATED DYNAMIC NEWS LOADING LOGIC
+    async function loadLatestNews() {
+        const tableBody = document.getElementById('news-table-body');
+        
+        try {
+            // Using BASE_URL to ensure we reach the Railway backend
+            const response = await fetch(`${BASE_URL}/api/news?limit=10&t=` + new Date().getTime());
+            const result = await response.json();
+
+            let newsItems = [];
+            
+            // Check every possible location the data might be hiding
+            if (Array.isArray(result)) {
+                newsItems = result;
+            } else if (result.news && Array.isArray(result.news)) {
+                newsItems = result.news;
+            } else if (result.data && Array.isArray(result.data)) {
+                newsItems = result.data;
+            } else if (result.reports && Array.isArray(result.reports)) {
+                newsItems = result.reports;
+            }
+
+            if (newsItems.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No recent reports available. Check Admin for unapproved posts.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = ''; // Clear loading message
+
+            // Show top 5 items
+            newsItems.slice(0, 5).forEach(item => {
+                const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                }) : 'Recently';
+
+                const row = `
+                    <tr>
+                        <td data-label="Title">
+                            <a href="report.html?id=${item._id || item.id}" style="color: var(--primary); font-weight: 600;">
+                                ${item.title}
+                            </a>
+                        </td>
+                        <td data-label="Location">${item.location || 'Community'}</td>
+                        <td data-label="Date">${date}</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+        } catch (err) {
+            console.error('Error loading news:', err);
+            tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Connection Error: Unable to reach reports.</td></tr>';
+        }
+    }
+
+    // Call on load
+    loadLatestNews();
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
