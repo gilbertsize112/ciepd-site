@@ -662,11 +662,12 @@ function escapeHtmlAttribute(str) {
     return String(str).replace(/'/g, "\\'").replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '');
 }
 
+// UPDATE: Pointing to Railway explicitly when not on localhost
 const BASE_URL =
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
         ? "http://localhost:3000"
-        : "";
+        : "https://ciepdcwc.up.railway.app";
 
 const socket = io(BASE_URL);
 
@@ -685,8 +686,10 @@ async function loadCategories(){
         const res = await fetch(`${BASE_URL}/api/news/categories`);
         const data = await res.json();
         const filter = el("categoryFilter");
-        filter.innerHTML = `<option value="">All Categories</option>`;
-        data.forEach(c => { filter.innerHTML += `<option value="${c}">${c}</option>`; });
+        if (filter) {
+            filter.innerHTML = `<option value="">All Categories</option>`;
+            data.forEach(c => { filter.innerHTML += `<option value="${c}">${c}</option>`; });
+        }
     }catch(e){ console.error("Error loading categories:", e); }
 }
 
@@ -723,7 +726,7 @@ function openPanel(n){
         v.innerHTML += `</span> <span class="badge" style="background:var(--warning); color:var(--accent); margin-left:5px;">🔥 ESCALATED`;
     }
 
-    const escapedId = escapeHtmlAttribute(n._id);
+    const escapedId = escapeHtmlAttribute(n._id || n.id);
     const escapedTitle = escapeHtmlAttribute(n.title);
     const escapedContent = escapeHtmlAttribute(n.content || n.details);
 
@@ -772,15 +775,26 @@ async function analyzeItem(analyzeBtn, id, title, content) {
     ACTION HANDLERS
 ************************/
 const escalateItem = (id) => performAction(id, 'escalate', 'PUT');
-const verifyItem = (id) => performAction(id, 'verify');
+const verifyItem = (id) => performAction(id, 'verify', 'PUT');
 const deleteItem = (id) => performAction(id, 'delete', 'DELETE');
 
 async function performAction(id, action, method = 'PUT') {
     try {
         if (action === 'delete' && !confirm("Delete permanently?")) return;
-        const res = await fetch(`${BASE_URL}/api/news/${action}/${id}`, { method });
-        if (action === 'delete') el("sidePanel").classList.remove("open");
-        loadItems();
+        
+        // Ensure we are hitting the Railway backend with correct headers
+        const res = await fetch(`${BASE_URL}/api/news/${action}/${id}`, { 
+            method: method,
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (res.ok) {
+            if (action === 'delete') el("sidePanel").classList.remove("open");
+            loadItems(); // Refresh the grid after action
+        } else {
+            console.error("Server error during action:", res.status);
+            alert("Action failed. Please check backend logs.");
+        }
     } catch (error) { alert("Action Error: " + error.message); }
 }
 
@@ -791,10 +805,12 @@ async function loadItems(){
     if(el("status")) el("status").style.display="flex";
     const search = el("search").value.toLowerCase();
     const category = el("categoryFilter").value;
-    const url = `/api/news?page=${currentPage}&limit=${pageSize}&search=${search}&category=${category}`;
+    
+    // Added cache-busting timestamp to ensure fresh data
+    const url = `${BASE_URL}/api/news?page=${currentPage}&limit=${pageSize}&search=${search}&category=${category}&t=${new Date().getTime()}`;
     
     try {
-        const res = await fetch(`${BASE_URL}${url}`);
+        const res = await fetch(url);
         const data = await res.json();
         currentItems = data.items || data; // Store data locally for export feature
         renderItems(currentItems);
@@ -805,6 +821,7 @@ async function loadItems(){
 
 function renderItems(items){
     const grid = el("newsGrid");
+    if (!grid) return;
     grid.innerHTML = "";
     if(!items || items.length === 0){
         grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;">No news items found.</div>`;
@@ -833,6 +850,7 @@ function renderItems(items){
 
 function renderPagination(total){
     const p = el("pagination");
+    if (!p) return;
     p.innerHTML = "";
     if(!total || total <= 1) return;
     const prev = document.createElement("button");

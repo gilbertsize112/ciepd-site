@@ -424,6 +424,11 @@ body {
 <div id="successPopup" class="success-popup">Alert Dispatched Successfully!</div>
 
 <script>
+// Pointing to your new Railway URL
+const BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:3000"
+    : "https://ciepdcwc.up.railway.app";
+
 const form = document.getElementById("reportForm"); 
 const popup = document.getElementById("successPopup");
 
@@ -469,10 +474,8 @@ form.addEventListener("submit", async (e) => {
     escalated: isCriticalAlert // Marking it as escalated if Dispatch was clicked
   };
 
-  // UPDATED: Points to /api/news
-  const apiURL = window.location.hostname.includes("localhost")
-    ? "http://localhost:3000/api/news"
-    : "/api/news";
+  // Construct URL for Railway
+  const apiURL = `${BASE_URL}/api/news`;
 
   try {
     const res = await fetch(apiURL, { 
@@ -510,9 +513,7 @@ async function generateAI() {
   output.style.display = "block";
   output.innerHTML = "⏳ AI is generating…";
 
-  const aiURL = window.location.hostname.includes("localhost")
-    ? "http://localhost:3000/api/ai/analyze-item"
-    : "/api/ai/analyze-item";
+  const aiURL = `${BASE_URL}/api/ai/analyze-item`;
 
   try {
     const res = await fetch(aiURL, {
