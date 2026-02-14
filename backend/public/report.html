@@ -160,23 +160,78 @@
             100% { transform: translateX(-100%); }
         }
 
-        #darkModeToggle {
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-btn {
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            padding: 10px 15px;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 8px;
             transition: var(--transition);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
         }
 
-        #darkModeToggle:hover {
+        .header-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
             background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .header-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .header-btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--secondary), #00d4e8);
+            border: none;
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 10px 30px rgba(0, 180, 216, 0.6);
+        }
+
+        .btn-text {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .btn-text {
+                display: inline;
+            }
         }
 
         /* ====== NAVIGATION ====== */
@@ -208,6 +263,26 @@
             gap: 8px;
             border: 2px solid transparent;
             position: relative;
+            overflow: hidden;
+        }
+
+        .nav-bar a::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 78, 137, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: -1;
+        }
+
+        .nav-bar a:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .nav-bar a::after {
@@ -234,6 +309,7 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
             box-shadow: 0 4px 15px rgba(0, 78, 137, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         /* ====== HERO BANNER ====== */
@@ -853,17 +929,22 @@
                 📊 Live Conflict Intelligence | Monitoring Peace & Security | Real-Time Updates | Community-Driven Data | Niger Delta Region
             </div>
         </div>
-        <button id="darkModeToggle">
-            <i class="fas fa-sun"></i>
-        </button>
+        <div class="header-actions">
+            <button id="darkModeToggle" class="header-btn">
+                <i class="fas fa-sun"></i>
+            </button>
+            <a href="submit.html" class="header-btn btn-submit">
+                <i class="fas fa-plus"></i> <span class="btn-text">Submit Report</span>
+            </a>
+        </div>
     </header>
 
     <nav class="nav-bar">
-        <a href="index.html"><i class="fas fa-home"></i> Home</a>
-        <a href="report.html" class="active"><i class="fas fa-file-alt"></i> Intelligence Reports</a>
-        <a href="submit.html"><i class="fas fa-edit"></i> Submit Report</a>
-        <a href="getalert.html"><i class="fas fa-bell"></i> Get Alerts</a>
-        <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="report.html" class="nav-link active"><i class="fas fa-file-alt"></i> Reports</a>
+        <a href="submit.html" class="nav-link"><i class="fas fa-edit"></i> Submit</a>
+        <a href="getalert.html" class="nav-link"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
     </nav>
 
     <!-- HERO BANNER -->
