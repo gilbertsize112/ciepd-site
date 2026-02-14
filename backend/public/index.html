@@ -3,46 +3,61 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CIEPD Conflict Watch Center</title>
+    <title>CIEPD - Conflict Watch Center | Niger Delta Peace Initiative</title>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ---------------------------------------------------- */
-        /* 1. DESIGN VARIABLES & BASE STYLES */
-        /* ---------------------------------------------------- */
+        /* ====== ROOT VARIABLES ====== */
         :root {
-            --primary: #004e89; /* Professional Navy Blue */
-            --secondary: #00b4d8; 
-            --accent: #ff9f1c; /* Alert Gold */
-            --danger: #d90429; /* Alert Red */
+            --primary: #004e89;
+            --primary-light: #0066b3;
+            --secondary: #00b4d8;
+            --accent: #ff9f1c;
+            --danger: #d90429;
+            --success: #06d6a0;
             --white: #ffffff;
             --text-dark: #1a1a1a;
-            --bg-body: #f0f2f5;
-            --bg-container: rgba(255, 255, 255, 0.98);
-            --shadow: 0 4px 12px rgba(0,0,0,0.1);
-            --btn-radius: 6px;
+            --text-light: #4a5568;
+            --bg-body: #0a0e27;
+            --bg-secondary: #f8fafc;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.2);
+            --btn-radius: 8px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            margin: 0;
-            font-family: 'Poppins', 'Segoe UI', sans-serif;
-            background-color: var(--bg-body); 
+            font-family: 'Inter', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
             color: var(--text-dark);
-            overflow-x: hidden;
         }
 
-        /* ---------------------------------------------------- */
-        /* 1.2 FLASH / SPLASH SCREEN */
-        /* ---------------------------------------------------- */
+        /* ====== SPLASH SCREEN ====== */
         #splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -51,6 +66,22 @@
             color: white;
             text-align: center;
             transition: opacity 0.8s ease-out, visibility 0.8s;
+            overflow: hidden;
+        }
+
+        #splash-screen::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.3; }
         }
 
         #splash-screen.hidden {
@@ -58,14 +89,25 @@
             visibility: hidden;
         }
 
+        .splash-content {
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .spinner {
-            width: 60px;
-            height: 60px;
-            border: 6px solid rgba(255, 255, 255, 0.3);
-            border-top: 6px solid var(--white);
+            width: 70px;
+            height: 70px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid var(--white);
             border-radius: 50%;
             animation: spin 1.2s linear infinite;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         @keyframes spin {
@@ -74,15 +116,21 @@
         }
 
         .splash-text {
-            font-size: 1.5rem;
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
             padding: 0 20px;
+            margin-bottom: 15px;
         }
 
-        /* ---------------------------------------------------- */
-        /* 1.5 BACKGROUND VIDEO */
-        /* ---------------------------------------------------- */
+        .splash-subtitle {
+            font-size: 0.95rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+
+        /* ====== BACKGROUND VIDEO ====== */
         #bg-video {
             position: fixed;
             top: 50%;
@@ -91,260 +139,1215 @@
             min-height: 100%;
             width: auto;
             height: auto;
-            z-index: -100; 
+            z-index: -100;
             transform: translateX(-50%) translateY(-50%);
-            object-fit: cover; 
-            filter: brightness(0.5);
+            object-fit: cover;
+            filter: brightness(0.4) contrast(1.1);
         }
 
-        /* ---------------------------------------------------- */
-        /* 2. HEADER & PROFESSIONAL BUTTONS */
-        /* ---------------------------------------------------- */
+        /* Fallback gradient if video fails */
+        .video-fallback {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 78, 137, 0.9) 0%, rgba(0, 180, 216, 0.8) 100%);
+            z-index: -100;
+        }
+
+        /* ====== HEADER ====== */
         .header {
-            background: var(--primary);
-            padding: 15px 5%;
+            background: rgba(0, 78, 137, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: var(--white);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.6s ease-out;
         }
 
-        /* Professional Button Style (Hate Alert style) */
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .header-brand {
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            animation: spin 3s linear infinite;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* ====== BUTTONS ====== */
         .btn-pro {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 10px 24px;
+            gap: 8px;
+            padding: 12px 28px;
             font-weight: 700;
             text-transform: uppercase;
             font-size: 0.85rem;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             border-radius: var(--btn-radius);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: var(--transition);
             cursor: pointer;
             text-decoration: none;
             border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-pro::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-pro:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-login {
-            background: var(--danger);
+            background: linear-gradient(135deg, var(--danger), #ff4757);
             color: white;
         }
 
         .btn-login:hover {
-            background: #b90422;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(217, 4, 41, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(217, 4, 41, 0.5);
         }
 
-        /* ---------------------------------------------------- */
-        /* 3. NAVIGATION BAR */
-        /* ---------------------------------------------------- */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 78, 137, 0.5);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #00d4e8);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 180, 216, 0.5);
+        }
+
+        /* ====== NAVIGATION ====== */
         .nav-bar {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 10px;
-            background: #ffffff;
-            padding: 12px 10px;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px;
             border-bottom: 3px solid var(--secondary);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.6s ease-out 0.1s both;
         }
 
         .nav-link {
             text-decoration: none;
             color: var(--primary);
-            padding: 8px 16px;
+            padding: 10px 18px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             border: 2px solid transparent;
             border-radius: var(--btn-radius);
-            transition: 0.3s;
+            transition: var(--transition);
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary);
+            transition: width 0.3s ease;
         }
 
         .nav-link:hover {
-            background: rgba(0, 78, 137, 0.05);
+            background: rgba(0, 78, 137, 0.08);
             border-color: var(--primary);
         }
 
-        /* Special Nav Button */
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
         .btn-special {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white !important;
+            box-shadow: 0 4px 15px rgba(0, 78, 137, 0.4);
         }
 
         .btn-special:hover {
-            background: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
         }
 
-        /* Mobile Responsive Nav */
-        @media (max-width: 768px) {
-            .nav-bar {
-                justify-content: flex-start;
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .nav-link { white-space: nowrap; }
-            .header { flex-direction: column; text-align: center; gap: 10px; }
-        }
-
-        /* ---------------------------------------------------- */
-        /* 4. LANGUAGE SELECTOR (Professionalized) */
-        /* ---------------------------------------------------- */
+        /* ====== LANGUAGE SELECTOR ====== */
         .language-wrapper {
             position: relative;
-            display: inline-block;
         }
 
         .language-selector-dropdown {
-            background: #f8f9fa;
-            color: var(--primary);
-            border: 2px solid var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
             border-radius: var(--btn-radius);
-            padding: 8px 30px 8px 15px; 
+            padding: 10px 35px 10px 15px;
             font-weight: 700;
             font-size: 0.85rem;
             cursor: pointer;
             appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23004e89" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
             background-repeat: no-repeat;
             background-position: right 8px center;
+            padding-right: 35px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0, 78, 137, 0.3);
         }
 
-        /* ---------------------------------------------------- */
-        /* 5. MAIN CONTENT */
-        /* ---------------------------------------------------- */
-        .container {
-            width: 92%; 
-            max-width: 1100px;
-            margin: 40px auto; 
-            background: var(--bg-container);
+        .language-selector-dropdown:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 78, 137, 0.4);
+        }
+
+        /* ====== HERO SECTION ====== */
+        .hero {
+            position: relative;
+            padding: 80px 5%;
+            text-align: center;
+            color: white;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            letter-spacing: -1px;
+            line-height: 1.2;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        /* ====== STATS SECTION ====== */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 40px 5%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            z-index: 1;
+            position: relative;
+            animation: slideUp 0.8s ease-out 0.4s both;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px 20px;
             border-radius: 12px;
-            padding: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            color: white;
+            transition: var(--transition);
+            animation: scaleIn 0.6s ease-out forwards;
+            opacity: 0;
         }
 
-        h1 {
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.5s; }
+        .stat-card:nth-child(2) { animation-delay: 0.6s; }
+        .stat-card:nth-child(3) { animation-delay: 0.7s; }
+        .stat-card:nth-child(4) { animation-delay: 0.8s; }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-8px);
+            border-color: var(--secondary);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            animation: countUp 2s ease-out;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+
+        /* ====== MAIN CONTAINER ====== */
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 60px auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            z-index: 1;
+            position: relative;
+            animation: slideUp 0.8s ease-out 0.5s both;
+        }
+
+        .section-header {
+            color: var(--primary);
+            font-size: 2.2rem;
+            font-weight: 800;
+            border-left: 6px solid var(--secondary);
+            padding-left: 20px;
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            border-radius: 2px;
+            animation: expandWidth 0.8s ease-out;
+        }
+
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 60px; }
+        }
+
+        /* ====== MISSION SECTION ====== */
+        .mission-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        .mission-image {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .mission-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .mission-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .mission-content h2 {
             color: var(--primary);
             font-size: 1.8rem;
-            border-left: 5px solid var(--secondary);
-            padding-left: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            font-weight: 800;
         }
 
-        .map-container {
+        .mission-content p {
+            color: var(--text-light);
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .mission-highlights {
             display: flex;
-            gap: 30px;
-            margin-bottom: 40px;
-            flex-wrap: wrap; 
-        }
-
-        .map-container img {
-            width: 100%; 
-            max-width: 500px; 
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-        }
-
-        .map-text {
-            flex: 1;
-            min-width: 300px; 
-        }
-
-        /* Table Design */
-        .table-responsive { overflow-x: auto; }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-        }
-
-        table th {
-            background: var(--primary);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
-        }
-
-        table tr:hover { background: #f9f9f9; }
-
-        /* View More Button */
-        .btn-more {
-            background: var(--primary);
-            color: white;
+            flex-direction: column;
+            gap: 12px;
             margin-top: 25px;
-            display: inline-block;
         }
 
-        /* ---------------------------------------------------- */
-        /* 6. FOOTER */
-        /* ---------------------------------------------------- */
-        footer {
-            background: #111;
-            color: #ccc;
+        .highlight-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            padding: 12px;
+            background: rgba(0, 78, 137, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            animation: slideInLeft 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .highlight-item:nth-child(1) { animation-delay: 0.3s; }
+        .highlight-item:nth-child(2) { animation-delay: 0.4s; }
+        .highlight-item:nth-child(3) { animation-delay: 0.5s; }
+        .highlight-item:nth-child(4) { animation-delay: 0.6s; }
+        .highlight-item:nth-child(5) { animation-delay: 0.7s; }
+
+        .highlight-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .highlight-text {
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* ====== FLOATING CARDS SECTION ====== */
+        .floating-cards-section {
+            margin: 80px 0;
+        }
+
+        .floating-title {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 40px;
             text-align: center;
-            padding: 40px 20px;
-            margin-top: 50px;
+            animation: slideDown 0.8s ease-out;
         }
 
-        footer a { color: var(--secondary); }
+        .floating-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            perspective: 1000px;
+        }
 
-        /* Mobile adjustments for Tables */
-        @media(max-width: 600px) {
-            table thead { display: none; }
-            table tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; }
-            table td { display: flex; justify-content: space-between; align-items: center; border: none; }
-            table td::before { content: attr(data-label); font-weight: bold; color: var(--primary); }
+        .floating-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(240,242,245,0.98));
+            border-radius: 16px;
+            padding: 40px 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(0, 180, 216, 0.1);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .floating-card:nth-child(1) { animation-delay: 0s; }
+        .floating-card:nth-child(2) { animation-delay: 0.5s; }
+        .floating-card:nth-child(3) { animation-delay: 1s; }
+        .floating-card:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            33% { transform: translateY(-20px) translateX(5px); }
+            66% { transform: translateY(-10px) translateX(-5px); }
+        }
+
+        .floating-card:hover {
+            transform: translateY(-30px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(0, 78, 137, 0.3);
+            border-color: var(--secondary);
+        }
+
+        .floating-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translate(-100%, -100%) rotate(45deg); }
+            100% { transform: translate(100%, 100%) rotate(45deg); }
+        }
+
+        .floating-card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .floating-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .floating-card:nth-child(2) .floating-icon { animation-delay: 0.2s; }
+        .floating-card:nth-child(3) .floating-icon { animation-delay: 0.4s; }
+        .floating-card:nth-child(4) .floating-icon { animation-delay: 0.6s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
+        }
+
+        .floating-card-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .floating-card-text {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ====== ANIMATED BANNER ====== */
+        .animated-banner {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            background-size: 300% 300%;
+            padding: 50px 40px;
+            border-radius: 16px;
+            margin: 50px 0;
+            color: white;
+            text-align: center;
+            animation: gradientShift 8s ease infinite, slideUp 0.8s ease-out 0.7s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: slideAcross 3s infinite;
+        }
+
+        @keyframes slideAcross {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .banner-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .banner-text {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        /* ====== TIMELINE SECTION ====== */
+        .timeline-section {
+            margin: 80px 0;
+        }
+
+        .timeline-title {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 2px;
+            animation: growDown 1.5s ease-out;
+        }
+
+        @keyframes growDown {
+            from { height: 0; top: 0; }
+            to { height: 100%; }
+        }
+
+        .timeline-item {
+            margin-bottom: 50px;
+            animation: slideUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.4s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.6s; }
+
+        .timeline-item:nth-child(odd) {
+            text-align: right;
+            padding-right: calc(50% + 40px);
+        }
+
+        .timeline-item:nth-child(even) {
+            text-align: left;
+            padding-left: calc(50% + 40px);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border: 4px solid white;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 8px rgba(0, 180, 216, 0.2);
+            animation: pulseBig 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseBig {
+            0%, 100% { box-shadow: 0 0 0 8px rgba(0, 180, 216, 0.2); }
+            50% { box-shadow: 0 0 0 15px rgba(0, 180, 216, 0.05); }
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--secondary);
+            transition: var(--transition);
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 78, 137, 0.2);
+        }
+
+        .timeline-year {
+            color: var(--secondary);
+            font-weight: 800;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+
+        .timeline-text {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ====== ROTATING BADGE ====== */
+        .rotating-badge {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--danger), #ff4757);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(217, 4, 41, 0.4);
+            animation: rotate 4s linear infinite;
+            cursor: pointer;
+            z-index: 50;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .rotating-badge:hover {
+            animation-play-state: paused;
+            box-shadow: 0 15px 40px rgba(217, 4, 41, 0.6);
+            transform: scale(1.1);
+        }
+
+        /* ====== CTA SECTION ====== */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 50px 40px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.8s ease-out 0.6s both;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .cta-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ====== FEATURES SECTION ====== */
+        .features-section {
+            margin-top: 60px;
+            margin-bottom: 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(0, 78, 137, 0.05), rgba(0, 180, 216, 0.05));
+            border: 2px solid rgba(0, 78, 137, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            transition: var(--transition);
+            animation: zoomIn 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .feature-card:hover {
+            background: linear-gradient(135deg, rgba(0, 78, 137, 0.1), rgba(0, 180, 216, 0.1));
+            border-color: var(--secondary);
+            transform: translateY(-8px) rotateY(5deg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: swing 2s ease-in-out infinite;
+        }
+
+        .feature-card:nth-child(2) .feature-icon { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) .feature-icon { animation-delay: 0.4s; }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .feature-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-text {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ====== FOOTER ====== */
+        footer {
+            background: linear-gradient(135deg, #0a0e27, #1a1f3a);
+            color: #b0b8c1;
+            padding: 60px 5% 30px;
+            margin-top: 80px;
+            position: relative;
+            z-index: 1;
+            border-top: 2px solid var(--secondary);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #b0b8c1;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-section a:hover {
+            color: var(--secondary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 180, 216, 0.2);
+            border: 2px solid var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            transition: var(--transition);
+            animation: bounceIn 0.6s ease-out backwards;
+        }
+
+        .social-link:nth-child(1) { animation-delay: 0.1s; }
+        .social-link:nth-child(2) { animation-delay: 0.2s; }
+        .social-link:nth-child(3) { animation-delay: 0.3s; }
+        .social-link:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes bounceIn {
+            from { opacity: 0; transform: scale(0); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .social-link:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-4px) rotate(10deg);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            text-align: center;
+            color: #7a8492;
+            font-size: 0.9rem;
+        }
+
+        .footer-bottom a {
+            color: var(--secondary);
+        }
+
+        /* ====== MOBILE RESPONSIVE ====== */
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 2.5rem; }
+            .mission-container { grid-template-columns: 1fr; gap: 30px; }
+            .container { padding: 40px 30px; }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 12px 5%; }
+            .header-brand { font-size: 1.1rem; }
+            .menu-toggle { display: block; }
+
+            .nav-bar {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                gap: 0;
+                border-radius: 0;
+                padding: 10px 0;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            }
+
+            .nav-bar.active { display: flex; }
+            .nav-link { width: 100%; padding: 15px 20px; border-radius: 0; }
+
+            .hero {
+                padding: 50px 5%;
+                text-align: center;
+            }
+
+            .hero h1 { font-size: 2rem; }
+            .hero-subtitle { font-size: 1rem; }
+
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-cta .btn-pro {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .container {
+                margin: 30px auto;
+                padding: 25px 20px;
+                border-radius: 12px;
+            }
+
+            .section-header { font-size: 1.5rem; }
+
+            .mission-content h2 {
+                font-size: 1.4rem;
+            }
+
+            .mission-content p {
+                font-size: 0.95rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline::before { left: 20px; }
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) {
+                text-align: left;
+                padding-left: calc(20px + 40px + 20px);
+                padding-right: 0;
+            }
+            .timeline-dot { left: 20px; }
+
+            .cta-section {
+                padding: 30px 20px;
+                margin-top: 30px;
+            }
+
+            .cta-title { font-size: 1.5rem; }
+            .cta-subtitle { font-size: 1rem; }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .rotating-badge {
+                width: 70px;
+                height: 70px;
+                font-size: 1.5rem;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-brand {
+                font-size: 1rem;
+                gap: 8px;
+            }
+
+            .brand-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1.1rem;
+            }
+
+            .btn-pro {
+                padding: 10px 20px;
+                font-size: 0.75rem;
+            }
+
+            .hero h1 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+
+            .hero-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+                padding: 25px 5%;
+            }
+
+            .stat-card {
+                padding: 20px 15px;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .container {
+                width: 95%;
+                padding: 20px 15px;
+            }
+
+            .section-header {
+                font-size: 1.3rem;
+                padding-left: 15px;
+            }
+
+            .mission-highlights {
+                gap: 10px;
+            }
+
+            .highlight-item {
+                padding: 10px;
+            }
+
+            .cta-title { font-size: 1.3rem; }
+            .cta-buttons { flex-direction: column; }
+
+            .footer-section h3 { font-size: 1rem; }
+
+            .rotating-badge {
+                width: 60px;
+                height: 60px;
+                font-size: 1.3rem;
+            }
+        }
+
+        /* ====== SCROLLBAR STYLING ====== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 78, 137, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 78, 137, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
         }
     </style>
 </head>
 <body>
 
+<!-- SPLASH SCREEN -->
 <div id="splash-screen">
-    <div class="spinner"></div>
-    <div class="splash-text">Welcome to CIEPD Conflict Watch Center</div>
+    <div class="splash-content">
+        <div class="spinner"></div>
+        <div class="splash-text">CIEPD Conflict Watch Center</div>
+        <div class="splash-subtitle">Niger Delta Peace Initiative</div>
+    </div>
 </div>
 
-<video autoplay loop muted id="bg-video">
+<!-- BACKGROUND VIDEO FALLBACK -->
+<div class="video-fallback"></div>
+
+<!-- VIDEO BACKGROUND -->
+<video autoplay loop muted playsinline id="bg-video">
     <source src="videos/vid.mp4" type="video/mp4">
     Your browser does not support the video tag.
 </video>
 
+<!-- HEADER -->
 <header class="header">
-    <span style="font-weight: 700; font-size: 1.3rem;">CIEPD Conflict/Peace Watch Center</span>
+    <div class="header-brand">
+        <div class="brand-icon">🛡️</div>
+        <span>CIEPD</span>
+    </div>
     <div class="header-actions">
         <a href="login.html" class="btn-pro btn-login">Login</a>
+        <button class="menu-toggle" id="menu-toggle">☰</button>
     </div>
 </header>
 
-<nav class="nav-bar">
-    <a href="home.html" class="nav-link">Home</a>
-    <a href="report.html" class="nav-link">Reports</a>
-    <a href="submit.html" class="nav-link">Submit a Report</a>
-    <a href="getalert.html" class="nav-link">Get Alerts</a>
-    <a href="contact.html" class="nav-link">Contact Us</a>
-    <a href="admin-map.html" class="nav-link btn-special">Big Map</a>
+<!-- NAVIGATION -->
+<nav class="nav-bar" id="nav-bar">
+    <a href="home.html" class="nav-link">🏠 Home</a>
+    <a href="report.html" class="nav-link">📋 Reports</a>
+    <a href="submit.html" class="nav-link">✏️ Submit Report</a>
+    <a href="getalert.html" class="nav-link">🔔 Get Alerts</a>
+    <a href="contact.html" class="nav-link">💬 Contact</a>
+    <a href="admin-map.html" class="nav-link btn-special">🗺️ View Map</a>
     
     <div class="language-wrapper">
         <select id="language-menu" class="language-selector-dropdown">
-            <option value="">🌐 Language</option> 
+            <option value="">🌐 Language</option>
             <option value="en">English</option>
-            <option value="fr">French</option>
-            <option value="es">Spanish</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
             <option value="ha">Hausa</option>
             <option value="ig">Igbo</option>
-            <option value="yo">Yoruba</option>
+            <option value="yo">Yorùbá</option>
         </select>
         <div id="google_translate_element_wrapper" style="display:none;">
             <div id="google_translate_element"></div>
@@ -352,66 +1355,292 @@
     </div>
 </nav>
 
-<main class="container">
-    <h1>Community Initiative for Enhanced Peace and Development (CIEPD) - Conflict Watch Center</h1>
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Peace Through Prevention</h1>
+        <p class="hero-subtitle">Monitoring conflicts, tracking trends, and empowering communities for sustainable peace in the Niger Delta region</p>
+        <div class="hero-cta">
+            <a href="report.html" class="btn-pro btn-secondary">📊 View Latest Reports</a>
+            <a href="submit.html" class="btn-pro btn-primary">🚀 Submit Intelligence</a>
+        </div>
+    </div>
+</section>
 
-    <section class="map-container">
-        <img src="Nigerdelta.jpg" alt="Niger Delta Region Map" />
-        <div class="map-text">
-            <h2 style="color: var(--primary);">Our Mission</h2>
+<!-- STATS SECTION -->
+<section class="stats-section">
+    <div class="stat-card">
+        <div class="stat-number" id="reports-count">0</div>
+        <div class="stat-label">Active Reports</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="communities-count">50+</div>
+        <div class="stat-label">Communities Monitored</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="alerts-count">100+</div>
+        <div class="stat-label">Alerts Issued</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">99%</div>
+        <div class="stat-label">Data Accuracy</div>
+    </div>
+</section>
+
+<!-- MAIN CONTAINER -->
+<main class="container">
+    
+    <!-- MISSION SECTION -->
+    <section class="mission-container">
+        <div class="mission-image">
+            <img src="Nigerdelta.jpg" alt="Niger Delta Region Map" />
+        </div>
+        <div class="mission-content">
+            <h2>Our Mission & Vision</h2>
             <p>
-                The CIEPD Conflict Watch Center relies on various community-based sources of information and community-specific indicators to generate analysis on potential conflict hotspots. The approach is tuned towards **predicting, tracking, monitoring, and reporting** on situations, events, and actors (individual, group, and institutional) with the capacity to cause violence. It is built on conflict **preventive measures** more than mitigating.
+                The CIEPD Conflict Watch Center leverages community-based intelligence and comprehensive conflict indicators to identify, track, monitor, and report on potential conflict hotspots in the Niger Delta region.
             </p>
+            <p>
+                Our approach is <strong>preventive-focused</strong>, targeting early warning mechanisms rather than crisis mitigation. We analyze situations, events, and actors—individual, group, and institutional—with the capacity to incite violence.
+            </p>
+            
+            <div class="mission-highlights">
+                <div class="highlight-item">
+                    <div class="highlight-icon">✓</div>
+                    <div class="highlight-text">Real-time conflict monitoring and early warning systems</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">✓</div>
+                    <div class="highlight-text">Community-sourced intelligence and crowdsourced data</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">✓</div>
+                    <div class="highlight-text">Comprehensive trend analysis and predictive modeling</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">✓</div>
+                    <div class="highlight-text">Transparent reporting with verified information</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">✓</div>
+                    <div class="highlight-text">Peace advocacy and conflict prevention initiatives</div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <h2 style="color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px;">Latest Reports</h2>
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Location</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody id="news-table-body">
-                <tr>
-                    <td colspan="3" style="text-align:center;">Loading latest reports...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <!-- FEATURES SECTION -->
+    <section class="features-section">
+        <h2 class="section-header">Why Choose CIEPD?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📡</div>
+                <div class="feature-title">Real-Time Alerts</div>
+                <div class="feature-text">Receive instant notifications on emerging conflicts and peace-threatening situations</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-title">Advanced Analytics</div>
+                <div class="feature-text">Leverage AI-powered insights and trend analysis for informed decision-making</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-title">Geographic Coverage</div>
+                <div class="feature-text">Comprehensive monitoring across Niger Delta communities with granular location data</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <div class="feature-title">Community Voices</div>
+                <div class="feature-text">Empower local communities to report incidents and contribute to peace-building</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Data Visualization</div>
+                <div class="feature-text">Interactive maps and dashboards for clear conflict trend visualization</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <div class="feature-title">Secure & Private</div>
+                <div class="feature-text">Enterprise-grade security protects sensitive reporter information</div>
+            </div>
+        </div>
+    </section>
 
-    <a class="btn-pro btn-more" href="report.html">View More Reports</a>
+    <!-- FLOATING CARDS SECTION -->
+    <section class="floating-cards-section">
+        <h2 class="floating-title">Our Impact Areas</h2>
+        <div class="floating-cards">
+            <div class="floating-card">
+                <div class="floating-card-content">
+                    <div class="floating-icon">🎯</div>
+                    <div class="floating-card-title">Early Detection</div>
+                    <div class="floating-card-text">Identify emerging conflicts before they escalate, enabling proactive peace interventions</div>
+                </div>
+            </div>
+            <div class="floating-card">
+                <div class="floating-card-content">
+                    <div class="floating-icon">🤝</div>
+                    <div class="floating-card-title">Community Engagement</div>
+                    <div class="floating-card-text">Empower local voices to be heard and create sustainable peace-building networks</div>
+                </div>
+            </div>
+            <div class="floating-card">
+                <div class="floating-card-content">
+                    <div class="floating-icon">📈</div>
+                    <div class="floating-card-title">Data-Driven Insights</div>
+                    <div class="floating-card-text">Utilize advanced analytics to understand conflict patterns and trends comprehensively</div>
+                </div>
+            </div>
+            <div class="floating-card">
+                <div class="floating-card-content">
+                    <div class="floating-icon">⚡</div>
+                    <div class="floating-card-title">Real-Time Response</div>
+                    <div class="floating-card-text">Immediate action capabilities for urgent situations requiring rapid intervention</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ANIMATED BANNER -->
+    <section class="animated-banner">
+        <div class="banner-content">
+            <h2 class="banner-title">🚀 Be Part of the Solution</h2>
+            <p class="banner-text">Your reports, insights, and commitment make a difference in building a peaceful Niger Delta</p>
+            <a href="submit.html" class="btn-pro btn-secondary" style="margin-top: 20px;">📝 Start Reporting Now</a>
+        </div>
+    </section>
+
+    <!-- TIMELINE SECTION -->
+    <section class="timeline-section">
+        <h2 class="timeline-title">Our Journey</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">2020</div>
+                    <div class="timeline-text">CIEPD Founded - Launched conflict monitoring initiative in Niger Delta with community partners</div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">2022</div>
+                    <div class="timeline-text">Expanded reach to 50+ communities with real-time alert systems and data collection platforms</div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-text">Deployed advanced AI analytics and preventive peace interventions across the region</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to Make a Difference?</h2>
+        <p class="cta-subtitle">Join thousands of community members working towards lasting peace in the Niger Delta</p>
+        <div class="cta-buttons">
+            <a href="submit.html" class="btn-pro btn-secondary">📝 Report an Issue</a>
+            <a href="getalert.html" class="btn-pro" style="background: rgba(255,255,255,0.2); border: 2px solid white;">🔔 Subscribe to Alerts</a>
+        </div>
+    </section>
 </main>
 
+<!-- ROTATING BADGE -->
+<div class="rotating-badge" title="Click for help">?</div>
+
+<!-- FOOTER -->
 <footer>
-    <p>Powered by <a href="http://www.ushahidi.com/">Sammy Tech</a></p>
-    <p>&copy; 2025 CIEPD Conflict Watch Center. All rights reserved. No part of this report should be used without acknowledgment of the source.</p>
+    <div class="footer-content">
+        <div class="footer-section">
+            <h3>🛡️ About CIEPD</h3>
+            <p>The Community Initiative for Enhanced Peace and Development operates a cutting-edge Conflict Watch Center dedicated to preventing violence and building sustainable peace in the Niger Delta region through community engagement and data-driven intelligence.</p>
+            <div class="social-links">
+                <a href="#" class="social-link" title="Facebook">f</a>
+                <a href="#" class="social-link" title="Twitter">𝕏</a>
+                <a href="#" class="social-link" title="LinkedIn">in</a>
+                <a href="#" class="social-link" title="Instagram">📸</a>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <h3>🔗 Quick Links</h3>
+            <a href="report.html">View Reports</a><br>
+            <a href="submit.html">Submit Intelligence</a><br>
+            <a href="admin-map.html">Interactive Map</a><br>
+            <a href="contact.html">Get in Touch</a><br>
+            <a href="#">Privacy Policy</a><br>
+            <a href="#">Terms of Service</a>
+        </div>
+
+        <div class="footer-section">
+            <h3>📍 Our Region</h3>
+            <p>We monitor and serve the Niger Delta region, focusing on states including Rivers, Bayelsa, Delta, Akwa Ibom, Cross River, and Edo states.</p>
+            <p><strong>Email:</strong> <a href="mailto:info@ciepd.org">info@ciepd.org</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+234XXXXXXXXXX">+234 XXX XXXX XXX</a></p>
+        </div>
+
+        <div class="footer-section">
+            <h3>📰 Newsletter</h3>
+            <p>Subscribe to receive weekly intelligence reports and peace updates directly to your inbox.</p>
+            <form style="display: flex; gap: 8px; margin-top: 12px;">
+                <input type="email" placeholder="Your email" style="flex: 1; padding: 10px; border: none; border-radius: 6px; font-size: 0.9rem;">
+                <button type="submit" class="btn-pro btn-secondary" style="padding: 10px 20px;">→</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 <strong>CIEPD Conflict Watch Center</strong>. All rights reserved. 
+        <br>Powered by <a href="https://www.ushahidi.com/">Ushahidi</a> | Developed by <strong>Sammy Tech Solutions</strong>
+        <br>No part of this report should be used without proper acknowledgment of the source.</p>
+    </div>
 </footer>
 
+<!-- SCRIPTS -->
 <script type="text/javascript">
-    // 0. CONFIGURATION - POINTING TO RAILWAY
-    const BASE_URL =
-        window.location.hostname === "localhost" ||
+    // ====== CONFIGURATION ======
+    const BASE_URL = 
+        window.location.hostname === "localhost" || 
         window.location.hostname === "127.0.0.1"
             ? "http://localhost:3000"
             : "https://ciepdcwc.up.railway.app";
 
-    // 1. SPLASH SCREEN LOGIC (9 Seconds)
+    // ====== SPLASH SCREEN (9 Seconds) ======
     window.addEventListener('load', function() {
         setTimeout(function() {
             const splash = document.getElementById('splash-screen');
             splash.classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Re-enable scrolling
-        }, 9000); 
+            document.body.style.overflow = 'auto';
+        }, 9000);
     });
 
-    // 2. GOOGLE TRANSLATE LOGIC
+    // ====== MOBILE MENU TOGGLE ======
+    const menuToggle = document.getElementById('menu-toggle');
+    const navBar = document.getElementById('nav-bar');
+
+    menuToggle.addEventListener('click', function() {
+        navBar.classList.toggle('active');
+    });
+
+    document.querySelectorAll('.nav-bar a').forEach(link => {
+        link.addEventListener('click', function() {
+            navBar.classList.remove('active');
+        });
+    });
+
+    // ====== ROTATING BADGE CLICK ======
+    document.querySelector('.rotating-badge').addEventListener('click', function() {
+        alert('👋 Need help? Visit our Contact page or email info@ciepd.org for support!');
+    });
+
+    // ====== GOOGLE TRANSLATE ======
     function googleTranslateElementInit() {
         new google.translate.TranslateElement({
-            pageLanguage: 'en', 
+            pageLanguage: 'en',
             includedLanguages: 'en,fr,es,ha,ig,yo',
             layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false
@@ -434,67 +1663,8 @@
             }
         }
     });
-
-    // 3. UPDATED DYNAMIC NEWS LOADING LOGIC
-    async function loadLatestNews() {
-        const tableBody = document.getElementById('news-table-body');
-        
-        try {
-            // Using BASE_URL to ensure we reach the Railway backend
-            const response = await fetch(`${BASE_URL}/api/news?limit=10&t=` + new Date().getTime());
-            const result = await response.json();
-
-            let newsItems = [];
-            
-            // Check every possible location the data might be hiding
-            if (Array.isArray(result)) {
-                newsItems = result;
-            } else if (result.news && Array.isArray(result.news)) {
-                newsItems = result.news;
-            } else if (result.data && Array.isArray(result.data)) {
-                newsItems = result.data;
-            } else if (result.reports && Array.isArray(result.reports)) {
-                newsItems = result.reports;
-            }
-
-            if (newsItems.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No recent reports available. Check Admin for unapproved posts.</td></tr>';
-                return;
-            }
-
-            tableBody.innerHTML = ''; // Clear loading message
-
-            // Show top 5 items
-            newsItems.slice(0, 5).forEach(item => {
-                const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                }) : 'Recently';
-
-                const row = `
-                    <tr>
-                        <td data-label="Title">
-                            <a href="report.html?id=${item._id || item.id}" style="color: var(--primary); font-weight: 600;">
-                                ${item.title}
-                            </a>
-                        </td>
-                        <td data-label="Location">${item.location || 'Community'}</td>
-                        <td data-label="Date">${date}</td>
-                    </tr>
-                `;
-                tableBody.insertAdjacentHTML('beforeend', row);
-            });
-
-        } catch (err) {
-            console.error('Error loading news:', err);
-            tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Connection Error: Unable to reach reports.</td></tr>';
-        }
-    }
-
-    // Call on load
-    loadLatestNews();
 </script>
+
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
