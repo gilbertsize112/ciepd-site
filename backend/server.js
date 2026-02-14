@@ -737,7 +737,8 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
 app.post("/api/ai/analyze-item", async (req, res) => {
     try {
         // 💡 Extract the necessary data from the request BODY
-        const { itemId, title: bodyTitle, content: bodyContent } = req.body; 
+        // CORRECT - Fixed code
+          const { title, content } = req.body;
         
         // This part attempts to find the full item data in the DB
         let item = null;
