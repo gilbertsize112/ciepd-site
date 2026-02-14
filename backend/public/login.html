@@ -2,27 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CIEPD Login Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>CIEPD Intelligence Portal | Secure Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Base Styling */
+        /* ====== ROOT VARIABLES ====== */
         :root {
-            --primary-color: #2575fc;
-            --primary-dark: #0053b3;
-            --text-dark: #2c3e50;
-            --border-color: #e0e6ed;
-            --error-color: #e74c3c;
-            --success-color: #27ae60;
-            --glass-bg: rgba(255, 255, 255, 0.92);
+            --primary: #004e89;
+            --primary-light: #0066b3;
+            --secondary: #00b4d8;
+            --accent: #ff9f1c;
+            --danger: #d90429;
+            --success: #06d6a0;
+            --white: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-light: #4a5568;
+            --bg-light: #f8fafc;
+            --border-light: #e2e8f0;
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.2);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .dark {
+            --text-dark: #e6f7ff;
+            --bg-light: #121820;
+            --border-light: #2c3e50;
         }
 
         * {
             box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
+            font-family: 'Inter', 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
@@ -30,376 +53,778 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("loginbg.jpg") no-repeat center center / cover;
-            background-attachment: fixed;
+            background: linear-gradient(135deg, #000 0%, #0a1128 50%, #001a33 100%);
             color: var(--text-dark);
             padding: 20px;
-            overflow-x: hidden;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Animated Background Shapes */
-        .shape { position: absolute; border-radius: 50%; opacity: 0.3; animation: float 20s linear infinite; z-index: 0; }
-        .shape.small { width: 40px; height: 40px; }
-        .shape.medium { width: 80px; height: 80px; }
-        .shape.large { width: 120px; height: 120px; }
+        /* ====== ANIMATED BACKGROUND ====== */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s linear infinite;
+            filter: blur(40px);
+        }
+
+        .shape.small { width: 60px; height: 60px; }
+        .shape.medium { width: 120px; height: 120px; }
+        .shape.large { width: 200px; height: 200px; }
 
         @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-100px) rotate(180deg); }
-            100% { transform: translateY(0) rotate(360deg); }
+            0% { transform: translateY(0) translateX(0) rotate(0deg); }
+            33% { transform: translateY(-50px) translateX(30px) rotate(120deg); }
+            66% { transform: translateY(50px) translateX(-30px) rotate(240deg); }
+            100% { transform: translateY(0) translateX(0) rotate(360deg); }
         }
 
-        .container {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+        .shape:nth-child(1) { top: 5%; left: 10%; background: var(--secondary); animation-delay: 0s; }
+        .shape:nth-child(2) { bottom: 10%; right: 15%; background: var(--accent); animation-delay: 2s; }
+        .shape:nth-child(3) { top: 40%; right: 5%; background: var(--danger); animation-delay: 4s; }
+        .shape:nth-child(4) { top: 20%; right: 20%; background: var(--success); animation-delay: 6s; }
+        .shape:nth-child(5) { bottom: 30%; left: 10%; background: var(--secondary); animation-delay: 8s; }
+
+        /* ====== GRID BACKGROUND ====== */
+        .grid-bg {
+            position: absolute;
             width: 100%;
-            max-width: 420px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            position: relative;
-            z-index: 10;
-            animation: fadeIn 0.8s ease-out;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 180, 216, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 180, 216, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* ====== CONTAINER ====== */
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px;
+            width: 100%;
+            max-width: 450px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 78, 137, 0.3);
+            position: relative;
+            z-index: 100;
+            border: 1px solid rgba(0, 78, 137, 0.1);
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Branding */
+        /* ====== BRANDING HEADER ====== */
         .branding-header {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
-            gap: 12px;
-        }
-        .branding-header i {
-            font-size: 35px;
-            color: var(--primary-color);
-        }
-        h1 { 
-            font-size: 1.6rem; 
-            color: var(--primary-dark); 
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        .subtitle { 
-            font-size: 0.85rem; 
-            color: #5d6d7e; 
-            margin-bottom: 30px; 
-            line-height: 1.4;
+            margin-bottom: 20px;
+            gap: 15px;
+            animation: slideDown 0.8s ease-out;
         }
 
-        /* Tabs Navigation */
-        .tabs { 
-            display: flex; 
-            margin-bottom: 25px; 
-            background: rgba(0,0,0,0.05);
-            border-radius: 10px;
-            padding: 5px;
-        }
-        .tab {
-            flex: 1;
-            padding: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            transition: 0.3s ease;
-            border-radius: 8px;
-        }
-        .tab.active { 
-            background: white;
-            color: var(--primary-color); 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Form Controls */
-        form { display: none; text-align: left; }
-        form.active { display: block; animation: slideIn 0.4s ease; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .input-group { margin-bottom: 20px; position: relative; }
-        label { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            display: block; 
-            margin-bottom: 8px; 
-            text-transform: uppercase; 
-            color: var(--primary-dark);
-            padding-left: 2px;
-        }
-
-        .input-wrapper { position: relative; }
-        .input-wrapper i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary-color);
-            font-size: 1.1rem;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 15px 14px 45px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
-            background: #fff;
-        }
-
-        input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(37,117,252,0.15);
-        }
-
-        /* Action Buttons */
-        button {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .branding-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-top: 10px;
+            font-size: 1.8rem;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 78, 137, 0.3);
+            animation: spin 3s linear infinite;
         }
 
-        button:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(37,117,252,0.3); }
-        button:active { transform: translateY(0); }
-        button:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-        /* Status Messages */
+        h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.5;
+            font-weight: 500;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ====== STATUS INDICATOR ====== */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(6, 214, 160, 0.15), rgba(0, 180, 216, 0.15));
+            padding: 10px 16px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--success);
+            border: 2px solid var(--success);
+            animation: slideUp 0.8s ease-out 0.3s both;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* ====== TABS ====== */
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 6px;
+            gap: 6px;
+            animation: slideUp 0.8s ease-out 0.4s both;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            transition: var(--transition);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 78, 137, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: -1;
+        }
+
+        .tab:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 78, 137, 0.2);
+            border-color: var(--secondary);
+        }
+
+        /* ====== MESSAGE BOX ====== */
         #message-box {
             margin-bottom: 20px;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 14px 16px;
+            border-radius: 12px;
             text-align: center;
             font-size: 0.9rem;
             font-weight: 600;
             display: none;
+            animation: slideInDown 0.5s ease-out;
+            border-left: 4px solid transparent;
         }
-        .msg-error { background-color: #fdecea; color: var(--error-color); border: 1px solid #fadbd8; }
-        .msg-success { background-color: #eafaf1; color: var(--success-color); border: 1px solid #d5f5e3; }
 
-        .footer { 
-            margin-top: 30px; 
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-error {
+            background: linear-gradient(135deg, rgba(217, 4, 41, 0.15), rgba(255, 107, 91, 0.15));
+            color: var(--danger);
+            border-left-color: var(--danger);
+        }
+
+        .msg-success {
+            background: linear-gradient(135deg, rgba(6, 214, 160, 0.15), rgba(5, 201, 136, 0.15));
+            color: var(--success);
+            border-left-color: var(--success);
+        }
+
+        /* ====== FORM STYLING ====== */
+        form {
+            display: none;
+            text-align: left;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        form.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .input-group:nth-child(1) { animation-delay: 0s; }
+        .input-group:nth-child(2) { animation-delay: 0.1s; }
+        .input-group:nth-child(3) { animation-delay: 0.2s; }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            color: var(--primary);
+            letter-spacing: 0.3px;
+            padding-left: 2px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: var(--secondary);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            outline: none;
+            background: white;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        input::placeholder {
+            color: #b0bec5;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 78, 137, 0.15);
+            background: rgba(0, 78, 137, 0.02);
+        }
+
+        input:focus + i {
+            color: var(--primary);
+            transform: scale(1.2);
+        }
+
+        /* ====== BUTTONS ====== */
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(0, 78, 137, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out 0.3s both;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 78, 137, 0.5);
+        }
+
+        button:active {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #bdc3c7;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ====== FOOTER ====== */
+        .footer {
+            margin-top: 30px;
             padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            font-size: 0.75rem; 
-            color: #7f8c8d; 
-            line-height: 1.6;
+            border-top: 2px solid var(--border-light);
+            font-size: 0.8rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            animation: fadeIn 0.8s ease-out 0.5s both;
         }
 
-        /* Mobile Specific Adjustments */
+        .footer p {
+            margin: 8px 0;
+        }
+
+        .footer strong {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .emergency-contact {
+            margin-top: 15px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(217, 4, 41, 0.1), rgba(255, 159, 28, 0.1));
+            border-radius: 10px;
+            border-left: 4px solid var(--danger);
+            font-weight: 700;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .emergency-contact i {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* ====== MOBILE RESPONSIVE ====== */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 40px 25px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.8rem;
+            }
+
+            .branding-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            input {
+                font-size: 16px; /* Prevents iOS auto-zoom */
+                padding: 12px 14px 12px 44px;
+            }
+
+            button {
+                padding: 14px;
+                font-size: 0.95rem;
+            }
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 30px 20px;
-                border-radius: 15px;
             }
-            h1 { font-size: 1.4rem; }
-            input { font-size: 16px; /* Prevents iOS zoom on focus */ }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .subtitle {
+                font-size: 0.75rem;
+                margin-bottom: 20px;
+            }
+
+            .tabs {
+                margin-bottom: 20px;
+            }
+
+            .tab {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .status-indicator {
+                padding: 8px 12px;
+                font-size: 0.75rem;
+                margin-bottom: 20px;
+            }
+
+            .branding-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+
+            input {
+                padding: 11px 12px 11px 40px;
+                font-size: 16px;
+                border-radius: 10px;
+            }
+
+            .input-wrapper i {
+                left: 12px;
+                font-size: 1rem;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 0.9rem;
+                gap: 8px;
+            }
+
+            .footer {
+                font-size: 0.75rem;
+                margin-top: 25px;
+            }
+
+            .emergency-contact {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+        }
+
+        /* ====== SCROLLBAR ====== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 78, 137, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
         }
     </style>
 </head>
 
 <body>
 
-    <div class="shape small" style="top:5%; left:10%; background:#ff6b6b;"></div>
-    <div class="shape medium" style="bottom:10%; right:10%; background:#ffca3a;"></div>
-    <div class="shape large" style="top:40%; right:20%; background:#6bcB77;"></div>
-    <div class="shape medium" style="top:15%; right:5%; background:#4d96ff;"></div>
+<!-- ANIMATED BACKGROUND -->
+<div class="bg-animation">
+    <div class="grid-bg"></div>
+    <div class="shape small"></div>
+    <div class="shape medium"></div>
+    <div class="shape large"></div>
+    <div class="shape medium"></div>
+    <div class="shape small"></div>
+</div>
 
-    <div class="container">
-        <div class="branding-header">
+<!-- CONTAINER -->
+<div class="container">
+    
+    <!-- BRANDING HEADER -->
+    <div class="branding-header">
+        <div class="branding-icon">
             <i class="fas fa-satellite-dish"></i>
-            <h1>CIEPD Watch Center</h1>
         </div>
-        <p class="subtitle">Secure administrative monitoring & real-time analytics portal</p>
-
-        <div class="tabs">
-            <div class="tab active" data-tab-id="login" onclick="showTab('login', this)">Login</div>
-            <div class="tab" data-tab-id="signup" onclick="showTab('signup', this)">Sign Up</div>
-            <div class="tab" data-tab-id="reset" onclick="showTab('reset', this)">Reset</div>
-        </div>
-        
-        <div id="message-box"></div>
-
-        <form id="login" class="active">
-            <div class="input-group">
-                <label for="loginEmail">Registered Email</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="loginEmail" placeholder="admin@ciepd.org" required />
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="loginPassword">Secure Password</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required />
-                </div>
-            </div>
-            <button type="submit" id="login-btn"><i class="fas fa-sign-in-alt"></i> Access Portal</button>
-        </form>
-
-        <form id="signup">
-            <div class="input-group">
-                <label for="signupName">Full Name</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="signupName" placeholder="Enter full name" required />
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="signupEmail">Work Email</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="signupEmail" placeholder="email@ciepd.org" required />
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="signupPassword">New Password</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-key"></i>
-                    <input type="password" id="signupPassword" placeholder="Min. 8 characters" required />
-                </div>
-            </div>
-            <button type="submit" id="signup-btn"><i class="fas fa-user-plus"></i> Create Account</button>
-        </form>
-
-        <form id="reset">
-            <div class="input-group">
-                <label for="resetEmail">Email Address</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="resetEmail" placeholder="Enter registered email" required />
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="resetNewPassword">New Password</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-unlock"></i>
-                    <input type="password" id="resetNewPassword" placeholder="Set new password" required />
-                </div>
-            </div>
-            <button type="submit" id="reset-btn"><i class="fas fa-redo-alt"></i> Recover Password</button>
-        </form>
-
-        <div class="footer">
-            <p>Urgent technical support or incident reporting:</p>
-            <p style="color: var(--primary-dark); font-weight: 700; margin-top: 5px;">
-                <i class="fab fa-whatsapp"></i> 08034559689
-            </p>
+        <div>
+            <h1>CIEPD</h1>
         </div>
     </div>
 
-    <script>
-        const BASE_URL =
-            window.location.hostname === "localhost" ||
-            window.location.hostname === "127.0.0.1"
-                ? "http://localhost:3000"
-                : "https://ciepdcwc.up.railway.app";
-        
-        const messageBox = document.getElementById('message-box');
+    <p class="subtitle">Conflict Intelligence & Early Peace Detection System</p>
 
-        function showTab(tabId, element) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
-            element.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+    <!-- STATUS INDICATOR -->
+    <div class="status-indicator">
+        <div class="status-dot"></div>
+        System Online • 24/7 Monitoring Active
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" data-tab-id="login" onclick="showTab('login', this)">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </div>
+        <div class="tab" data-tab-id="signup" onclick="showTab('signup', this)">
+            <i class="fas fa-user-plus"></i> Register
+        </div>
+        <div class="tab" data-tab-id="reset" onclick="showTab('reset', this)">
+            <i class="fas fa-key"></i> Reset
+        </div>
+    </div>
+
+    <!-- MESSAGE BOX -->
+    <div id="message-box"></div>
+
+    <!-- LOGIN FORM -->
+    <form id="login" class="active">
+        <div class="input-group">
+            <label for="loginEmail"><i class="fas fa-envelope"></i> Administrator Email</label>
+            <div class="input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="loginEmail" placeholder="admin@ciepd.org" required />
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="loginPassword"><i class="fas fa-lock"></i> Secure Password</label>
+            <div class="input-wrapper">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="loginPassword" placeholder="••••••••" required />
+            </div>
+        </div>
+        <button type="submit" id="login-btn">
+            <i class="fas fa-sign-in-alt"></i> Access Intelligence Portal
+        </button>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signup">
+        <div class="input-group">
+            <label for="signupName"><i class="fas fa-user"></i> Full Name</label>
+            <div class="input-wrapper">
+                <i class="fas fa-user"></i>
+                <input type="text" id="signupName" placeholder="Enter your full name" required />
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="signupEmail"><i class="fas fa-envelope"></i> Work Email</label>
+            <div class="input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="signupEmail" placeholder="email@ciepd.org" required />
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="signupPassword"><i class="fas fa-key"></i> New Password</label>
+            <div class="input-wrapper">
+                <i class="fas fa-key"></i>
+                <input type="password" id="signupPassword" placeholder="Min. 8 characters" required />
+            </div>
+        </div>
+        <button type="submit" id="signup-btn">
+            <i class="fas fa-user-plus"></i> Create Account
+        </button>
+    </form>
+
+    <!-- RESET FORM -->
+    <form id="reset">
+        <div class="input-group">
+            <label for="resetEmail"><i class="fas fa-envelope"></i> Email Address</label>
+            <div class="input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="resetEmail" placeholder="Enter registered email" required />
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="resetNewPassword"><i class="fas fa-unlock"></i> New Password</label>
+            <div class="input-wrapper">
+                <i class="fas fa-unlock"></i>
+                <input type="password" id="resetNewPassword" placeholder="Set new password" required />
+            </div>
+        </div>
+        <button type="submit" id="reset-btn">
+            <i class="fas fa-redo-alt"></i> Recover Password
+        </button>
+    </form>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>📋 Secure Intelligence Portal</p>
+        <p>🔐 End-to-End Encrypted Access</p>
+        <div class="emergency-contact">
+            <i class="fab fa-whatsapp"></i> Emergency: 08034559689
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const BASE_URL =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+            ? "http://localhost:3000"
+            : "https://ciepdcwc.up.railway.app";
+    
+    const messageBox = document.getElementById('message-box');
+
+    function showTab(tabId, element) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+        messageBox.style.display = 'none';
+    }
+
+    function showMessage(msg, type = 'error') {
+        messageBox.textContent = msg;
+        messageBox.className = '';
+        messageBox.classList.add(type === 'success' ? 'msg-success' : 'msg-error');
+        messageBox.style.display = 'block';
+    }
+
+    function toggleButtonLoading(btnId, isLoading, defaultText, iconClass) {
+        const btn = document.getElementById(btnId);
+        btn.disabled = isLoading;
+        if (isLoading) {
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Processing...`;
+        } else {
+            btn.innerHTML = `<i class="${iconClass}"></i> ${defaultText}`;
+        }
+    }
+    
+    // Form Submission Handlers
+    const forms = ['login', 'signup', 'reset'];
+    forms.forEach(formId => {
+        document.getElementById(formId).addEventListener("submit", async (e) => {
+            e.preventDefault();
             messageBox.style.display = 'none';
-        }
+            
+            let btnId, btnText, btnIcon, endpoint;
+            const payload = {};
 
-        function showMessage(msg, type = 'error') {
-            messageBox.textContent = msg;
-            messageBox.className = '';
-            messageBox.classList.add(type === 'success' ? 'msg-success' : 'msg-error');
-            messageBox.style.display = 'block';
-        }
-
-        function toggleButtonLoading(btnId, isLoading, defaultText, iconClass) {
-            const btn = document.getElementById(btnId);
-            btn.disabled = isLoading;
-            if (isLoading) {
-                btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Processing...`;
+            if(formId === 'login') {
+                btnId = 'login-btn'; 
+                btnText = 'Access Intelligence Portal'; 
+                btnIcon = 'fas fa-sign-in-alt'; 
+                endpoint = '/login';
+                payload.email = document.getElementById("loginEmail").value.trim();
+                payload.password = document.getElementById("loginPassword").value.trim();
+            } else if(formId === 'signup') {
+                btnId = 'signup-btn'; 
+                btnText = 'Create Account'; 
+                btnIcon = 'fas fa-user-plus'; 
+                endpoint = '/signup';
+                payload.name = document.getElementById("signupName").value.trim();
+                payload.email = document.getElementById("signupEmail").value.trim();
+                payload.password = document.getElementById("signupPassword").value.trim();
             } else {
-                btn.innerHTML = `<i class="${iconClass}"></i> ${defaultText}`;
+                btnId = 'reset-btn'; 
+                btnText = 'Recover Password'; 
+                btnIcon = 'fas fa-redo-alt'; 
+                endpoint = '/reset-password';
+                payload.email = document.getElementById("resetEmail").value.trim();
+                payload.newPassword = document.getElementById("resetNewPassword").value.trim();
             }
-        }
-        
-        // Form Submission Handlers
-        const forms = ['login', 'signup', 'reset'];
-        forms.forEach(formId => {
-            document.getElementById(formId).addEventListener("submit", async (e) => {
-                e.preventDefault();
-                messageBox.style.display = 'none';
-                
-                let btnId, btnText, btnIcon, endpoint;
-                const payload = {};
 
-                if(formId === 'login') {
-                    btnId = 'login-btn'; btnText = 'Access Portal'; btnIcon = 'fas fa-sign-in-alt'; endpoint = '/login';
-                    payload.email = document.getElementById("loginEmail").value.trim();
-                    payload.password = document.getElementById("loginPassword").value.trim();
-                } else if(formId === 'signup') {
-                    btnId = 'signup-btn'; btnText = 'Create Account'; btnIcon = 'fas fa-user-plus'; endpoint = '/signup';
-                    payload.name = document.getElementById("signupName").value.trim();
-                    payload.email = document.getElementById("signupEmail").value.trim();
-                    payload.password = document.getElementById("signupPassword").value.trim();
-                } else {
-                    btnId = 'reset-btn'; btnText = 'Recover Password'; btnIcon = 'fas fa-redo-alt'; endpoint = '/reset-password';
-                    payload.email = document.getElementById("resetEmail").value.trim();
-                    payload.newPassword = document.getElementById("resetNewPassword").value.trim();
-                }
+            toggleButtonLoading(btnId, true, btnText, btnIcon);
 
-                toggleButtonLoading(btnId, true, btnText, btnIcon);
+            try {
+                const res = await fetch(`${BASE_URL}${endpoint}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: (formId === 'login' ? "include" : "omit"),
+                    body: JSON.stringify(payload)
+                });
 
-                try {
-                    const res = await fetch(`${BASE_URL}${endpoint}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: (formId === 'login' ? "include" : "omit"),
-                        body: JSON.stringify(payload)
-                    });
+                const data = await res.json();
 
-                    const data = await res.json();
-
-                    if (res.ok && (data.success || formId !== 'login')) {
-                        if(formId === 'login') {
-                            window.location.href = data.redirect || "admin.html";
-                        } else {
-                            showMessage(data.message || "Action successful! You can now log in.", 'success');
-                            showTab("login", document.querySelector('[data-tab-id="login"]'));
-                        }
+                if (res.ok && (data.success || formId !== 'login')) {
+                    if(formId === 'login') {
+                        window.location.href = data.redirect || "admin.html";
                     } else {
-                        showMessage(data.error || data.message || "Operation failed. Please check your details.");
+                        showMessage(data.message || "✅ Action successful! You can now log in.", 'success');
+                        showTab("login", document.querySelector('[data-tab-id="login"]'));
                     }
-
-                } catch (err) {
-                    showMessage("Server Connection Failed. Please ensure backend is running.");
-                } finally {
-                    toggleButtonLoading(btnId, false, btnText, btnIcon);
+                } else {
+                    showMessage(data.error || data.message || "❌ Operation failed. Please check your details.");
                 }
-            });
+
+            } catch (err) {
+                showMessage("⚠️ Server Connection Failed. Please ensure backend is running.");
+            } finally {
+                toggleButtonLoading(btnId, false, btnText, btnIcon);
+            }
         });
-    </script>
+    });
+</script>
+
 </body>
 </html>
