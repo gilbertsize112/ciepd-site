@@ -4,6 +4,7 @@ import express from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -12,7 +13,6 @@ import http from "http";
 import { Server } from "socket.io";
 import csv from "csvtojson";
 import fs from "fs";
-
 
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
@@ -37,7 +37,7 @@ import OpenAI from "openai";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-// ⭐ DIAGNOSTIC LOG TRAP 
+// ⭐ DIAGNOSTIC LOG TRAP
 console.log("SERVER START: BEFORE DOTENV CONFIGURATION");
 
 dotenv.config();
@@ -45,7 +45,7 @@ console.log("🔑 OPENAI KEY LOADED?", process.env.OPENAI_API_KEY ? "YES" : "NO"
 
 
 // ==========================
-// FILE STORAGE CONFIGURATION 
+// FILE STORAGE CONFIGURATION
 // ==========================
 let storage;
 
@@ -53,37 +53,32 @@ const isS3Configured = process.env.S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_
 
 if (isS3Configured) {
     console.log("☁️ Using AWS S3 for file storage.");
-    
-    // Configure AWS SDK
+
     AWS.config.update({
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        region: process.env.AWS_REGION
+        region: process.env.AWS_REGION,
     });
 
     const s3 = new AWS.S3();
 
-    // S3 Storage Setup
     storage = multerS3({
         s3: s3,
         bucket: process.env.S3_BUCKET_NAME,
-        acl: 'public-read', 
+        acl: "public-read",
         metadata: function (req, file, cb) {
             cb(null, { fieldName: file.fieldname });
         },
         key: function (req, file, cb) {
-            // Ensure unique name with a 'reports/' prefix
-            cb(null, 'reports/' + uuidv4() + path.extname(file.originalname)); 
-        }
+            cb(null, "reports/" + uuidv4() + path.extname(file.originalname));
+        },
     });
-
 } else {
     console.warn("💾 Using Local Disk Storage (Not suitable for Render/Cloud deployment).");
-    
-    // Local Disk Storage Setup (for development)
+
     storage = multer.diskStorage({
         destination: function (req, file, cb) {
-            const uploadPath = process.env.MULTER_STORAGE_PATH || './public/uploads';
+            const uploadPath = process.env.MULTER_STORAGE_PATH || "./public/uploads";
             if (!fs.existsSync(uploadPath)) {
                 fs.mkdirSync(uploadPath, { recursive: true });
             }
@@ -92,7 +87,7 @@ if (isS3Configured) {
         filename: function (req, file, cb) {
             const extension = path.extname(file.originalname);
             cb(null, uuidv4() + extension);
-        }
+        },
     });
 }
 
@@ -115,9 +110,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-
 // ==========================
-// CORS (UPDATED FOR LOGIN)
+// CORS
 // ==========================
 app.use(
     cors({
@@ -125,32 +119,28 @@ app.use(
             "http://localhost:3000",
             "http://localhost:5500",
             "https://ciepdcwc.onrender.com",
-            "https://ciepd.org"
+            "https://ciepd.org",
         ],
         credentials: true,
     })
 );
 
-app.use(
-    session({
-        secret: process.env.SESSION_SECRET || "secret",
-        resave: false,
-        saveUninitialized: true,
-    })
-);
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================
-// SESSION (REQUIRED ON RENDER)
+// SESSION (SINGLE — with MongoStore for production)
 // ==========================
 app.use(
     session({
         secret: process.env.SESSION_SECRET || "ciepd_secret_key",
         resave: false,
         saveUninitialized: false,
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+            dbName: "ciepd",
+            ttl: 14 * 24 * 60 * 60, // 14 days
+        }),
         cookie: {
             secure: false,
             httpOnly: true,
@@ -159,14 +149,15 @@ app.use(
     })
 );
 
+// ==========================
 // STATIC FILES
-
+// ==========================
 app.use(express.static(path.join(__dirname, "public")));
+
 
 // ==========================
 // DATABASE
 // ==========================
-// Define a simple config/setting model to hold the CSV import flag
 const ConfigSchema = new mongoose.Schema({
     key: { type: String, required: true, unique: true },
     value: mongoose.Schema.Types.Mixed,
@@ -186,10 +177,10 @@ async function connectDB() {
         console.log("✅ MongoDB Connected Successfully");
     } catch (err) {
         console.error("❌ MongoDB Connection Error:", err);
-        // It's critical to exit if DB fails
-        process.exit(1); 
+        process.exit(1);
     }
 }
+
 
 // ==========================
 // SCHEMAS
@@ -201,9 +192,8 @@ const NewsSchema = new mongoose.Schema({
     content: String,
     location: String,
     categories: [String],
-    photos: [String], 
+    photos: [String],
     videoLink: String,
-    // ⭐ ADDED FOR MERGER: These allow user-submitted data to fit in News
     reporterName: String,
     reporterEmail: String,
     escalated: { type: Boolean, default: false },
@@ -214,8 +204,6 @@ const NewsSchema = new mongoose.Schema({
 });
 
 const News = mongoose.model("News", NewsSchema);
-
-
 
 const SubscriptionSchema = new mongoose.Schema({
     phone: String,
@@ -228,19 +216,15 @@ const SubscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model("Subscription", SubscriptionSchema);
 
 
-
-
 // ==========================
-// CSV IMPORTER — OPTIMIZED BULK INSERT FIX!
+// CSV IMPORTER
 // ==========================
-
 async function importCSV() {
     try {
-        // 1. CHECK DATABASE FLAG FIRST
-        const isSeeded = await Config.findOne({ key: 'csvDataSeeded' });
+        const isSeeded = await Config.findOne({ key: "csvDataSeeded" });
         if (isSeeded) {
-             console.log("✨ Data already imported. Skipping CSV import.");
-             return; // EXIT quickly if already done
+            console.log("✨ Data already imported. Skipping CSV import.");
+            return;
         }
 
         const filePath = path.join(__dirname, "news.csv");
@@ -257,21 +241,17 @@ async function importCSV() {
         }
 
         console.log(`📥 Importing ${jsonArray.length} items...`);
-        
-        // --- OPTIMIZATION STARTS HERE ---
 
-        // 2. Fetch all existing IDs in one quick query to prevent re-inserting
-        const existingItems = await News.find().select('id').lean();
-        const existingIds = new Set(existingItems.map(item => String(item.id)));
-        
-        // 3. Prepare and filter the new items locally
+        const existingItems = await News.find().select("id").lean();
+        const existingIds = new Set(existingItems.map((item) => String(item.id)));
+
         const newItemsToInsert = [];
 
         for (const [index, item] of jsonArray.entries()) {
-            // Normalize ID creation (using String() for consistent Set comparison)
-            const itemId = item["#"] && item["#"].trim() !== "" 
-                ? String(item["#"]) 
-                : `csv-${index}-${Date.now()}`;
+            const itemId =
+                item["#"] && item["#"].trim() !== ""
+                    ? String(item["#"])
+                    : `csv-${index}-${Date.now()}`;
 
             if (!existingIds.has(itemId)) {
                 newItemsToInsert.push({
@@ -281,7 +261,7 @@ async function importCSV() {
                     content: item["DESCRIPTION"],
                     location: item["LOCATION"],
                     categories: [item["CATEGORY"]].filter(Boolean),
-                    photos: [], 
+                    photos: [],
                     videoLink: "",
                     verified: item["VERIFIED"] === "YES",
                     approved: item["APPROVED"] === "YES",
@@ -289,36 +269,26 @@ async function importCSV() {
                 });
             }
         }
-        
-        // 4. Perform a single bulk insert operation instead of N sequential inserts
+
         if (newItemsToInsert.length > 0) {
             console.log(`⚡ Inserting ${newItemsToInsert.length} new items in bulk...`);
-            // Add a timeout option for long operations in shared MongoDB environments
-            await News.insertMany(newItemsToInsert, { ordered: false, timeout: 60000 }); 
+            await News.insertMany(newItemsToInsert, { ordered: false, timeout: 60000 });
         } else {
             console.log("👍 All items already exist. No new items to insert.");
         }
 
-        // --- OPTIMIZATION ENDS HERE ---
-        
-        // 5. SET THE DATABASE FLAG after successful import
-        await Config.create({ key: 'csvDataSeeded', value: true });
-
+        await Config.create({ key: "csvDataSeeded", value: true });
         console.log("✅ CSV Import (Bulk) Completed Successfully! (Will skip on next run)");
     } catch (err) {
-        // Log the error but allow the server to proceed to listen (fail safe)
         console.error("❌ CSV Import Error (Bulk Insert Failed):", err.message || err);
-        // Note: The Config flag is not set on failure, so it will try again next time.
     }
 }
 
 
 // ==========================
-// REMOVE DUPLICATES — FIX
+// REMOVE DUPLICATES
 // ==========================
 async function cleanDuplicates() {
-    // This is optional and probably not needed if you fix the import logic
-    // Keeping it here for completeness
     try {
         const items = await News.find().lean();
         const seen = new Set();
@@ -337,6 +307,7 @@ async function cleanDuplicates() {
     }
 }
 
+
 // ==========================
 // CREATE ADMIN
 // ==========================
@@ -353,11 +324,11 @@ async function ensureAdmin() {
         console.log("🔐 Admin Already Exists");
     }
 }
+
+
 // ==========================
 // HELPERS
 // ==========================
-// ⭐ DUPLICATE REMOVED: Using the most robust version below
-
 function normalizeStateName(s) {
     if (!s) return "";
     return s.toLowerCase().replace(/state/gi, "").trim();
@@ -379,9 +350,7 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
     const dLon = toRad(lon1 - lon2);
     const a =
         Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) ** 2;
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
@@ -402,13 +371,11 @@ const STATE_COORDS = {
 // ==========================
 // ROUTE MIDDLEWARE
 // ==========================
-app.use("/api/auth", authRoutes); // Assuming you have an authRoutes defined
+app.use("/api/auth", authRoutes);
 app.use("/api/report", reportRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api", hateAlertRoutes);
 
-
-// ⭐ FIX 404 ERROR — ADD THIS HERE
 app.get("/api/alerts", (req, res) => {
     res.json({ message: "Alerts endpoint working!" });
 });
@@ -442,6 +409,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
+
 // ==========================
 // CATEGORY LIST API
 // ==========================
@@ -453,6 +421,7 @@ app.get("/api/news/categories", async (req, res) => {
         res.status(500).json({ error: "Could not load categories" });
     }
 });
+
 
 // ==========================
 // SEARCH & FILTER API
@@ -496,16 +465,15 @@ app.get("/api/news", async (req, res) => {
     });
 });
 
+
 // ==========================
-// HELPERS (Strict Fix for News & Reports)
+// HELPERS (News & Reports)
 // ==========================
 async function findNews(id) {
-    // 1. Try finding by MongoDB Internal ID
     if (mongoose.Types.ObjectId.isValid(id)) {
         const item = await News.findById(id);
         if (item) return item;
     }
-    // 2. Fallback to custom CSV ID (e.g., "#" column)
     return await News.findOne({ id: id });
 }
 
@@ -516,9 +484,10 @@ async function findReport(id) {
     return null;
 }
 
-// ===========================================================
-// NEWS ACTIONS (ORDER SENSITIVE: Specific routes first!)
-// ===========================================================
+
+// ==========================
+// NEWS ACTIONS
+// ==========================
 
 // 1. ESCALATE
 app.put("/api/news/escalate/:id", async (req, res) => {
@@ -526,19 +495,14 @@ app.put("/api/news/escalate/:id", async (req, res) => {
         const item = await findNews(req.params.id);
         if (!item) return res.status(404).json({ error: "News item not found in database" });
 
-        // Force both flags to true for the Urgent Queue filter
         item.verified = true;
-        item.approved = true; 
-        item.escalated = true; // Added specifically for your new workflow
+        item.approved = true;
+        item.escalated = true;
         await item.save();
 
-        // Emit update so the Urgent Queue refreshes automatically
         io.emit("news:updated", item);
-        
-        res.json({ 
-            success: true, 
-            message: "Item successfully escalated and alerts dispatched." 
-        });
+
+        res.json({ success: true, message: "Item successfully escalated and alerts dispatched." });
     } catch (err) {
         console.error("ESCALATE ERROR:", err);
         res.status(500).json({ error: "Escalate failed" });
@@ -575,26 +539,22 @@ app.delete("/api/news/delete/:id", async (req, res) => {
     }
 });
 
-// 4. URGENT QUEUE API (DEDICATED)
+// 4. URGENT QUEUE API
 app.get("/api/news/urgent", async (req, res) => {
     try {
-        // Updated to include escalated items specifically
-        const urgentItems = await News.find({ 
-            $or: [
-                { verified: true, approved: true },
-                { escalated: true }
-            ]
+        const urgentItems = await News.find({
+            $or: [{ verified: true, approved: true }, { escalated: true }],
         }).sort({ createdAt: -1 });
 
         console.log(`Urgent Queue Polled: Found ${urgentItems.length} items.`);
-        res.json(urgentItems); 
+        res.json(urgentItems);
     } catch (err) {
         console.error("URGENT FETCH ERROR:", err);
-        res.status(500).json([]); 
+        res.status(500).json([]);
     }
 });
 
-// 5. GENERIC ID ROUTE (MUST BE BELOW ALL OTHER NEWS ROUTES)
+// 5. GENERIC ID ROUTE (must be below all specific /api/news/* routes)
 app.get("/api/news/:id", async (req, res) => {
     try {
         const item = await findNews(req.params.id);
@@ -605,12 +565,20 @@ app.get("/api/news/:id", async (req, res) => {
     }
 });
 
-// ===========================================================
-// ⭐ NEW: CONSOLIDATED SUBMISSION ROUTE
-// ===========================================================
+// 6. CREATE NEWS (single definition)
 app.post("/api/news", async (req, res) => {
     try {
-        const { title, content, location, categories, reporterName, reporterEmail, escalated, newsSource, videoLink } = req.body;
+        const {
+            title,
+            content,
+            location,
+            categories,
+            reporterName,
+            reporterEmail,
+            escalated,
+            newsSource,
+            videoLink,
+        } = req.body;
 
         const newsDoc = new News({
             id: `user-${Date.now()}`,
@@ -621,23 +589,21 @@ app.post("/api/news", async (req, res) => {
             categories: Array.isArray(categories) ? categories : [categories].filter(Boolean),
             reporterName,
             reporterEmail,
-            escalated: escalated === true || escalated === 'true',
+            escalated: escalated === true || escalated === "true",
             newsSource,
             videoLink,
             verified: false,
-            // If user marks it as escalated, we can auto-approve or keep for review
-            approved: escalated === true || escalated === 'true',
-            createdAt: new Date()
+            approved: escalated === true || escalated === "true",
+            createdAt: new Date(),
         });
 
         const saved = await newsDoc.save();
 
-        // Push to admin dashboard live
+        appendToCSV(saved);
         io.emit("news:created", saved);
 
-        // If it's urgent, notify immediately
         if (saved.escalated) {
-             notifySubscribers(saved).catch(err => console.error("Notification error:", err));
+            notifySubscribers(saved).catch((err) => console.error("Notification error:", err));
         }
 
         res.status(201).json({ success: true, item: saved });
@@ -647,22 +613,22 @@ app.post("/api/news", async (req, res) => {
     }
 });
 
-// ===========================================================
-// AI INITIALIZATION (Ensure this is done once)
-// ===========================================================
+
+// ==========================
+// AI INITIALIZATION
+// ==========================
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-/* ===========================================================
-    AI ANALYSIS ROUTE 1 (Using URL Parameter :id)
-===========================================================
-*/
+
+// ==========================
+// AI ANALYSIS ROUTE 1 — by :id param
+// ==========================
 app.post("/api/ai/analyze-report/:id", async (req, res) => {
     try {
         const itemId = req.params.id;
-        
-        // Attempt to find the item in both News and Report collections
+
         let item = await News.findById(itemId);
         if (!item) {
             item = await Report.findById(itemId);
@@ -672,12 +638,10 @@ app.post("/api/ai/analyze-report/:id", async (req, res) => {
             return res.status(404).json({ error: "Item not found for analysis" });
         }
 
-        // Extract data for the prompt, handling differences between News and Report schemas
-        const title = item.title || item.incidentType || 'Untitled Report';
-        const content = item.content || item.description || item.details || 'No content available.';
-        const location = item.location || item.state || 'Unknown Location';
-        // Ensure categories is an array before joining
-        const categories = (item.categories || item.tags || []).filter(c => c).join(', ');
+        const title = item.title || item.incidentType || "Untitled Report";
+        const content = item.content || item.description || item.details || "No content available.";
+        const location = item.location || item.state || "Unknown Location";
+        const categories = (item.categories || item.tags || []).filter((c) => c).join(", ");
 
         const prompt = `
 You are a crisis-analysis AI for a peace & conflict early-warning system in Nigeria.
@@ -697,19 +661,21 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
 }
 `;
 
-        // Call OpenAI using the Chat Completions API with JSON mode
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Use the capable mini model
+            model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary." },
-                { role: "user", content: prompt }
+                {
+                    role: "system",
+                    content:
+                        "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary.",
+                },
+                { role: "user", content: prompt },
             ],
-            response_format: { type: "json_object" } // Enforce JSON response
+            response_format: { type: "json_object" },
         });
 
-        // Extract and Parse the JSON Response
         const jsonText = completion.choices[0].message.content;
-        
+
         let result;
         try {
             result = JSON.parse(jsonText);
@@ -718,31 +684,24 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
             throw new Error("AI returned invalid JSON: " + jsonText.substring(0, 50));
         }
 
-        // Send the structured result back to the frontend
         return res.json(result);
-
     } catch (err) {
         console.error("AI ANALYSIS ERROR (Route :id):", err.message || err);
-        // Send 500 status and a clear message for the frontend to display
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: "AI processing failed",
-            message: err.message || "An unknown error occurred during AI processing."
+            message: err.message || "An unknown error occurred during AI processing.",
         });
     }
 });
 
-/* ===========================================================
-    ⭐ CORRECTED AI ANALYSIS ROUTE 2 (Using Request Body)
-    FIX: ROUTE NOW MATCHES FRONTEND POST /api/ai/analyze-item
-===========================================================
-*/
+
+// ==========================
+// AI ANALYSIS ROUTE 2 — by request body
+// ==========================
 app.post("/api/ai/analyze-item", async (req, res) => {
     try {
-        // 💡 Extract the necessary data from the request BODY
-        // CORRECT - Fixed code
-          const { title, content } = req.body;
-        
-        // This part attempts to find the full item data in the DB
+        const { id: itemId, title: bodyTitle, content: bodyContent } = req.body;
+
         let item = null;
         if (itemId) {
             item = await News.findById(itemId);
@@ -755,12 +714,11 @@ app.post("/api/ai/analyze-item", async (req, res) => {
             console.warn(`Item ID ${itemId} not found in DB for analysis. Using raw content.`);
         }
 
-        // Use data from DB if available, otherwise fall back to data sent from frontend (req.body)
-        const incidentTitle = item?.title || item?.incidentType || bodyTitle || 'Untitled Report';
-        const incidentContent = item?.content || item?.description || item?.details || bodyContent || 'No content available.';
-        const location = item?.location || item?.state || 'Unknown Location';
-        const categories = (item?.categories || item?.tags || []).filter(c => c).join(', ');
-
+        const incidentTitle = item?.title || item?.incidentType || bodyTitle || "Untitled Report";
+        const incidentContent =
+            item?.content || item?.description || item?.details || bodyContent || "No content available.";
+        const location = item?.location || item?.state || "Unknown Location";
+        const categories = (item?.categories || item?.tags || []).filter((c) => c).join(", ");
 
         const prompt = `
 You are a crisis-analysis AI for a peace & conflict early-warning system in Nigeria.
@@ -780,19 +738,21 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
 }
 `;
 
-        // Call OpenAI using the Chat Completions API with JSON mode
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Use the capable mini model
+            model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary." },
-                { role: "user", content: prompt }
+                {
+                    role: "system",
+                    content:
+                        "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary.",
+                },
+                { role: "user", content: prompt },
             ],
-            response_format: { type: "json_object" } // Enforce JSON response
+            response_format: { type: "json_object" },
         });
 
-        // Extract and Parse the JSON Response
         const jsonText = completion.choices[0].message.content;
-        
+
         let result;
         try {
             result = JSON.parse(jsonText);
@@ -801,23 +761,20 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
             throw new Error("AI returned invalid JSON: " + jsonText.substring(0, 50));
         }
 
-        // Send the structured result back to the frontend
         return res.json(result);
-
     } catch (err) {
         console.error("AI ANALYSIS ERROR (Route /analyze-item):", err.message || err);
-        // Send 500 status and a clear message for the frontend to display
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: "AI processing failed",
-            message: err.message || "An unknown error occurred during AI processing."
+            message: err.message || "An unknown error occurred during AI processing.",
         });
     }
 });
 
 
-/* =========================================================
-    NEW: Get latest news route
-    ========================================================= */
+// ==========================
+// GET LATEST NEWS
+// ==========================
 app.get("/get-news", async (req, res) => {
     try {
         const items = await News.find().sort({ createdAt: -1 }).limit(200);
@@ -828,9 +785,10 @@ app.get("/get-news", async (req, res) => {
     }
 });
 
-/* =========================================================
-    NEW: Subscribe alert endpoint
-    ========================================================= */
+
+// ==========================
+// SUBSCRIBE ALERT
+// ==========================
 app.post("/subscribe-alert", async (req, res) => {
     try {
         let { phone, email, location, method } = req.body;
@@ -859,51 +817,9 @@ app.post("/subscribe-alert", async (req, res) => {
 });
 
 
-// ===========================================================
-// ⭐ UPDATED: CONSOLIDATED SUBMISSION ROUTE (WITH AUTO-BACKUP)
-// ===========================================================
-app.post("/api/news", async (req, res) => {
-    try {
-        const { title, content, location, categories, reporterName, reporterEmail, escalated, newsSource, videoLink } = req.body;
-
-        const newsDoc = new News({
-            id: `user-${Date.now()}`,
-            title,
-            content,
-            description: content ? content.substring(0, 200) : "",
-            location,
-            categories: Array.isArray(categories) ? categories : [categories].filter(Boolean),
-            reporterName,
-            reporterEmail,
-            escalated: escalated === true || escalated === 'true',
-            newsSource,
-            videoLink,
-            verified: false,
-            approved: escalated === true || escalated === 'true',
-            createdAt: new Date()
-        });
-
-        const saved = await newsDoc.save();
-        
-        // ⭐ AUTO-BACKUP TO CSV
-        appendToCSV(saved);
-
-        io.emit("news:created", saved);
-
-        if (saved.escalated) {
-             notifySubscribers(saved).catch(err => console.error("Notification error:", err));
-        }
-
-        res.status(201).json({ success: true, item: saved });
-    } catch (err) {
-        console.error("SUBMISSION ERROR:", err);
-        res.status(500).json({ success: false, error: "Failed to process submission" });
-    }
-});
-
-/* =========================================================
-    ⭐ UPDATED: submit-report endpoint (WITH AUTO-BACKUP)
-========================================================= */
+// ==========================
+// SUBMIT REPORT
+// ==========================
 app.post("/api/submit-report", async (req, res) => {
     try {
         const { title, content, category, location } = req.body;
@@ -919,7 +835,7 @@ app.post("/api/submit-report", async (req, res) => {
             content,
             location,
             categories: Array.isArray(category) ? category : [category].filter(Boolean),
-            photos: [], 
+            photos: [],
             videoLink: "",
             verified: false,
             approved: false,
@@ -928,7 +844,6 @@ app.post("/api/submit-report", async (req, res) => {
 
         const created = await News.create(doc);
 
-        // ⭐ AUTO-BACKUP TO CSV
         appendToCSV(created);
 
         try {
@@ -946,10 +861,10 @@ app.post("/api/submit-report", async (req, res) => {
     }
 });
 
-/* =========================================================
-    EMAIL + WHATSAPP HELPERS
-========================================================= */
 
+// ==========================
+// EMAIL HELPER
+// ==========================
 async function sendEmail(to, subject, text) {
     try {
         const host = process.env.SMTP_HOST;
@@ -967,19 +882,10 @@ async function sendEmail(to, subject, text) {
             host,
             port: Number(port),
             secure: Number(port) === 465,
-            auth: {
-                user,
-                pass,
-            },
+            auth: { user, pass },
         });
 
-        const info = await transporter.sendMail({
-            from: from,
-            to,
-            subject,
-            text,
-        });
-
+        const info = await transporter.sendMail({ from, to, subject, text });
         console.log("Email sent:", info.messageId);
         return { ok: true, info };
     } catch (err) {
@@ -988,6 +894,10 @@ async function sendEmail(to, subject, text) {
     }
 }
 
+
+// ==========================
+// WHATSAPP HELPER
+// ==========================
 async function sendWhatsApp(to, message) {
     try {
         const token = process.env.WHATSAPP_API_TOKEN;
@@ -1026,6 +936,10 @@ async function sendWhatsApp(to, message) {
     }
 }
 
+
+// ==========================
+// NOTIFY SUBSCRIBERS
+// ==========================
 async function notifySubscribers(news) {
     try {
         if (!news || !news.location) return;
@@ -1035,9 +949,7 @@ async function notifySubscribers(news) {
 
         const message = `CIEPD Alert — ${news.title}
 Location: ${news.location}
-Categories: ${
-            Array.isArray(news.categories) ? news.categories.join(", ") : news.categories
-        }
+Categories: ${Array.isArray(news.categories) ? news.categories.join(", ") : news.categories}
 Date: ${new Date(news.createdAt).toLocaleString()}
 
 Details: ${news.description || (news.content || "").slice(0, 150)}
@@ -1056,7 +968,6 @@ Details: ${news.description || (news.content || "").slice(0, 150)}
                     if (s.method && s.method.toLowerCase().includes("email")) {
                         const to = s.email || s.phone;
                         if (!to) continue;
-
                         const subject = `CIEPD Alert — ${news.title}`;
                         const text = `${message}\nVisit admin for more.`;
                         const sent = await sendEmail(to, subject, text);
@@ -1078,17 +989,20 @@ Details: ${news.description || (news.content || "").slice(0, 150)}
     }
 }
 
-// Helper to save new items to CSV automatically
+
+// ==========================
+// CSV AUTO-BACKUP HELPER
+// ==========================
 const appendToCSV = (item) => {
     const filePath = path.join(__dirname, "news.csv");
-    // Format: "#", "INCIDENT TITLE", "DESCRIPTION", "LOCATION", "CATEGORY", "VERIFIED", "APPROVED", "INCIDENT DATE"
-    const row = `\n"${item.id}","${item.title}","${item.description}","${item.location}","${item.categories?.[0] || ''}","${item.verified ? 'YES' : 'NO'}","${item.approved ? 'YES' : 'NO'}","${item.createdAt}"`;
-    
+    const row = `\n"${item.id}","${item.title}","${item.description}","${item.location}","${item.categories?.[0] || ""}","${item.verified ? "YES" : "NO"}","${item.approved ? "YES" : "NO"}","${item.createdAt}"`;
+
     fs.appendFile(filePath, row, (err) => {
         if (err) console.error("❌ Failed to backup to CSV:", err);
         else console.log("💾 News backed up to news.csv");
     });
 };
+
 
 // ==========================
 // SERVER START
