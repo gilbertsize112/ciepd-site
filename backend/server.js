@@ -120,6 +120,7 @@ const __dirname = path.dirname(__filename);
 // ==========================
 // CORS (Updated for Vercel)
 // ==========================
+
 app.use(
     cors({
         origin: [
@@ -127,11 +128,15 @@ app.use(
             "http://localhost:5500",
             "https://ciepdcwc.onrender.com",
             "https://ciepd.org",
-            "https://ciepdcwc.vercel.app" // Added your live Vercel URL
+            "https://ciepdcwc.vercel.app"
         ],
         credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"]
     })
 );
+app.options("*", cors());
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -393,7 +398,7 @@ app.get("/api/alerts", (req, res) => {
 // ==========================
 // LOGIN ROUTE
 // ==========================
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
     try {
         await connectDB(); // Ensure DB is hot on Vercel
         const { email, password } = req.body;
@@ -410,9 +415,8 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Invalid login details" });
         }
 
-        req.session.user = { id: user._id, email: user.email };
-
-        return res.json({ success: true, redirect: "/admin.html" });
+         req.session.user = { id: user._id, email: user.email, role: user.role || "admin" };
+         return res.json({ success: true, redirect: "/admin.html", user: { email: user.email, role: user.role || "admin" } });
     } catch (err) {
         console.error("LOGIN ERROR:", err);
         return res.status(500).json({ error: "Server error" });
