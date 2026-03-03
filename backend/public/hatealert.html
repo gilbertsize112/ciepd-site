@@ -413,7 +413,6 @@
             font-family: inherit;
             position: relative;
             z-index: 2;
-            /* prevent iOS zoom on focus */
             -webkit-text-size-adjust: 100%;
         }
         input:focus, textarea:focus, select:focus {
@@ -510,6 +509,31 @@
         }
         .scanner-content { position: relative; z-index: 1; color: var(--primary); font-weight: 600; }
 
+        /* ====== FILTER RULE BOX ====== */
+        .filter-rule-box {
+            background: linear-gradient(135deg, rgba(217,4,41,0.08), rgba(255,107,91,0.05));
+            border: 2px solid rgba(217,4,41,0.35);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 0 0 20px 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+        .filter-rule-box strong { color: var(--danger); }
+        .filter-rule-box .rule-title {
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--danger);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         /* ====== LOG BOX ====== */
         .log-box {
             background: #0a0a0a;
@@ -564,12 +588,15 @@
             border-left: 5px solid var(--danger);
             animation: alert-shimmer 1.5s infinite;
         }
+        .result.hate-result {
+            border-left: 5px solid var(--warning);
+        }
         @keyframes alert-shimmer {
             0%,100% { background: white; }
             50%      { background: rgba(217,4,41,0.03); }
         }
 
-        /* NEW ALERT card blink — fires for 15s */
+        /* NEW ALERT card blink */
         .result.new-alert {
             animation: newAlertBlink 0.6s ease-in-out infinite;
         }
@@ -602,6 +629,10 @@
             border: 1px solid rgba(217,4,41,0.3);
             padding: 2px 8px; border-radius: 20px;
             font-size: 0.68rem; font-weight: 700; font-family: 'Roboto Mono', monospace;
+        }
+        .kw-tag.hate-tag {
+            background: rgba(255,183,3,0.15); color: #b07800;
+            border: 1px solid rgba(255,183,3,0.4);
         }
 
         /* ====== STATS ====== */
@@ -641,9 +672,9 @@
             position: relative; z-index: 2;
         }
         .badge.hate-speech {
-            background: linear-gradient(135deg, var(--success), #05c988);
-            color: white; border-color: var(--success);
-            box-shadow: 0 0 10px rgba(6,214,160,0.4);
+            background: linear-gradient(135deg, var(--warning), #e5a800);
+            color: white; border-color: var(--warning);
+            box-shadow: 0 0 10px rgba(255,183,3,0.4);
         }
         .badge.conflict {
             background: linear-gradient(135deg, var(--danger), var(--danger-light));
@@ -738,9 +769,8 @@
 
 <body>
 
-<!-- SIREN OVERLAY — fullscreen blink on alert -->
+<!-- SIREN OVERLAY -->
 <div id="sirenOverlay"></div>
-
 <div class="cyber-grid"></div>
 
 <div class="video-background">
@@ -787,11 +817,11 @@
                 <div>
                     <h2><i class="fas fa-fire-alt"></i> CONFLICT WATCH PROTOCOL</h2>
                     <p style="color:var(--text-light); margin-top:5px;">
-                        Any news mentioning <strong>Niger Delta, Port Harcourt, Warri, Bayelsa, Rivers State…</strong> — instantly flagged.
+                        Monitors <strong>Nigeria &amp; Niger Delta</strong> news for conflict violence AND hate speech — both must match to trigger an alert.
                     </p>
                 </div>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <button id="conflictWatchBtn" class="danger"><i class="fas fa-play-circle"></i> ACTIVATE</button>
+                    <button id="conflictWatchBtn" class="danger"><i class="fas fa-play-circle"></i> ACTIVATE CONFLICT MODE</button>
                     <button id="stopConflictWatchBtn" class="ghost danger" style="display:none;"><i class="fas fa-pause-circle"></i> DEACTIVATE</button>
                 </div>
             </div>
@@ -803,26 +833,50 @@
         <div class="card-inner">
             <h2><i class="fas fa-sliders-h"></i> COMMAND PANEL</h2>
 
+            <!-- FILTER RULE EXPLANATION -->
+            <div class="filter-rule-box">
+                <div class="rule-title"><i class="fas fa-filter"></i> DUAL-MATCH FILTER RULE (ACTIVE)</div>
+                An article is flagged <strong>ONLY</strong> when it satisfies <strong>ALL THREE</strong> of the following conditions:<br>
+                &nbsp;&nbsp;① <strong>Nigeria Location:</strong> Article headline must contain a Nigerian location term (e.g. Nigeria, Lagos, Abuja…)<br>
+                &nbsp;&nbsp;② <strong>Niger Delta Region:</strong> Article headline OR body must mention a Niger Delta / South-South term<br>
+                &nbsp;&nbsp;③ <strong>Threat Content:</strong> Article must also contain at least one <strong>conflict keyword</strong> OR one <strong>hate speech keyword</strong><br>
+                <span style="color:var(--text-light); font-size:0.78rem;">Sports, entertainment, business and general news from Nigeria that have no violence/hate content will be silently ignored.</span>
+            </div>
+
             <div class="scanner-box">
                 <div class="scanner-content">
                     <div class="command-label">THREAT SCANNER CONFIGURATION</div>
                     <div style="margin-top:10px; display:flex; gap:20px; flex-wrap:wrap;">
-                        <div>• <strong id="regionCount">0</strong> Niger Delta Region Terms <span style="color:var(--danger); font-weight:800;">(★ Must appear in HEADLINE)</span></div>
+                        <div>• <strong id="nigeriaTermCount">0</strong> Nigeria Location Terms</div>
+                        <div>• <strong id="regionCount">0</strong> Niger Delta Region Terms</div>
+                        <div>• <strong id="conflictKWCount">0</strong> Conflict Keywords</div>
+                        <div>• <strong id="hateKWCount">0</strong> Hate Speech Keywords</div>
                         <div>• <strong id="feedCountScanner">0</strong> News Sources Active</div>
-                        <div>• <strong id="kwCount">0</strong> Extra Keyword Tags</div>
                     </div>
                 </div>
             </div>
 
+            <!-- ROW 1: Nigeria terms + Niger Delta terms -->
             <div class="row-grid">
                 <div class="form-group">
-                    <label>Niger Delta Region Terms <span style="color:var(--danger); font-size:0.72rem; font-weight:800;">★ Must appear in article HEADLINE to trigger alert</span></label>
-                    <textarea id="regionKeys" rows="3" style="min-height:80px; font-size:0.8rem;">niger delta,port harcourt,warri,yenagoa,bayelsa,rivers state,rivers,akwa ibom,delta state,edo state,uyo,ogoni,bonny,brass,asaba,ughelli,effurun,sapele,burutu,forcados,escravos,benin city,calabar,eket,oloibiri,nembe,degema,eleme,tai,gokana,khana,andoni,okirika,bukuma,ijaw,urhobo,itsekiri,isoko,ogbia,ozoro,patani,oleh,abraka,agbarho</textarea>
+                    <label>Nigeria Location Terms <span style="color:var(--danger); font-size:0.72rem; font-weight:800;">★ Must appear in HEADLINE</span></label>
+                    <textarea id="nigeriaKeys" rows="3" style="min-height:80px; font-size:0.8rem;">nigeria,nigerian,lagos,abuja,kano,ibadan,kaduna,port harcourt,enugu,onitsha,aba,jos,benin city,calabar,yola,maiduguri,owerri,uyo,warri,asaba,abeokuta,ilorin,sokoto,zaria,bauchi,makurdi,lokoja,lafia,nnewi,nsukka,awka,umuahia,federal capital territory,fct,north-east nigeria,north-west nigeria,south-south nigeria,south-east nigeria,south-west nigeria</textarea>
                 </div>
-
                 <div class="form-group">
-                    <label>Extra Tags <span style="font-weight:400; font-size:0.72rem; text-transform:none; color:var(--text-light);">(optional — shown on alert cards)</span></label>
-                    <input id="keywords" type="text" value="killed,killing,dead,shooting,bomb,explosion,attack,kidnap,militant,gunmen,clash,arrested,oil theft,pipeline,protest,cult,piracy,hostage,ransom,murder" />
+                    <label>Niger Delta Region Terms <span style="color:var(--warning); font-size:0.72rem; font-weight:800;">★ Headline OR Body</span></label>
+                    <textarea id="regionKeys" rows="3" style="min-height:80px; font-size:0.8rem;">niger delta,port harcourt,warri,yenagoa,bayelsa,rivers state,rivers,akwa ibom,delta state,edo state,uyo,ogoni,bonny,brass,asaba,ughelli,effurun,sapele,burutu,forcados,escravos,benin city,calabar,eket,oloibiri,nembe,degema,eleme,tai,gokana,khana,andoni,okirika,bukuma,ijaw,urhobo,itsekiri,isoko,ogbia,ozoro,patani,oleh,abraka,agbarho,south-south</textarea>
+                </div>
+            </div>
+
+            <!-- ROW 2: Conflict keywords + Hate speech keywords -->
+            <div class="row-grid">
+                <div class="form-group">
+                    <label>🔥 Conflict Keywords <span style="font-weight:400; font-size:0.72rem; text-transform:none; color:var(--text-light);">(violence, attacks, security)</span></label>
+                    <textarea id="conflictKeywordsField" rows="4" style="min-height:90px; font-size:0.78rem;">killed,killing,dead,death,murder,massacre,slaughter,shot,shooting,bomb,explosion,blast,attack,attacked,assault,violence,gunmen,gunshot,armed,armed men,kidnap,kidnapped,kidnapping,abduct,abducted,hostage,ransom,militant,militants,insurgency,soldiers,army,navy,troops,police,arrest,arrested,detained,clash,clashes,operation,raid,pipeline vandalism,oil theft,crude theft,bunkering,illegal refinery,oil spill,gas flaring,MEND,Niger Delta Avengers,piracy,pirates,robbery,gang,injured,wound,wounded,casualty,victim,survivor,cult,cultists,crisis,war,battle,displacement,siege,emergency,unrest,protest,riot,tension,gunfight,firefight,ambush,burning,arson,destruction,looting</textarea>
+                </div>
+                <div class="form-group">
+                    <label>⚠️ Hate Speech Keywords <span style="font-weight:400; font-size:0.72rem; text-transform:none; color:var(--text-light);">(incitement, discrimination)</span></label>
+                    <textarea id="hateKeywordsField" rows="4" style="min-height:90px; font-size:0.78rem;">hate speech,incitement,ethnic cleansing,tribal war,xenophobia,discrimination,bigotry,sectarian,religious violence,blasphemy,anti-christian,anti-muslim,genocide,exterminate,wipe out,kill all,ethnic tension,tribal clash,communal clash,communal violence,religious crisis,religious riot,jihad,crusade,infidel,kaffir,settler,indigene conflict,herder farmer,fulani attack,herdsmen attack,boko haram,bandits,terrorists,extremists,radicalisation,incite,inciting,hate crime,lynching,mob justice,jungle justice</textarea>
                 </div>
             </div>
 
@@ -843,7 +897,7 @@
                 </div>
             </div>
 
-            <!-- FEEDS — 40+ sources -->
+            <!-- FEEDS -->
             <div class="form-group">
                 <label>
                     Intelligence Feed Sources (RSS/News)
@@ -950,7 +1004,7 @@ https://www.allafrica.com/Nigeria/rss/index.xml</textarea>
     </h2>
     <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Active Monitors</div><div class="stat-value">2</div></div>
-        <div class="stat-card"><div class="stat-label">Feed Sources</div><div class="stat-value" id="feedCountStat">45</div></div>
+        <div class="stat-card"><div class="stat-label">Feed Sources</div><div class="stat-value" id="feedCountStat">33</div></div>
         <div class="stat-card"><div class="stat-label">Scans Run</div><div class="stat-value" id="scanCount">0</div></div>
         <div class="stat-card"><div class="stat-label">System Status</div><div class="stat-value" style="color:var(--cyber-green);">ONLINE</div></div>
         <div class="stat-card"><div class="stat-label">Uptime Status</div><div class="stat-value" style="color:var(--cyber-green);">24/7</div></div>
@@ -964,7 +1018,8 @@ https://www.allafrica.com/Nigeria/rss/index.xml</textarea>
     <div class="filter-bar">
         <button id="filterAll"      class="ghost btn-small active-filter" onclick="setFilter('all')">ALL</button>
         <button id="filterConflict" class="ghost btn-small" onclick="setFilter('conflict')">🔥 CONFLICT</button>
-        <button id="filterHate"     class="ghost btn-small" onclick="setFilter('hate')">⚠️ ALERT</button>
+        <button id="filterHate"     class="ghost btn-small" onclick="setFilter('hate')">⚠️ HATE SPEECH</button>
+        <button id="filterBoth"     class="ghost btn-small" onclick="setFilter('both')">🔥⚠️ BOTH</button>
         <button id="exportBtn"      class="ghost btn-small" style="margin-left:auto;"><i class="fas fa-download"></i> EXPORT</button>
     </div>
     <div id="results">
@@ -989,14 +1044,15 @@ const PROXIES = [
 const parser = new DOMParser();
 
 const LS_KEYS = {
-    keywords:   "ciepd_kw_v4",
-    region:     "ciepd_region_v4",
-    feeds:      "ciepd_feeds_v4",
-    interval:   "ciepd_interval_v4",
-    notif:      "ciepd_notif_v4",
-    sound:      "ciepd_sound_v4",
-    seen:       "ciepd_seen_v4",
-    conflictKW: "ciepd_conflictkw_v4"
+    nigeriaKeys:    "ciepd_nigeria_v5",
+    region:         "ciepd_region_v5",
+    conflictKW:     "ciepd_conflictkw_v5",
+    hateKW:         "ciepd_hatekw_v5",
+    feeds:          "ciepd_feeds_v5",
+    interval:       "ciepd_interval_v5",
+    notif:          "ciepd_notif_v5",
+    sound:          "ciepd_sound_v5",
+    seen:           "ciepd_seen_v5"
 };
 
 let running = false, pollTimer = null;
@@ -1006,19 +1062,14 @@ let allAlerts = [], currentFilter = 'all';
 let sourceStatus = {};
 let audioCtx = null;
 let sirenTimer = null;
-let originalKeywords = "";
-
-const DEFAULT_CONFLICT_KEYWORDS = "killed,killing,dead,death,murder,massacre,slaughter,shot,shooting,bomb,explosion,blast,attack,attacked,assault,violence,gunmen,gunshot,armed,armed men,kidnap,kidnapped,kidnapping,abduct,abducted,hostage,ransom,militant,militants,insurgency,soldiers,army,navy,troops,police,arrest,arrested,detained,clash,clashes,operation,raid,pipeline,pipeline vandalism,oil theft,crude theft,bunkering,illegal refinery,oil spill,gas flaring,MEND,Niger Delta Avengers,Ijaw,Urhobo,Itsekiri,Ogoni,Isoko,protest,protesters,riot,riots,crisis,conflict,war,battle,displacement,siege,tension,emergency,unrest,cult,cultists,piracy,pirates,robbery,gang,injured,wound,wounded,casualty,victim,survivor";
-let conflictKeywords = DEFAULT_CONFLICT_KEYWORDS;
 
 const $ = id => document.getElementById(id);
 
-// ═══════ AUDIO — 15-second siren ═══════
+// ═══════ AUDIO ═══════
 function getAudioCtx() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return audioCtx;
 }
-
 function beepTone(freq, duration, vol = 0.07, type = 'sine') {
     try {
         const ctx = getAudioCtx();
@@ -1034,13 +1085,10 @@ function beepTone(freq, duration, vol = 0.07, type = 'sine') {
         osc.stop(ctx.currentTime + duration / 1000);
     } catch(e) {}
 }
-
 function playAlertSiren() {
-    /* 15-second repeating two-tone wail + screen blink */
     if (sirenTimer) clearTimeout(sirenTimer);
     const endTime = Date.now() + 15000;
     $('sirenOverlay').style.display = 'block';
-
     function cycle() {
         if (Date.now() >= endTime) { stopSiren(); return; }
         beepTone(960, 300, 0.09, 'sawtooth');
@@ -1051,17 +1099,11 @@ function playAlertSiren() {
     cycle();
     setTimeout(stopSiren, 15000);
 }
-
 function stopSiren() {
     if (sirenTimer) { clearTimeout(sirenTimer); sirenTimer = null; }
     $('sirenOverlay').style.display = 'none';
 }
-
 function playBeep() { beepTone(720, 200, 0.06); }
-function playConflictBeep() {
-    beepTone(900, 350, 0.08, 'sawtooth');
-    setTimeout(() => beepTone(660, 200, 0.06, 'sawtooth'), 400);
-}
 
 // ═══════ LOG ═══════
 function log(msg, type = '') {
@@ -1076,13 +1118,14 @@ function log(msg, type = '') {
 
 // ═══════ SETTINGS ═══════
 function saveSettings() {
-    localStorage.setItem(LS_KEYS.keywords,   $('keywords').value);
-    localStorage.setItem(LS_KEYS.region,     $('regionKeys').value);
-    localStorage.setItem(LS_KEYS.feeds,      $('feeds').value);
-    localStorage.setItem(LS_KEYS.interval,   $('interval').value);
-    localStorage.setItem(LS_KEYS.notif,      JSON.stringify(notifEnabled));
-    localStorage.setItem(LS_KEYS.sound,      JSON.stringify(soundEnabled));
-    localStorage.setItem(LS_KEYS.conflictKW, conflictKeywords);
+    localStorage.setItem(LS_KEYS.nigeriaKeys, $('nigeriaKeys').value);
+    localStorage.setItem(LS_KEYS.region,      $('regionKeys').value);
+    localStorage.setItem(LS_KEYS.conflictKW,  $('conflictKeywordsField').value);
+    localStorage.setItem(LS_KEYS.hateKW,      $('hateKeywordsField').value);
+    localStorage.setItem(LS_KEYS.feeds,       $('feeds').value);
+    localStorage.setItem(LS_KEYS.interval,    $('interval').value);
+    localStorage.setItem(LS_KEYS.notif,       JSON.stringify(notifEnabled));
+    localStorage.setItem(LS_KEYS.sound,       JSON.stringify(soundEnabled));
     const b = $('saveBtn'), orig = b.innerHTML;
     b.innerHTML = '<i class="fas fa-check-circle"></i> SAVED!';
     setTimeout(() => b.innerHTML = orig, 1400);
@@ -1090,14 +1133,14 @@ function saveSettings() {
 
 function loadSettings() {
     const g = k => localStorage.getItem(k);
-    if (g(LS_KEYS.keywords))   $('keywords').value   = g(LS_KEYS.keywords);
-    if (g(LS_KEYS.region))     $('regionKeys').value  = g(LS_KEYS.region);
-    if (g(LS_KEYS.feeds))      $('feeds').value       = g(LS_KEYS.feeds);
-    if (g(LS_KEYS.interval))   $('interval').value    = g(LS_KEYS.interval);
-    if (g(LS_KEYS.notif))      { notifEnabled = JSON.parse(g(LS_KEYS.notif));  updateNotifUI(); }
-    if (g(LS_KEYS.sound))      { soundEnabled = JSON.parse(g(LS_KEYS.sound));  updateSoundUI(); }
-    if (g(LS_KEYS.conflictKW)) conflictKeywords = g(LS_KEYS.conflictKW);
-    originalKeywords = $('keywords').value;
+    if (g(LS_KEYS.nigeriaKeys)) $('nigeriaKeys').value            = g(LS_KEYS.nigeriaKeys);
+    if (g(LS_KEYS.region))      $('regionKeys').value             = g(LS_KEYS.region);
+    if (g(LS_KEYS.conflictKW))  $('conflictKeywordsField').value  = g(LS_KEYS.conflictKW);
+    if (g(LS_KEYS.hateKW))      $('hateKeywordsField').value      = g(LS_KEYS.hateKW);
+    if (g(LS_KEYS.feeds))       $('feeds').value                  = g(LS_KEYS.feeds);
+    if (g(LS_KEYS.interval))    $('interval').value               = g(LS_KEYS.interval);
+    if (g(LS_KEYS.notif))       { notifEnabled = JSON.parse(g(LS_KEYS.notif));  updateNotifUI(); }
+    if (g(LS_KEYS.sound))       { soundEnabled = JSON.parse(g(LS_KEYS.sound));  updateSoundUI(); }
     const ss = g(LS_KEYS.seen);
     if (ss) { try { JSON.parse(ss).forEach(id => seen.add(id)); } catch(e) {} }
     updateCounts();
@@ -1108,16 +1151,21 @@ function resetSettings() {
     if (confirm("RESET ALL SETTINGS TO DEFAULT?")) { localStorage.clear(); location.reload(); }
 }
 
-// ═══════ UI ═══════
+// ═══════ UI COUNTS ═══════
 function updateCounts() {
-    const feeds   = $('feeds').value.split('\n').map(s => s.trim()).filter(Boolean);
-    const kws     = $('keywords').value.split(',').filter(Boolean);
-    const regions = $('regionKeys').value.split(',').filter(Boolean);
-    $('feedCount').textContent = feeds.length;
+    const feeds     = $('feeds').value.split('\n').map(s => s.trim()).filter(Boolean);
+    const nigeria   = $('nigeriaKeys').value.split(',').filter(Boolean);
+    const regions   = $('regionKeys').value.split(',').filter(Boolean);
+    const conflict  = $('conflictKeywordsField').value.split(',').filter(Boolean);
+    const hate      = $('hateKeywordsField').value.split(',').filter(Boolean);
+
+    $('feedCount').textContent          = feeds.length;
     if ($('feedCountStat'))    $('feedCountStat').textContent    = feeds.length;
     if ($('feedCountScanner')) $('feedCountScanner').textContent = feeds.length;
-    if ($('kwCount'))          $('kwCount').textContent          = kws.length;
+    if ($('nigeriaTermCount')) $('nigeriaTermCount').textContent = nigeria.length;
     if ($('regionCount'))      $('regionCount').textContent      = regions.length;
+    if ($('conflictKWCount'))  $('conflictKWCount').textContent  = conflict.length;
+    if ($('hateKWCount'))      $('hateKWCount').textContent      = hate.length;
 }
 
 function updateAlertCounter() {
@@ -1126,7 +1174,6 @@ function updateAlertCounter() {
     if (seen.size > 0) el.classList.add('has-alerts');
     else el.classList.remove('has-alerts');
 }
-
 function updateMatchCount() { $('matchCount').textContent = seen.size; updateAlertCounter(); }
 function updateNotifUI()    { $('notifToggle').textContent = notifEnabled ? "🔔 ON" : "🔔 OFF"; }
 function updateSoundUI()    { $('soundToggle').textContent = soundEnabled ? "🔊 ON" : "🔊 OFF"; }
@@ -1141,7 +1188,6 @@ function updateMonitorModeUI() {
         $('stopConflictWatchBtn').style.display = 'none';
         document.querySelector('.card.alert-banner').classList.remove('active');
     }
-    $('keywords').disabled = isConflictMode;
 }
 
 function updateSourcesOkCount() {
@@ -1150,10 +1196,9 @@ function updateSourcesOkCount() {
 }
 
 function updateSocialLinks() {
-    const kws    = (isConflictMode ? conflictKeywords : $('keywords').value).trim();
-    const region = $('regionKeys').value.trim();
-    const join   = s => s.split(',').map(x => x.trim()).filter(Boolean).slice(0, 5).join(' OR ');
-    $('socialQuery').value = `(${join(kws)}) ${join(region)}`.trim();
+    const conflict = $('conflictKeywordsField').value.split(',').map(x => x.trim()).filter(Boolean).slice(0, 3).join(' OR ');
+    const region   = $('regionKeys').value.split(',').map(x => x.trim()).filter(Boolean).slice(0, 3).join(' OR ');
+    $('socialQuery').value = `(${conflict}) (${region}) nigeria`.trim();
 }
 
 // ═══════ SOURCE GRID ═══════
@@ -1239,22 +1284,68 @@ async function fetchFeed(feedUrl) {
     throw new Error(errors.join(' | '));
 }
 
-function findKeywordsInText(text, keywords) {
-    if (!text) return [];
+function matchesAny(text, termList) {
+    if (!text || !termList.length) return [];
     const t = text.toLowerCase();
-    return keywords.filter(k => k && t.includes(k.trim().toLowerCase()));
+    return termList.filter(k => k && t.includes(k.trim().toLowerCase()));
 }
 
-// ═══════ POLL — Niger Delta region match ONLY ═══════
+// ═══════ CORE DUAL-MATCH FILTER ═══════
+/*
+  An article is flagged ONLY when ALL of the following are true:
+    1. NIGERIA term found in HEADLINE (ensures article is actually about Nigeria)
+    2. NIGER DELTA / region term found in HEADLINE OR BODY (narrows to the region)
+    3. At least one CONFLICT keyword OR at least one HATE SPEECH keyword found
+       anywhere in title + description (content threat check)
+
+  This eliminates:
+    - Nigerian sports/entertainment news with no threat content
+    - International news that happens to mention "Niger" or region words
+    - General Nigerian news with no violence or hate content
+*/
+function evaluateArticle(item, nigeriaTersList, regionList, conflictList, hateList) {
+    const titleLower = (item.title || '').toLowerCase();
+    const bodyLower  = (item.desc  || '').toLowerCase();
+    const fullText   = titleLower + ' ' + bodyLower;
+
+    // Rule 1: Nigeria term must be in HEADLINE
+    const matchedNigeria = matchesAny(titleLower, nigeriaTersList);
+    if (matchedNigeria.length === 0) return null;
+
+    // Rule 2: Niger Delta / region term must be in HEADLINE or BODY
+    const matchedRegion = matchesAny(fullText, regionList);
+    if (matchedRegion.length === 0) return null;
+
+    // Rule 3: Must also have conflict OR hate speech content anywhere
+    const matchedConflict = matchesAny(fullText, conflictList);
+    const matchedHate     = matchesAny(fullText, hateList);
+    if (matchedConflict.length === 0 && matchedHate.length === 0) return null;
+
+    // Determine alert type
+    let mode = 'hate'; // hate speech only
+    if (matchedConflict.length > 0 && matchedHate.length > 0) mode = 'both';
+    else if (matchedConflict.length > 0) mode = 'conflict';
+
+    return {
+        matchedNigeria,
+        matchedRegion,
+        matchedConflict,
+        matchedHate,
+        mode
+    };
+}
+
+// ═══════ POLL ═══════
 async function pollFeedsOnce() {
-    const feedLines  = $('feeds').value.split('\n').map(s => s.trim()).filter(Boolean);
-    const currentKW  = isConflictMode ? conflictKeywords : $('keywords').value;
-    const kwList     = currentKW.split(',').map(s => s.trim()).filter(Boolean);
-    const regionList = $('regionKeys').value.split(',').map(s => s.trim()).filter(Boolean);
+    const feedLines    = $('feeds').value.split('\n').map(s => s.trim()).filter(Boolean);
+    const nigeriaTersList = $('nigeriaKeys').value.split(',').map(s => s.trim()).filter(Boolean);
+    const regionList   = $('regionKeys').value.split(',').map(s => s.trim()).filter(Boolean);
+    const conflictList = $('conflictKeywordsField').value.split(',').map(s => s.trim()).filter(Boolean);
+    const hateList     = $('hateKeywordsField').value.split(',').map(s => s.trim()).filter(Boolean);
 
     scanCount++;
     if ($('scanCount')) $('scanCount').textContent = scanCount;
-    log(`SCAN #${scanCount} starting — ${feedLines.length} sources`);
+    log(`SCAN #${scanCount} — ${feedLines.length} sources | Nigeria:${nigeriaTersList.length} Region:${regionList.length} Conflict:${conflictList.length} Hate:${hateList.length}`);
 
     let newMatches = 0;
 
@@ -1265,25 +1356,31 @@ async function pollFeedsOnce() {
             let feedHits = 0;
 
             for (const it of items) {
-                // ★★★ CORE RULE: Region term must appear in the TITLE.
-                // Description is NOT checked — prevents unrelated articles (e.g. sports
-                // from other countries) from matching via a buried mention.
-                const titleLower    = it.title.toLowerCase();
-                const matchedRegion = regionList.filter(r => r && titleLower.includes(r.trim().toLowerCase()));
+                const eval_result = evaluateArticle(it, nigeriaTersList, regionList, conflictList, hateList);
+                if (!eval_result) continue;
 
-                if (matchedRegion.length > 0) {
-                    const id = (it.link || it.title).slice(0, 220);
-                    if (!seen.has(id)) {
-                        seen.add(id);
-                        feedHits++;
-                        newMatches++;
-                        const matchedKW = findKeywordsInText(`${it.title}\n${it.desc}`, kwList);
-                        const alert = { ...it, id, matchedKW, matchedRegion, source: f, mode: isConflictMode ? 'conflict' : 'hate' };
-                        allAlerts.unshift(alert);
-                        renderSingleAlert(alert, true /* isNew */);
-                        log(`HIT: "${it.title.slice(0, 70)}"`, 'hit');
-                    }
-                }
+                const id = (it.link || it.title).slice(0, 220);
+                if (seen.has(id)) continue;
+
+                seen.add(id);
+                feedHits++;
+                newMatches++;
+
+                const alert = {
+                    ...it,
+                    id,
+                    matchedKW:       [...eval_result.matchedConflict, ...eval_result.matchedHate],
+                    matchedConflict: eval_result.matchedConflict,
+                    matchedHate:     eval_result.matchedHate,
+                    matchedRegion:   eval_result.matchedRegion,
+                    source:          f,
+                    mode:            eval_result.mode
+                };
+                allAlerts.unshift(alert);
+                renderSingleAlert(alert, true);
+
+                const typeLabel = eval_result.mode === 'both' ? 'CONFLICT+HATE' : eval_result.mode === 'conflict' ? 'CONFLICT' : 'HATE SPEECH';
+                log(`[${typeLabel}] "${it.title.slice(0, 70)}"`, 'hit');
             }
 
             sourceStatus[f] = sourceStatus[f] || {};
@@ -1297,12 +1394,11 @@ async function pollFeedsOnce() {
     }
 
     if (newMatches > 0) {
-        if (notifEnabled) new Notification("NIGER DELTA ALERT", { body: `${newMatches} new report(s) detected`, icon: '🔥' });
-        // 15-second siren (blink + beep)
+        if (notifEnabled) new Notification("NIGER DELTA ALERT", { body: `${newMatches} new threat(s) detected`, icon: '🔥' });
         playAlertSiren();
         log(`SCAN #${scanCount} complete — ${newMatches} NEW ALERTS`, 'hit');
     } else {
-        log(`SCAN #${scanCount} complete — no new matches`);
+        log(`SCAN #${scanCount} complete — no new matches (Nigeria+Region+Threat filter active)`);
     }
 
     updateMatchCount();
@@ -1318,41 +1414,57 @@ function escapeHtml(str) {
 
 function renderSingleAlert(m, isNew = false) {
     const results = $('results');
-    // Clear standby message
     if (results.innerHTML.includes('standby') || results.innerHTML.includes('Activate monitoring')) results.innerHTML = '';
 
     if (currentFilter !== 'all') {
-        if (currentFilter === 'conflict' && m.mode !== 'conflict') return;
-        if (currentFilter === 'hate'     && m.mode !== 'hate')     return;
+        if (currentFilter === 'conflict' && m.mode === 'hate') return;
+        if (currentFilter === 'hate'     && m.mode === 'conflict') return;
+        if (currentFilter === 'both'     && m.mode !== 'both') return;
     }
 
     const domain = tryGetHostname(m.source || '').replace('www.', '');
-    const kwTags = (m.matchedKW || []).slice(0, 4).map(k => `<span class="kw-tag">${escapeHtml(k)}</span>`).join('');
+
+    // Conflict tags (red)
+    const conflictTags = (m.matchedConflict || []).slice(0, 3)
+        .map(k => `<span class="kw-tag">${escapeHtml(k)}</span>`).join('');
+    // Hate speech tags (amber)
+    const hateTags = (m.matchedHate || []).slice(0, 3)
+        .map(k => `<span class="kw-tag hate-tag">${escapeHtml(k)}</span>`).join('');
+
     let timeStr = m.pub || 'RECENT';
     try { timeStr = new Date(m.pub).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch(e) {}
 
+    // Badge & class by mode
+    let badgeHtml = '';
+    let cardClass = 'result';
+    if (m.mode === 'both') {
+        badgeHtml = `<span class="badge conflict" style="margin-right:6px;"><i class="fas fa-fire"></i> CONFLICT</span><span class="badge hate-speech"><i class="fas fa-exclamation-triangle"></i> HATE SPEECH</span>`;
+        cardClass += ' conflict-result';
+    } else if (m.mode === 'conflict') {
+        badgeHtml = `<span class="badge conflict"><i class="fas fa-fire"></i> CONFLICT ALERT</span>`;
+        cardClass += ' conflict-result';
+    } else {
+        badgeHtml = `<span class="badge hate-speech"><i class="fas fa-exclamation-triangle"></i> HATE SPEECH</span>`;
+        cardClass += ' hate-result';
+    }
+    if (isNew) cardClass += ' new-alert';
+
     const el = document.createElement('div');
-    // new-alert class adds 15-sec blink; removed after 15s
-    el.className = `result ${m.mode === 'conflict' ? 'conflict-result' : ''} ${isNew ? 'new-alert' : ''}`;
+    el.className = cardClass;
     el.dataset.mode = m.mode;
 
     if (isNew) {
-        // Stop blinking after 15 seconds, let conflict-result shimmer take over
         setTimeout(() => {
             el.classList.remove('new-alert');
-            if (m.mode === 'conflict') el.classList.add('conflict-result');
         }, 15000);
     }
 
     el.innerHTML = `
-        <div class="badge ${m.mode === 'conflict' ? 'conflict' : 'hate-speech'}">
-            <i class="fas ${m.mode === 'conflict' ? 'fa-fire' : 'fa-exclamation-triangle'}"></i>
-            ${m.mode === 'conflict' ? 'CONFLICT ALERT' : 'NIGER DELTA ALERT'}
-        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">${badgeHtml}</div>
         <div class="source-tag"><i class="fas fa-rss"></i> ${escapeHtml(domain)}</div>
         <div class="publish-date"><i class="fas fa-clock"></i> ${escapeHtml(timeStr)}</div>
         <h3>${escapeHtml(m.title)}</h3>
-        <div class="matched-kw">${kwTags}</div>
+        <div class="matched-kw">${conflictTags}${hateTags}</div>
         <p class="description">${escapeHtml((m.desc || '').replace(/<[^>]+>/g, '').slice(0, 200))}...</p>
         <div class="result-actions">
             <a href="${m.link}" target="_blank" rel="noopener">
@@ -1373,40 +1485,43 @@ function rerenderAllAlerts() {
 
 function setFilter(f) {
     currentFilter = f;
-    ['filterAll', 'filterConflict', 'filterHate'].forEach(id => $(id).classList.remove('active-filter'));
-    if (f === 'all')      $('filterAll').classList.add('active-filter');
-    else if (f === 'conflict') $('filterConflict').classList.add('active-filter');
-    else                  $('filterHate').classList.add('active-filter');
+    ['filterAll','filterConflict','filterHate','filterBoth'].forEach(id => {
+        const el = $(id); if (el) el.classList.remove('active-filter');
+    });
+    const map = { all:'filterAll', conflict:'filterConflict', hate:'filterHate', both:'filterBoth' };
+    if ($(map[f])) $(map[f]).classList.add('active-filter');
     rerenderAllAlerts();
 }
 
 function exportAlerts() {
     if (!allAlerts.length) { alert("No alerts to export."); return; }
-    const rows = [['Type', 'Title', 'Source', 'Published', 'Link', 'Keywords Matched']];
-    allAlerts.forEach(m => rows.push([m.mode, m.title, m.source, m.pub, m.link, (m.matchedKW || []).join(' | ')]));
-    const csv = rows.map(r => r.map(c => `"${(c || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const rows = [['Type','Title','Source','Published','Link','Conflict Keywords','Hate Keywords','Region']];
+    allAlerts.forEach(m => rows.push([
+        m.mode, m.title, m.source, m.pub, m.link,
+        (m.matchedConflict || []).join(' | '),
+        (m.matchedHate     || []).join(' | '),
+        (m.matchedRegion   || []).join(' | ')
+    ]));
+    const csv = rows.map(r => r.map(c => `"${(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
     const a = document.createElement('a');
     a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-    a.download = `ciepd_niger_delta_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `ciepd_niger_delta_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
 }
 
 // ═══════ MONITOR CONTROL ═══════
 function startConflictWatch() {
-    stopMonitoring();
+    if (running) stopMonitoring();
     isConflictMode = true;
-    originalKeywords = $('keywords').value;
-    $('keywords').value = conflictKeywords;
-    updateMonitorModeUI(); updateSocialLinks();
-    log("CONFLICT WATCH MODE ACTIVATED", 'hit');
+    updateMonitorModeUI();
+    log("CONFLICT WATCH MODE ACTIVATED — dual-match filter running", 'hit');
     startMonitoringInternal();
 }
 
 function stopConflictWatch() {
     stopMonitoring();
     isConflictMode = false;
-    $('keywords').value = originalKeywords;
-    updateMonitorModeUI(); updateSocialLinks();
+    updateMonitorModeUI();
     log("Conflict watch deactivated");
 }
 
@@ -1414,7 +1529,7 @@ function startMonitoringInternal() {
     if (running) return;
     running = true;
     $('startBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> SCANNING...';
-    log("Monitoring started");
+    log("Monitoring started — Nigeria + Niger Delta + Threat dual-match active");
     buildSourceStatusGrid();
     pollNowAndSchedule();
 }
@@ -1447,33 +1562,35 @@ async function dumpAllHeadlines() {
 function testNotification() {
     if (Notification.permission === "granted") new Notification("TEST ALERT", { body: "Alert system operational!", icon: '✅' });
     else Notification.requestPermission();
-    playAlertSiren(); // preview the 15-sec siren+blink
+    playAlertSiren();
 }
 
 // ═══════ EVENTS ═══════
-$('keywords').addEventListener('input',   () => { updateSocialLinks(); updateCounts(); });
-$('regionKeys').addEventListener('input', updateSocialLinks);
-$('feeds').addEventListener('input',      () => { updateCounts(); buildSourceStatusGrid(); });
-$('saveBtn').addEventListener('click',    saveSettings);
-$('resetBtn').addEventListener('click',   resetSettings);
+['nigeriaKeys','regionKeys','conflictKeywordsField','hateKeywordsField'].forEach(id => {
+    const el = $(id);
+    if (el) el.addEventListener('input', () => { updateSocialLinks(); updateCounts(); });
+});
+$('feeds').addEventListener('input',   () => { updateCounts(); buildSourceStatusGrid(); });
+$('saveBtn').addEventListener('click',  saveSettings);
+$('resetBtn').addEventListener('click', resetSettings);
 $('openTwitter').addEventListener('click', () => window.open(`https://twitter.com/search?q=${encodeURIComponent($('socialQuery').value)}&src=typed_query&f=live`, '_blank'));
 $('openTelegram').addEventListener('click', () => {
-    const kw = (isConflictMode ? conflictKeywords : $('keywords').value).split(',').slice(0,3).map(k=>k.trim()).join(' ');
+    const kw = $('conflictKeywordsField').value.split(',').slice(0,3).map(k=>k.trim()).join(' ');
     const rg = $('regionKeys').value.split(',').slice(0,3).map(r=>r.trim()).join(' ');
-    window.open(`https://www.google.com/search?q=${encodeURIComponent(`site:t.me ${kw} ${rg}`)}`, '_blank');
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(`site:t.me ${kw} ${rg} nigeria`)}`, '_blank');
 });
-$('exportBtn').addEventListener('click', exportAlerts);
+$('exportBtn').addEventListener('click',            exportAlerts);
 $('notifToggle').addEventListener('click', async () => {
     if (Notification.permission === 'granted') notifEnabled = !notifEnabled;
     else { const p = await Notification.requestPermission(); notifEnabled = (p === 'granted'); }
     updateNotifUI(); saveSettings();
 });
 $('soundToggle').addEventListener('click', () => { soundEnabled = !soundEnabled; updateSoundUI(); saveSettings(); if (soundEnabled) playBeep(); });
-$('testNotif').addEventListener('click', testNotification);
+$('testNotif').addEventListener('click',             testNotification);
 $('clearSeen').addEventListener('click', () => {
     if (confirm("CLEAR ALL ALERT HISTORY?")) { seen.clear(); allAlerts = []; localStorage.removeItem(LS_KEYS.seen); updateMatchCount(); rerenderAllAlerts(); }
 });
-$('dumpBtn').addEventListener('click',             dumpAllHeadlines);
+$('dumpBtn').addEventListener('click',              dumpAllHeadlines);
 $('conflictWatchBtn').addEventListener('click',     startConflictWatch);
 $('stopConflictWatchBtn').addEventListener('click', stopConflictWatch);
 $('startBtn').addEventListener('click',             startMonitoringInternal);
