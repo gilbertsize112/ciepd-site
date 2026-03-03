@@ -385,7 +385,6 @@ const STATE_COORDS = {
 // ==========================
 // ROUTE MIDDLEWARE
 // ==========================
-app.use("/api/auth", authRoutes);
 app.use("/api/report", reportRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api", hateAlertRoutes);
