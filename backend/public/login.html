@@ -717,9 +717,7 @@
 </div>
 
 <script>
-    /* Since vercel.json routes ALL traffic to server.js, 
-       we point directly to your domain. 
-    */
+    /* Pointing directly to Vercel production domain */
     const BASE_URL =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"
@@ -766,19 +764,18 @@
             let btnId, btnText, btnIcon, endpoint;
             const payload = {};
 
-            // Endpoints match your server.js route logic
             if(formId === 'login') {
                 btnId = 'login-btn'; 
                 btnText = 'Access Intelligence Portal'; 
                 btnIcon = 'fas fa-sign-in-alt'; 
-                endpoint = '/login'; 
+                endpoint = '/api/login'; 
                 payload.email = document.getElementById("loginEmail").value.trim();
                 payload.password = document.getElementById("loginPassword").value.trim();
             } else if(formId === 'signup') {
                 btnId = 'signup-btn'; 
                 btnText = 'Create Account'; 
                 btnIcon = 'fas fa-user-plus'; 
-                endpoint = '/signup';
+                endpoint = '/api/signup';
                 payload.name = document.getElementById("signupName").value.trim();
                 payload.email = document.getElementById("signupEmail").value.trim();
                 payload.password = document.getElementById("signupPassword").value.trim();
@@ -786,7 +783,7 @@
                 btnId = 'reset-btn'; 
                 btnText = 'Recover Password'; 
                 btnIcon = 'fas fa-redo-alt'; 
-                endpoint = '/reset-password';
+                endpoint = '/api/reset-password';
                 payload.email = document.getElementById("resetEmail").value.trim();
                 payload.newPassword = document.getElementById("resetNewPassword").value.trim();
             }
@@ -794,10 +791,11 @@
             toggleButtonLoading(btnId, true, btnText, btnIcon);
 
             try {
+                // Pointing to Vercel via BASE_URL
                 const res = await fetch(`${BASE_URL}${endpoint}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    credentials: (formId === 'login' ? "include" : "omit"),
+                    credentials: "include",
                     body: JSON.stringify(payload)
                 });
 
@@ -805,6 +803,10 @@
 
                 if (res.ok && (data.success || formId !== 'login')) {
                     if(formId === 'login') {
+                        // Successful login: save role and redirect
+                        if(data.user && data.user.role) {
+                           localStorage.setItem('userRole', data.user.role);
+                        }
                         window.location.href = data.redirect || "admin.html";
                     } else {
                         showMessage(data.message || "✅ Action successful! You can now log in.", 'success');
@@ -816,7 +818,7 @@
 
             } catch (err) {
                 console.error("Fetch Error:", err);
-                showMessage("⚠️ Server Connection Failed. Check if server.js is running on Vercel.");
+                showMessage("⚠️ Server Connection Failed. Ensure backend is active on Vercel.");
             } finally {
                 toggleButtonLoading(btnId, false, btnText, btnIcon);
             }
