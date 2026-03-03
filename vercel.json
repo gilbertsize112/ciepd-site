@@ -4,40 +4,12 @@
     {
       "src": "backend/server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "backend/public/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "/socket.io/(.*)",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "/get-news",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "/subscribe-alert",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "^/$",
-      "dest": "backend/public/index.html"
-    },
-    {
-      "src": "^/([^.]+)$",
-      "dest": "backend/public/$1.html"
-    },
-    {
       "src": "/(.*)",
-      "dest": "backend/public/$1"
+      "dest": "backend/server.js"
     }
   ]
 }
