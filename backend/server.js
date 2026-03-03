@@ -106,7 +106,7 @@ const upload = multer({ storage: storage });
 // ==========================
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = process.env.VERCEL ? { emit: () => {} } : new Server(server);
 
 // TRUST PROXY (Required for Vercel/HTTPS cookies)
 app.set('trust proxy', 1);
@@ -1038,4 +1038,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Export for Vercel
-export default app;s
+export default app;
