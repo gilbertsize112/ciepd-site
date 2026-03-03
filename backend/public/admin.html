@@ -16,7 +16,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- Socket.io disabled on Vercel (no WebSocket support) -->
+    <script>const io = () => ({ on: () => {}, emit: () => {} });</script>
 
     <style>
         /* ====== ROOT VARIABLES ====== */
@@ -1200,19 +1201,20 @@
         return String(str).replace(/'/g, "\\'").replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '');
     }
 
+    // Auto-detect BASE_URL: use relative URLs on Vercel, localhost for local dev
     const BASE_URL =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"
             ? "http://localhost:3000"
-            : "https://ciepdcwc.up.railway.app";
+            : "";
 
-    const socket = io(BASE_URL);
-
+    // Socket.io stub — real-time disabled on Vercel (no WebSocket support)
+    const socket = io();
     let currentPage = 1;
     const pageSize = 40;
     let currentItems = [];
 
-    // Real-time events
+    // Real-time events (no-op on Vercel)
     socket.on("news:new", () => { loadItems(); });
 
     // ====== LOAD CATEGORIES ======
