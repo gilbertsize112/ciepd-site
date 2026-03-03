@@ -717,12 +717,14 @@
 </div>
 
 <script>
-    /* FIX: Pointing BASE_URL to your Vercel deployment instead of Railway */
+    /* Since vercel.json routes ALL traffic to server.js, 
+       we point directly to your domain. 
+    */
     const BASE_URL =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"
             ? "http://localhost:3000"
-            : "https://ciepdcwc.vercel.app"; // Set this to your Backend Vercel URL
+            : "https://ciepdcwc.vercel.app";
     
     const messageBox = document.getElementById('message-box');
 
@@ -764,18 +766,19 @@
             let btnId, btnText, btnIcon, endpoint;
             const payload = {};
 
+            // Endpoints match your server.js route logic
             if(formId === 'login') {
                 btnId = 'login-btn'; 
                 btnText = 'Access Intelligence Portal'; 
                 btnIcon = 'fas fa-sign-in-alt'; 
-                endpoint = '/api/login'; // Added /api/ prefix common for Vercel Serverless
+                endpoint = '/login'; 
                 payload.email = document.getElementById("loginEmail").value.trim();
                 payload.password = document.getElementById("loginPassword").value.trim();
             } else if(formId === 'signup') {
                 btnId = 'signup-btn'; 
                 btnText = 'Create Account'; 
                 btnIcon = 'fas fa-user-plus'; 
-                endpoint = '/api/signup';
+                endpoint = '/signup';
                 payload.name = document.getElementById("signupName").value.trim();
                 payload.email = document.getElementById("signupEmail").value.trim();
                 payload.password = document.getElementById("signupPassword").value.trim();
@@ -783,7 +786,7 @@
                 btnId = 'reset-btn'; 
                 btnText = 'Recover Password'; 
                 btnIcon = 'fas fa-redo-alt'; 
-                endpoint = '/api/reset-password';
+                endpoint = '/reset-password';
                 payload.email = document.getElementById("resetEmail").value.trim();
                 payload.newPassword = document.getElementById("resetNewPassword").value.trim();
             }
@@ -813,7 +816,7 @@
 
             } catch (err) {
                 console.error("Fetch Error:", err);
-                showMessage("⚠️ Server Connection Failed. Please ensure your Vercel backend is active.");
+                showMessage("⚠️ Server Connection Failed. Check if server.js is running on Vercel.");
             } finally {
                 toggleButtonLoading(btnId, false, btnText, btnIcon);
             }

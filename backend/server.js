@@ -79,6 +79,10 @@ if (isS3Configured) {
     storage = multer.diskStorage({
         destination: function (req, file, cb) {
             const uploadPath = process.env.MULTER_STORAGE_PATH || "./public/uploads";
+            // Check if we are on Vercel (Read-only FS)
+            if (process.env.VERCEL) {
+                return cb(new Error("Local uploads not supported on Vercel. Use S3."));
+            }
             if (!fs.existsSync(uploadPath)) {
                 fs.mkdirSync(uploadPath, { recursive: true });
             }
@@ -170,6 +174,7 @@ const ConfigSchema = new mongoose.Schema({
 const Config = mongoose.model("Config", ConfigSchema);
 
 async function connectDB() {
+    if (mongoose.connection.readyState >= 1) return; // Prevent multiple connections on Vercel
     try {
         console.log("DEBUG:: MONGODB_URI =", process.env.MONGODB_URI);
 
@@ -181,7 +186,6 @@ async function connectDB() {
         console.log("✅ MongoDB Connected Successfully");
     } catch (err) {
         console.error("❌ MongoDB Connection Error:", err);
-        // Do not process.exit(1) on Vercel or the function will fail to cold-start
     }
 }
 
@@ -318,12 +322,13 @@ async function cleanDuplicates() {
 async function ensureAdmin() {
     const email = process.env.ADMIN_EMAIL;
     const password = process.env.ADMIN_PASSWORD;
+    if(!email || !password) return;
 
     const exist = await User.findOne({ email });
     if (!exist) {
         const hashed = await bcrypt.hash(password, 10);
         await User.create({ email, password: hashed });
-        console.log(`👤 Default Admin Created: ${email} | pass: ${password}`);
+        console.log(`👤 Default Admin Created: ${email}`);
     } else {
         console.log("🔐 Admin Already Exists");
     }
@@ -390,6 +395,7 @@ app.get("/api/alerts", (req, res) => {
 // ==========================
 app.post("/login", async (req, res) => {
     try {
+        await connectDB(); // Ensure DB is hot on Vercel
         const { email, password } = req.body;
 
         console.log("LOGIN ATTEMPT:", email);
@@ -951,13 +957,7 @@ async function notifySubscribers(news) {
         const subs = await Subscription.find().lean();
         const newsLoc = String(news.location || "").toLowerCase();
 
-        const message = `CIEPD Alert — ${news.title}
-Location: ${news.location}
-Categories: ${Array.isArray(news.categories) ? news.categories.join(", ") : news.categories}
-Date: ${new Date(news.createdAt).toLocaleString()}
-
-Details: ${news.description || (news.content || "").slice(0, 150)}
-`;
+        const message = `CIEPD Alert — ${news.title}\nLocation: ${news.location}\nCategories: ${Array.isArray(news.categories) ? news.categories.join(", ") : news.categories}\nDate: ${new Date(news.createdAt).toLocaleString()}\n\nDetails: ${news.description || (news.content || "").slice(0, 150)}`;
 
         for (let s of subs) {
             try {
@@ -998,6 +998,9 @@ Details: ${news.description || (news.content || "").slice(0, 150)}
 // CSV AUTO-BACKUP HELPER
 // ==========================
 const appendToCSV = (item) => {
+    // ONLY RUN LOCALLY. Vercel is read-only.
+    if (process.env.VERCEL) return;
+
     const filePath = path.join(__dirname, "news.csv");
     const row = `\n"${item.id}","${item.title}","${item.description}","${item.location}","${item.categories?.[0] || ""}","${item.verified ? "YES" : "NO"}","${item.approved ? "YES" : "NO"}","${item.createdAt}"`;
 
@@ -1011,7 +1014,7 @@ const appendToCSV = (item) => {
 // SERVER START 
 const PORT = process.env.PORT || 3000;
 
-
+// Unified Start Logic
 if (process.env.NODE_ENV !== 'production') {
     server.listen(PORT, async () => {
         console.log(`🚀 Local Server running on port ${PORT}`);
@@ -1021,11 +1024,11 @@ if (process.env.NODE_ENV !== 'production') {
     });
 } else {
     // VERCEL PRODUCTION FLOW
+    // We pre-connect to DB so first request is fast
     connectDB().then(() => {
-        ensureAdmin();
-        // Skip importCSV on cold start to prevent function timeouts
+        ensureAdmin().catch(e => console.error("Admin check failed", e));
     });
 }
 
-
+// Export for Vercel
 export default app;
