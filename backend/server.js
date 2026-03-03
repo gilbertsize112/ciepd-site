@@ -104,6 +104,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// TRUST PROXY (Required for Vercel/HTTPS cookies)
+app.set('trust proxy', 1);
+
 mongoose.set("strictQuery", false);
 
 const __filename = fileURLToPath(import.meta.url);
@@ -111,7 +114,7 @@ const __dirname = path.dirname(__filename);
 
 
 // ==========================
-// CORS
+// CORS (Updated for Vercel)
 // ==========================
 app.use(
     cors({
@@ -120,6 +123,7 @@ app.use(
             "http://localhost:5500",
             "https://ciepdcwc.onrender.com",
             "https://ciepd.org",
+            "https://ciepdcwc.vercel.app" // Added your live Vercel URL
         ],
         credentials: true,
     })
@@ -129,7 +133,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================
-// SESSION (SINGLE — with MongoStore for production)
+// SESSION (Updated for Vercel HTTPS)
 // ==========================
 app.use(
     session({
@@ -142,9 +146,9 @@ app.use(
             ttl: 14 * 24 * 60 * 60, // 14 days
         }),
         cookie: {
-            secure: false,
+            secure: true, // Required for HTTPS on Vercel
             httpOnly: true,
-            sameSite: "lax",
+            sameSite: "none", // Critical for Cross-Origin cookies
         },
     })
 );
@@ -177,7 +181,7 @@ async function connectDB() {
         console.log("✅ MongoDB Connected Successfully");
     } catch (err) {
         console.error("❌ MongoDB Connection Error:", err);
-        process.exit(1);
+        // Do not process.exit(1) on Vercel or the function will fail to cold-start
     }
 }
 
@@ -1016,10 +1020,10 @@ if (process.env.NODE_ENV !== 'production') {
         await importCSV();
     });
 } else {
-
+    // VERCEL PRODUCTION FLOW
     connectDB().then(() => {
         ensureAdmin();
-       
+        // Skip importCSV on cold start to prevent function timeouts
     });
 }
 

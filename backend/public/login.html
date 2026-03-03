@@ -598,7 +598,6 @@
 
 <body>
 
-<!-- ANIMATED BACKGROUND -->
 <div class="bg-animation">
     <div class="grid-bg"></div>
     <div class="shape small"></div>
@@ -608,10 +607,8 @@
     <div class="shape small"></div>
 </div>
 
-<!-- CONTAINER -->
 <div class="container">
     
-    <!-- BRANDING HEADER -->
     <div class="branding-header">
         <div class="branding-icon">
             <i class="fas fa-satellite-dish"></i>
@@ -623,13 +620,11 @@
 
     <p class="subtitle">Conflict Intelligence & Early Peace Detection System</p>
 
-    <!-- STATUS INDICATOR -->
     <div class="status-indicator">
         <div class="status-dot"></div>
         System Online • 24/7 Monitoring Active
     </div>
 
-    <!-- TABS -->
     <div class="tabs">
         <div class="tab active" data-tab-id="login" onclick="showTab('login', this)">
             <i class="fas fa-sign-in-alt"></i> Login
@@ -642,10 +637,8 @@
         </div>
     </div>
 
-    <!-- MESSAGE BOX -->
     <div id="message-box"></div>
 
-    <!-- LOGIN FORM -->
     <form id="login" class="active">
         <div class="input-group">
             <label for="loginEmail"><i class="fas fa-envelope"></i> Administrator Email</label>
@@ -666,7 +659,6 @@
         </button>
     </form>
 
-    <!-- SIGNUP FORM -->
     <form id="signup">
         <div class="input-group">
             <label for="signupName"><i class="fas fa-user"></i> Full Name</label>
@@ -694,7 +686,6 @@
         </button>
     </form>
 
-    <!-- RESET FORM -->
     <form id="reset">
         <div class="input-group">
             <label for="resetEmail"><i class="fas fa-envelope"></i> Email Address</label>
@@ -715,7 +706,6 @@
         </button>
     </form>
 
-    <!-- FOOTER -->
     <div class="footer">
         <p>📋 Secure Intelligence Portal</p>
         <p>🔐 End-to-End Encrypted Access</p>
@@ -727,11 +717,12 @@
 </div>
 
 <script>
+    /* FIX: Pointing BASE_URL to your Vercel deployment instead of Railway */
     const BASE_URL =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"
             ? "http://localhost:3000"
-            : "https://ciepdcwc.up.railway.app";
+            : "https://ciepdcwc.vercel.app"; // Set this to your Backend Vercel URL
     
     const messageBox = document.getElementById('message-box');
 
@@ -763,7 +754,10 @@
     // Form Submission Handlers
     const forms = ['login', 'signup', 'reset'];
     forms.forEach(formId => {
-        document.getElementById(formId).addEventListener("submit", async (e) => {
+        const formElement = document.getElementById(formId);
+        if(!formElement) return;
+
+        formElement.addEventListener("submit", async (e) => {
             e.preventDefault();
             messageBox.style.display = 'none';
             
@@ -774,14 +768,14 @@
                 btnId = 'login-btn'; 
                 btnText = 'Access Intelligence Portal'; 
                 btnIcon = 'fas fa-sign-in-alt'; 
-                endpoint = '/login';
+                endpoint = '/api/login'; // Added /api/ prefix common for Vercel Serverless
                 payload.email = document.getElementById("loginEmail").value.trim();
                 payload.password = document.getElementById("loginPassword").value.trim();
             } else if(formId === 'signup') {
                 btnId = 'signup-btn'; 
                 btnText = 'Create Account'; 
                 btnIcon = 'fas fa-user-plus'; 
-                endpoint = '/signup';
+                endpoint = '/api/signup';
                 payload.name = document.getElementById("signupName").value.trim();
                 payload.email = document.getElementById("signupEmail").value.trim();
                 payload.password = document.getElementById("signupPassword").value.trim();
@@ -789,7 +783,7 @@
                 btnId = 'reset-btn'; 
                 btnText = 'Recover Password'; 
                 btnIcon = 'fas fa-redo-alt'; 
-                endpoint = '/reset-password';
+                endpoint = '/api/reset-password';
                 payload.email = document.getElementById("resetEmail").value.trim();
                 payload.newPassword = document.getElementById("resetNewPassword").value.trim();
             }
@@ -818,7 +812,8 @@
                 }
 
             } catch (err) {
-                showMessage("⚠️ Server Connection Failed. Please ensure backend is running.");
+                console.error("Fetch Error:", err);
+                showMessage("⚠️ Server Connection Failed. Please ensure your Vercel backend is active.");
             } finally {
                 toggleButtonLoading(btnId, false, btnText, btnIcon);
             }
