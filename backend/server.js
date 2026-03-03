@@ -162,10 +162,6 @@ app.use(
     })
 );
 
-// ==========================
-// STATIC FILES
-// ==========================
-app.use(express.static(path.join(__dirname, "public")));
 
 
 // ==========================
@@ -1013,6 +1009,14 @@ const appendToCSV = (item) => {
     });
 };
 
+
+
+// ==========================
+// STATIC FILES
+// ==========================
+app.use(express.static(path.join(__dirname, "public")));
+
+
 // ==========================
 // SERVER START 
 const PORT = process.env.PORT || 3000;
@@ -1034,4 +1038,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Export for Vercel
-export default app;
+export default app;s
