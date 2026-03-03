@@ -4,9 +4,33 @@
     {
       "src": "backend/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "backend/public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/socket.io/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/videos/(.*)",
+      "dest": "backend/public/videos/$1"
+    },
+    {
+      "src": "/(.*\\.(html|css|js|jpg|jpeg|png|gif|ico|svg))",
+      "dest": "backend/public/$1"
+    },
+    {
+      "src": "/",
+      "dest": "backend/public/index.html"
+    },
     {
       "src": "/(.*)",
       "dest": "backend/server.js"
