@@ -20,16 +20,24 @@
       "dest": "backend/server.js"
     },
     {
-      "src": "/(.*\\.(html|css|js|jpg|jpeg|png|gif|ico|svg))",
-      "dest": "backend/public/$1"
+      "src": "/get-news",
+      "dest": "backend/server.js"
     },
     {
-      "src": "/",
+      "src": "/subscribe-alert",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "^/$",
       "dest": "backend/public/index.html"
     },
     {
+      "src": "^/([^.]+)$",
+      "dest": "backend/public/$1.html"
+    },
+    {
       "src": "/(.*)",
-      "dest": "backend/server.js"
+      "dest": "backend/public/$1"
     }
   ]
 }
