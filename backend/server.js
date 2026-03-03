@@ -1003,14 +1003,25 @@ const appendToCSV = (item) => {
     });
 };
 
-
 // ==========================
-// SERVER START
-// ==========================
+// SERVER START 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, async () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    await connectDB();
-    await ensureAdmin();
-    await importCSV();
-});
+
+
+if (process.env.NODE_ENV !== 'production') {
+    server.listen(PORT, async () => {
+        console.log(`🚀 Local Server running on port ${PORT}`);
+        await connectDB();
+        await ensureAdmin();
+        await importCSV();
+    });
+} else {
+
+    connectDB().then(() => {
+        ensureAdmin();
+       
+    });
+}
+
+
+export default app;
