@@ -1,272 +1,730 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIEPD Watch Center - Settings</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: linear-gradient(to bottom, #87CEFA, #ffffff);
-        margin: 0;
-        padding: 0;
-        color: #333;
-    }
+    <script>
+        (function() {
+            const s = localStorage.getItem('theme');
+            const d = s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (d) document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CIEPD — Site Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+/* ================================================================
+   CIEPD COMMAND INTELLIGENCE - SETTINGS PAGE  v4.0
+   Full design parity with report.html
+================================================================ */
+:root {
+    --void:#04060a;--deep:#080c14;--dark:#0c1220;--mid:#121a2e;
+    --surface:#18223a;--lift:#1e2d48;--raised:#243354;
+    --g0:rgba(255,255,255,0.02);--g1:rgba(255,255,255,0.04);
+    --g2:rgba(255,255,255,0.07);--g3:rgba(255,255,255,0.11);--g4:rgba(255,255,255,0.16);
+    --b0:rgba(255,255,255,0.04);--b1:rgba(255,255,255,0.08);
+    --b2:rgba(255,255,255,0.14);--b3:rgba(255,255,255,0.22);--b4:rgba(255,255,255,0.32);
+    --cyan:#00f0ff;--cyan-80:rgba(0,240,255,0.80);--cyan-40:rgba(0,240,255,0.40);
+    --cyan-20:rgba(0,240,255,0.20);--cyan-10:rgba(0,240,255,0.10);--cyan-05:rgba(0,240,255,0.05);
+    --cyan-glow:0 0 30px rgba(0,240,255,0.35);--cyan-glow-xl:0 0 60px rgba(0,240,255,0.25),0 0 120px rgba(0,240,255,0.10);
+    --indigo:#6366f1;--indigo-dim:rgba(99,102,241,0.20);--indigo-glow:0 0 30px rgba(99,102,241,0.35);
+    --emerald:#10ffb0;--emerald-dim:rgba(16,255,176,0.12);--emerald-glow:0 0 30px rgba(16,255,176,0.30);
+    --crimson:#ff1a4b;--crimson-dim:rgba(255,26,75,0.12);--crimson-glow:0 0 30px rgba(255,26,75,0.30);
+    --amber:#ffb020;--amber-dim:rgba(255,176,32,0.12);--amber-glow:0 0 30px rgba(255,176,32,0.30);
+    --violet:#bf5af2;--violet-dim:rgba(191,90,242,0.12);
+    --tx1:#f0f6ff;--tx2:#8896b0;--tx3:#4a5a78;--tx4:#283048;--tx-inv:#040610;
+    --f-disp:'Syne',sans-serif;--f-body:'DM Sans',sans-serif;--f-mono:'JetBrains Mono',monospace;
+    --r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:18px;--r-xl:26px;--r-2xl:40px;
+    --ease:cubic-bezier(0.16,1,0.3,1);--spring:cubic-bezier(0.34,1.56,0.64,1);
+}
+html:not(.dark){
+    --void:#eef3ff;--deep:#e4ecfc;--dark:#d8e4f8;--mid:#ccd8f4;
+    --surface:#f8fbff;--lift:#ffffff;--raised:#ffffff;
+    --g0:rgba(0,60,140,0.02);--g1:rgba(0,60,140,0.04);--g2:rgba(0,60,140,0.06);
+    --g3:rgba(0,60,140,0.09);--g4:rgba(0,60,140,0.13);
+    --b0:rgba(0,50,120,0.04);--b1:rgba(0,50,120,0.09);--b2:rgba(0,50,120,0.15);
+    --b3:rgba(0,50,120,0.22);--b4:rgba(0,50,120,0.32);
+    --cyan:#005fcc;--cyan-40:rgba(0,95,204,0.40);--cyan-20:rgba(0,95,204,0.20);
+    --cyan-10:rgba(0,95,204,0.10);--cyan-05:rgba(0,95,204,0.05);--cyan-glow:0 0 20px rgba(0,95,204,0.20);
+    --emerald:#00916e;--emerald-dim:rgba(0,145,110,0.10);
+    --crimson:#c8003d;--crimson-dim:rgba(200,0,61,0.10);
+    --amber:#c47700;--amber-dim:rgba(196,119,0,0.10);
+    --indigo:#4f46e5;--indigo-dim:rgba(79,70,229,0.10);
+    --tx1:#0c1428;--tx2:#3d5070;--tx3:#8098c0;--tx4:#b8ccee;--tx-inv:#f0f6ff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{font-size:16px;scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--f-body);background:var(--void);color:var(--tx1);min-height:100vh;overflow-x:hidden;line-height:1.6;transition:background .5s,color .5s;}
 
-    /* Header */
-    .header {
-        background-color: #4682B4;
-        padding: 20px;
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
-        color: #fff;
-    }
+/* BG CANVAS */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+#bg-scanlines{position:absolute;inset:0;pointer-events:none;z-index:2;background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(0,0,0,.035) 3px,rgba(0,0,0,.035) 4px);}
+#bg-grid{position:absolute;inset:-200px;background-image:linear-gradient(rgba(0,240,255,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.032) 1px,transparent 1px);background-size:64px 64px;animation:grid-drift 90s linear infinite;z-index:1;}
+html:not(.dark) #bg-grid{background-image:linear-gradient(rgba(0,95,204,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,95,204,.04) 1px,transparent 1px);}
+@keyframes grid-drift{to{transform:translate(64px,64px);}}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;animation:orb-drift 28s ease-in-out infinite alternate;}
+html:not(.dark) .bg-orb{opacity:.06;}
+.bg-orb.o1{width:900px;height:900px;background:var(--cyan);top:-350px;left:-300px;opacity:.12;animation-duration:32s;}
+.bg-orb.o2{width:700px;height:700px;background:var(--violet);bottom:-200px;right:-150px;opacity:.10;animation-duration:26s;animation-delay:-12s;}
+.bg-orb.o3{width:500px;height:500px;background:var(--emerald);top:38%;left:40%;opacity:.08;animation-duration:22s;animation-delay:-6s;}
+.bg-orb.o4{width:350px;height:350px;background:var(--amber);top:15%;right:18%;opacity:.07;animation-duration:19s;animation-delay:-9s;}
+@keyframes orb-drift{0%{transform:translate(0,0) scale(1);}50%{transform:translate(60px,-80px) scale(1.08);}100%{transform:translate(-40px,50px) scale(.95);}}
+#bg-vignette{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse at center,transparent 30%,rgba(4,6,10,.55) 100%);}
+html:not(.dark) #bg-vignette{background:radial-gradient(ellipse at center,transparent 30%,rgba(200,215,245,.35) 100%);}
+.corner{position:fixed;width:40px;height:40px;pointer-events:none;z-index:5;opacity:.20;}
+.corner::before,.corner::after{content:'';position:absolute;background:var(--cyan);border-radius:2px;}
+.corner::before{width:2px;height:100%;}
+.corner::after{width:100%;height:2px;}
+.corner.tl{top:8px;left:8px;}.corner.tl::before{top:0;left:0;}.corner.tl::after{top:0;left:0;}
+.corner.tr{top:8px;right:8px;}.corner.tr::before{top:0;right:0;}.corner.tr::after{top:0;right:0;}
+.corner.bl{bottom:8px;left:8px;}.corner.bl::before{bottom:0;left:0;}.corner.bl::after{bottom:0;left:0;}
+.corner.br{bottom:8px;right:8px;}.corner.br::before{bottom:0;right:0;}.corner.br::after{bottom:0;right:0;}
 
-    /* Navigation bar */
-    .nav-bar {
-        background-color: #ADD8E6;
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        padding: 10px;
-    }
-    .nav-bar a {
-        text-decoration: none;
-        color: #333;
-        padding: 8px 16px;
-        border-radius: 4px;
-        border: 1px solid #4682B4;
-        background-color: #E0F0FF;
-        font-weight: bold;
-    }
-    .nav-bar a:hover {
-        background-color: #B0D4FF;
-    }
+#content-wrapper{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;}
 
-    /* Settings form */
-    .container {
-        max-width: 900px;
-        margin: 20px auto;
-        background: #fff;
-        padding: 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 36px;height:68px;flex-shrink:0;background:rgba(4,6,10,.92);backdrop-filter:blur(32px) saturate(1.5);-webkit-backdrop-filter:blur(32px) saturate(1.5);border-bottom:1px solid var(--b2);box-shadow:0 1px 0 var(--b1),0 8px 32px rgba(0,0,0,.6);position:sticky;top:0;z-index:1000;animation:hdr-drop .7s var(--ease) both;}
+html:not(.dark) .header{background:rgba(238,243,255,.94);box-shadow:0 1px 0 var(--b1),0 8px 32px rgba(0,0,0,.10);}
+@keyframes hdr-drop{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.brand{display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;flex-shrink:0;}
+.brand-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--cyan-20),var(--indigo-dim));border:1px solid var(--cyan-40);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;overflow:hidden;box-shadow:var(--cyan-glow);animation:brand-pulse 4s ease-in-out infinite;}
+@keyframes brand-pulse{0%,100%{box-shadow:var(--cyan-glow);}50%{box-shadow:var(--cyan-glow-xl);}}
+.brand-icon::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.2));animation:brand-sweep 3s ease-in-out infinite;}
+@keyframes brand-sweep{0%,100%{opacity:0;}50%{opacity:1;}}
+.brand-text{line-height:1.15;}
+.brand-name{font-family:var(--f-disp);font-size:1.05rem;font-weight:800;color:var(--tx1);letter-spacing:.08em;text-transform:uppercase;}
+.brand-sub{font-family:var(--f-mono);font-size:.52rem;color:var(--cyan);letter-spacing:.18em;text-transform:uppercase;}
+.scroll-container{flex:1;max-width:440px;overflow:hidden;height:36px;background:var(--g2);border:1px solid var(--b2);border-radius:99px;padding:0 20px;margin:0 20px;display:flex;align-items:center;mask-image:linear-gradient(90deg,transparent,black 15%,black 85%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 15%,black 85%,transparent);}
+.scroll-text{display:inline-block;white-space:nowrap;font-family:var(--f-mono);font-size:.70rem;font-weight:500;color:var(--cyan);letter-spacing:.04em;padding-left:100%;animation:scroll-left 25s linear infinite;}
+@keyframes scroll-left{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
+.live-dot{display:inline-block;width:7px;height:7px;background:var(--crimson);border-radius:50%;margin-right:10px;vertical-align:middle;box-shadow:0 0 8px var(--crimson);animation:live-blink 1.1s ease-in-out infinite;}
+@keyframes live-blink{0%,100%{opacity:1;}50%{opacity:.15;}}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.status-pill{display:flex;align-items:center;gap:7px;padding:6px 14px;background:var(--amber-dim);border:1px solid rgba(255,176,32,.22);border-radius:99px;font-family:var(--f-mono);font-size:.64rem;font-weight:600;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;}
+.status-pill-dot{width:6px;height:6px;background:var(--amber);border-radius:50%;box-shadow:0 0 8px var(--amber);animation:sys-pulse 2s ease-in-out infinite;}
+@keyframes sys-pulse{0%,100%{transform:scale(1);}50%{transform:scale(.6);opacity:.5;}}
+#darkModeToggle{width:38px;height:38px;border-radius:var(--r-md);border:1px solid var(--b2);background:var(--g1);color:var(--tx2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s var(--ease);}
+#darkModeToggle:hover{background:var(--g3);border-color:var(--cyan-20);color:var(--cyan);transform:rotate(22deg) scale(1.1);}
+.icon-btn{width:38px;height:38px;border-radius:var(--r-md);border:1px solid var(--b2);background:var(--g1);color:var(--tx2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .22s var(--ease);position:relative;}
+.icon-btn:hover{background:var(--g3);border-color:var(--b3);color:var(--tx1);transform:translateY(-2px);}
 
-    h2 {
-        color: #4682B4;
-        margin-bottom: 20px;
-        text-align: center;
-    }
+/* NAVBAR */
+.nav-bar{display:flex;align-items:center;gap:4px;padding:10px 36px;background:rgba(4,6,10,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;scrollbar-width:none;flex-shrink:0;animation:hdr-drop .7s var(--ease) .1s both;}
+html:not(.dark) .nav-bar{background:rgba(238,243,255,.80);}
+.nav-bar::-webkit-scrollbar{display:none;}
+.nav-bar a{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:var(--r-md);border:1px solid transparent;color:var(--tx2);font-family:var(--f-body);font-size:.8rem;font-weight:500;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:all .2s var(--ease);letter-spacing:.01em;position:relative;overflow:hidden;}
+.nav-bar a::after{content:'';position:absolute;bottom:2px;left:12px;right:12px;height:1px;background:var(--cyan);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);}
+.nav-bar a:hover::after,.nav-bar a.active-nav::after{transform:scaleX(1);}
+.nav-bar a:hover{background:var(--g2);border-color:var(--b2);color:var(--tx1);}
+.nav-bar a.active-nav{background:var(--cyan-10);border-color:var(--cyan-20);color:var(--cyan);}
+.nav-bar a.special-btn{background:linear-gradient(135deg,var(--cyan-20),var(--indigo-dim));border-color:var(--cyan-20);color:var(--cyan);box-shadow:var(--cyan-glow);font-weight:700;}
+.nav-bar a.special-btn:hover{box-shadow:var(--cyan-glow-xl);transform:translateY(-2px);}
+.nav-bar a.special-btn::after{display:none;}
+.nav-bar a.danger-btn{background:var(--crimson-dim);border-color:rgba(255,26,75,.25);color:var(--crimson);font-weight:700;animation:danger-pulse 3s ease-in-out infinite;}
+@keyframes danger-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,26,75,.2);}50%{box-shadow:0 0 0 5px rgba(255,26,75,0);}}
+.nav-bar a.danger-btn:hover{background:var(--crimson);color:white;animation:none;transform:translateY(-2px);}
+.nav-bar a.danger-btn::after{display:none;}
+.nav-spacer{flex:1;min-width:12px;}
 
-    form label {
-        display: block;
-        font-weight: bold;
-        margin-top: 15px;
-        margin-bottom: 5px;
-    }
+/* HERO */
+.hero-wrap{padding:28px 36px 0;animation:rise .7s var(--ease) .2s both;}
+@keyframes rise{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.hero-banner{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,176,32,.08),rgba(99,102,241,.08),rgba(0,240,255,.05));border:1px solid var(--b2);border-radius:var(--r-xl);padding:48px 52px;display:flex;align-items:center;gap:36px;}
+html:not(.dark) .hero-banner{background:linear-gradient(135deg,rgba(196,119,0,.06),rgba(79,70,229,.06));}
+.hero-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),var(--indigo),var(--cyan),transparent);animation:hero-line 4s ease-in-out infinite alternate;}
+@keyframes hero-line{0%{opacity:.5;}100%{opacity:1;}}
+.hero-banner::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 80% 50%,rgba(255,176,32,.04),transparent),radial-gradient(ellipse 40% 60% at 20% 50%,rgba(99,102,241,.04),transparent);pointer-events:none;}
+.hero-deco{position:absolute;right:0;top:0;bottom:0;width:40%;background:repeating-linear-gradient(60deg,transparent,transparent 18px,rgba(255,176,32,.025) 18px,rgba(255,176,32,.025) 19px),repeating-linear-gradient(-60deg,transparent,transparent 18px,rgba(255,176,32,.025) 18px,rgba(255,176,32,.025) 19px);pointer-events:none;mask-image:linear-gradient(90deg,transparent,black 40%);-webkit-mask-image:linear-gradient(90deg,transparent,black 40%);}
+.hero-icon-wrap{width:88px;height:88px;flex-shrink:0;background:linear-gradient(135deg,var(--amber-dim),var(--indigo-dim));border:1px solid var(--b2);border-radius:var(--r-xl);display:flex;align-items:center;justify-content:center;font-size:38px;position:relative;box-shadow:var(--amber-glow);animation:hero-float 4s ease-in-out infinite;z-index:2;}
+@keyframes hero-float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.hero-content{flex:1;z-index:2;position:relative;}
+.hero-eyebrow{font-family:var(--f-mono);font-size:.65rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.hero-eyebrow::before{content:'';display:block;width:20px;height:1px;background:var(--amber);box-shadow:0 0 6px var(--amber);}
+.hero-banner h1{font-family:var(--f-disp);font-size:2.4rem;font-weight:800;color:var(--tx1);line-height:1.1;margin:0 0 14px;letter-spacing:-.02em;}
+.hero-banner h1 span{color:var(--amber);}
+.hero-banner p{font-size:1rem;color:var(--tx2);line-height:1.7;max-width:560px;margin:0 0 22px;}
+.hero-quick-stats{display:flex;gap:24px;flex-wrap:wrap;}
+.hqs-item{display:flex;align-items:center;gap:9px;}
+.hqs-dot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px currentColor;animation:sys-pulse 2s infinite;}
+.hqs-dot.a{color:var(--amber);background:var(--amber);}
+.hqs-dot.g{color:var(--emerald);background:var(--emerald);animation-delay:.4s;}
+.hqs-dot.i{color:var(--indigo);background:var(--indigo);animation-delay:.8s;}
+.hqs-num{font-family:var(--f-disp);font-size:1.05rem;font-weight:800;color:var(--tx1);}
+.hqs-lbl{font-family:var(--f-mono);font-size:.62rem;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase;}
 
-    form input[type="text"],
-    form input[type="email"],
-    form input[type="file"],
-    form select,
-    form textarea {
-        width: 100%;
-        padding: 8px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-        box-sizing: border-box;
-    }
+/* MAIN CONTAINER */
+.container{width:92%;max-width:1100px;margin:28px auto;background:rgba(8,12,20,.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:40px;border-radius:var(--r-xl);border:1px solid var(--b2);box-shadow:0 30px 70px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05);animation:rise .8s var(--ease) .3s both;}
+html:not(.dark) .container{background:rgba(255,255,255,.94);box-shadow:0 30px 70px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.9);}
 
-    textarea {
-        resize: vertical;
-        min-height: 80px;
-    }
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:8px;}
+.section-title{font-family:var(--f-disp);font-size:.95rem;font-weight:700;color:var(--tx1);display:flex;align-items:center;gap:10px;}
+.section-title::before{content:'';display:block;width:3px;height:18px;background:linear-gradient(180deg,var(--amber),var(--indigo));border-radius:2px;box-shadow:0 0 8px rgba(255,176,32,.4);}
 
-    .small-text {
-        font-size: 12px;
-        color: #555;
-        margin-top: 2px;
-    }
+/* SETTINGS GROUPS */
+.settings-groups{display:flex;flex-direction:column;gap:28px;}
 
-    .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 5px;
-    }
+.settings-group{background:var(--g1);border:1px solid var(--b1);border-radius:var(--r-lg);overflow:hidden;transition:all .3s var(--ease);}
+.settings-group:hover{border-color:var(--b2);}
 
-    .save-btn {
-        display: block;
-        width: 200px;
-        margin: 30px auto 0 auto;
-        padding: 10px 0;
-        font-size: 16px;
-        font-weight: bold;
-        color: #fff;
-        background-color: #4682B4;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-    .save-btn:hover {
-        background-color: #2e5a8a;
-    }
+.group-header{display:flex;align-items:center;gap:14px;padding:18px 24px;cursor:pointer;user-select:none;border-bottom:1px solid var(--b1);transition:background .2s;}
+.group-header:hover{background:var(--g2);}
+.group-icon{width:42px;height:42px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:transform .3s var(--spring);}
+.group-header:hover .group-icon{transform:scale(1.1) rotate(5deg);}
+.group-title{font-family:var(--f-disp);font-size:.92rem;font-weight:700;color:var(--tx1);}
+.group-desc{font-family:var(--f-mono);font-size:.62rem;color:var(--tx3);letter-spacing:.05em;margin-top:2px;}
+.group-chevron{margin-left:auto;color:var(--tx3);font-size:12px;transition:transform .3s var(--ease);}
+.group-header.open .group-chevron{transform:rotate(180deg);}
 
-</style>
+.group-body{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.group-body.single-col{grid-template-columns:1fr;}
+.group-body.hidden{display:none;}
+
+/* color variants for group icons */
+.gi-cyan{background:var(--cyan-10);color:var(--cyan);box-shadow:0 0 20px rgba(0,240,255,.15);}
+.gi-amber{background:var(--amber-dim);color:var(--amber);box-shadow:0 0 20px rgba(255,176,32,.15);}
+.gi-emerald{background:var(--emerald-dim);color:var(--emerald);box-shadow:0 0 20px rgba(16,255,176,.15);}
+.gi-indigo{background:var(--indigo-dim);color:var(--indigo);box-shadow:0 0 20px rgba(99,102,241,.15);}
+.gi-crimson{background:var(--crimson-dim);color:var(--crimson);box-shadow:0 0 20px rgba(255,26,75,.15);}
+.gi-violet{background:var(--violet-dim);color:var(--violet);box-shadow:0 0 20px rgba(191,90,242,.15);}
+
+/* FORM FIELDS */
+.field{display:flex;flex-direction:column;gap:7px;}
+.field.full-width{grid-column:1/-1;}
+.field label{font-family:var(--f-mono);font-size:.66rem;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;gap:6px;}
+.field label i{font-size:10px;color:var(--tx3);}
+.field-hint{font-family:var(--f-body);font-size:.75rem;color:var(--tx3);line-height:1.5;margin-top:-2px;}
+
+.field input[type="text"],
+.field input[type="email"],
+.field select,
+.field textarea{width:100%;padding:11px 14px;background:var(--g2);border:1px solid var(--b2);border-radius:var(--r-md);font-family:var(--f-body);font-size:.88rem;color:var(--tx1);outline:none;transition:all .22s var(--ease);}
+.field input::placeholder{color:var(--tx3);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--amber);background:var(--g3);box-shadow:0 0 0 3px var(--amber-dim);}
+html:not(.dark) .field input[type="text"],
+html:not(.dark) .field input[type="email"],
+html:not(.dark) .field select,
+html:not(.dark) .field textarea{background:rgba(0,50,120,0.04);color:var(--tx1);}
+html:not(.dark) .field input:focus,
+html:not(.dark) .field select:focus,
+html:not(.dark) .field textarea:focus{border-color:var(--amber);background:rgba(0,50,120,0.06);}
+.field select option{background:var(--mid);color:var(--tx1);}
+.field textarea{resize:vertical;min-height:90px;line-height:1.6;}
+
+/* FILE INPUT */
+.file-input-wrap{position:relative;}
+.file-input-wrap input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;}
+.file-drop-zone{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--g2);border:1px dashed var(--b3);border-radius:var(--r-md);cursor:pointer;transition:all .22s var(--ease);}
+.file-drop-zone:hover{border-color:var(--amber);background:var(--amber-dim);}
+.file-drop-zone i{font-size:18px;color:var(--tx3);}
+.file-drop-zone span{font-family:var(--f-body);font-size:.82rem;color:var(--tx2);}
+.file-drop-zone .file-cta{font-family:var(--f-mono);font-size:.66rem;font-weight:700;color:var(--amber);letter-spacing:.06em;}
+
+/* TOGGLE SWITCH */
+.toggle-field{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--g1);border:1px solid var(--b1);border-radius:var(--r-md);transition:all .22s var(--ease);gap:12px;}
+.toggle-field:hover{background:var(--g2);border-color:var(--b2);}
+.toggle-info{flex:1;min-width:0;}
+.toggle-label{font-family:var(--f-mono);font-size:.72rem;font-weight:600;color:var(--tx1);letter-spacing:.04em;}
+.toggle-hint{font-size:.73rem;color:var(--tx3);margin-top:2px;line-height:1.4;}
+.toggle-switch{position:relative;width:46px;height:26px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;border-radius:99px;background:var(--b2);cursor:pointer;transition:background .25s var(--ease),box-shadow .25s;}
+.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .3s var(--spring),box-shadow .25s;box-shadow:0 2px 6px rgba(0,0,0,.4);}
+.toggle-switch input:checked+.toggle-slider{background:var(--emerald);box-shadow:0 0 12px rgba(16,255,176,.4);}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px);}
+.toggle-switch input:focus+.toggle-slider{box-shadow:0 0 0 3px var(--amber-dim);}
+
+/* NUMBER/SMALL INPUT */
+.mini-input{max-width:120px;}
+
+/* SAVE BUTTON ZONE */
+.save-zone{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:36px;padding-top:28px;border-top:1px solid var(--b1);flex-wrap:wrap;}
+.save-hint{font-family:var(--f-mono);font-size:.68rem;color:var(--tx3);letter-spacing:.05em;display:flex;align-items:center;gap:7px;}
+.save-hint i{color:var(--amber);}
+.save-actions{display:flex;gap:10px;align-items:center;}
+.btn-reset{padding:11px 22px;background:var(--g1);border:1px solid var(--b2);border-radius:var(--r-md);font-family:var(--f-body);font-size:.82rem;font-weight:700;color:var(--tx2);cursor:pointer;transition:all .22s var(--ease);letter-spacing:.02em;}
+.btn-reset:hover{background:var(--g3);border-color:var(--b3);color:var(--tx1);}
+.btn-save{display:flex;align-items:center;gap:9px;padding:12px 28px;background:linear-gradient(135deg,var(--amber-dim),var(--indigo-dim));border:1px solid rgba(255,176,32,.3);border-radius:var(--r-md);color:var(--amber);font-family:var(--f-body);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .25s var(--ease);box-shadow:var(--amber-glow);letter-spacing:.02em;text-transform:uppercase;}
+.btn-save:hover{box-shadow:0 0 40px rgba(255,176,32,.5);transform:translateY(-2px);border-color:rgba(255,176,32,.5);}
+.btn-save i{font-size:14px;}
+
+/* TOAST */
+.toast-rack{position:fixed;bottom:88px;right:18px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast-item{display:flex;align-items:center;gap:10px;padding:12px 16px;min-width:230px;background:var(--mid);border:1px solid var(--b3);border-radius:var(--r-md);font-family:var(--f-body);font-size:.82rem;font-weight:500;color:var(--tx1);pointer-events:all;box-shadow:0 8px 28px rgba(0,0,0,.5);animation:toast-in .4s var(--spring) both;}
+.toast-item.t-success{border-color:rgba(16,255,176,.30);}.toast-item.t-success .t-ico{color:var(--emerald);}
+.toast-item.t-error{border-color:rgba(255,26,75,.30);}.toast-item.t-error .t-ico{color:var(--crimson);}
+.toast-item.t-info .t-ico{color:var(--amber);}
+@keyframes toast-in{from{opacity:0;transform:translateX(18px) scale(.94);}to{opacity:1;transform:translateX(0) scale(1);}}
+@keyframes toast-out{from{opacity:1;}to{opacity:0;transform:translateX(18px) scale(.94);}}
+
+/* MOBILE BOTTOM NAV */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(4,6,10,.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--b2);padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:800;grid-template-columns:repeat(5,1fr);}
+html:not(.dark) .mob-nav{background:rgba(238,243,255,.97);}
+.mob-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;text-decoration:none;color:var(--tx3);transition:all .2s;font-family:var(--f-mono);font-size:.54rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.mob-item i{font-size:18px;}
+.mob-item.mob-active{color:var(--amber);}
+.mob-item.mob-active i{filter:drop-shadow(0 0 5px var(--amber));}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+    .container{padding:24px;}.hero-wrap{padding:20px 20px 0;}.hero-banner{padding:32px 28px;}.hero-banner h1{font-size:1.8rem;}.nav-bar{padding:10px 20px;}.header{padding:0 20px;}
+    .group-body{grid-template-columns:1fr;}.group-body .full-width{grid-column:1;}
+}
+@media(max-width:768px){
+    .header{padding:0 14px;height:58px;}.scroll-container{display:none;}.status-pill{display:none;}.nav-bar{display:none;}.mob-nav{display:grid;}
+    .hero-wrap{padding:14px 14px 0;}.hero-banner{padding:26px 22px;flex-direction:column;gap:20px;}.hero-icon-wrap{width:66px;height:66px;font-size:28px;}.hero-banner h1{font-size:1.5rem;}.hero-banner p{font-size:.88rem;margin-bottom:14px;}.hero-quick-stats{gap:16px;}
+    .container{padding:16px 14px;margin:12px 10px;margin-bottom:92px;border-radius:var(--r-lg);}
+    .group-body{padding:16px;gap:14px;}
+    .save-zone{flex-direction:column;align-items:stretch;}.save-actions{flex-direction:column;}.btn-save,.btn-reset{width:100%;justify-content:center;}
+}
+@media(max-width:480px){
+    .brand-text{display:none;}.header{height:54px;}.hero-banner{gap:16px;}.hero-icon-wrap{width:54px;height:54px;font-size:22px;}.hero-banner h1{font-size:1.25rem;}.hero-quick-stats{display:none;}
+}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--b3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--b4);}
+    </style>
 </head>
 <body>
 
-<div class="header">CIEPD Conflict/Peace Watch Center</div>
+<div id="bg-canvas">
+    <div id="bg-scanlines"></div>
+    <div id="bg-grid"></div>
+    <div class="bg-orb o1"></div><div class="bg-orb o2"></div>
+    <div class="bg-orb o3"></div><div class="bg-orb o4"></div>
+    <div id="bg-vignette"></div>
+</div>
+<div class="corner tl"></div><div class="corner tr"></div>
+<div class="corner bl"></div><div class="corner br"></div>
 
-<div class="nav-bar">
-    <a href="index.html">Dashboard</a>
-    <a href="report.html">Reports</a>
-    <a href="message.html">Messages</a>
-    <a href="#">Stats</a>
-    <a href="#">Addons</a>
-    <a href="adminmap.html">Admin Map</a>
-    <a href="settings.html">Settings</a>
+<div id="content-wrapper">
+
+    <header class="header">
+        <a class="brand" href="index.html">
+            <div class="brand-icon">🛡️</div>
+            <div class="brand-text">
+                <div class="brand-name">CIEPD</div>
+                <div class="brand-sub">Intelligence Hub</div>
+            </div>
+        </a>
+        <div class="scroll-container">
+            <div class="scroll-text">
+                <span class="live-dot"></span>
+                SYSTEM CONFIG &middot; Site Settings &middot; Manage Deployment Options &middot; Niger Delta Intelligence Platform &middot; Admin Controls Active
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="live-dot"></span>
+                SYSTEM CONFIG &middot; Site Settings &middot; Manage Deployment Options &middot; Niger Delta Intelligence Platform &middot; Admin Controls Active
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-pill"><span class="status-pill-dot"></span>Config Mode</div>
+            <button id="darkModeToggle" aria-label="Toggle Theme"><i class="fas fa-sun"></i></button>
+            <button class="icon-btn" title="Notifications"><i class="fas fa-bell"></i></button>
+        </div>
+    </header>
+
+    <nav class="nav-bar">
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="report.html"><i class="fas fa-file-alt"></i> Reports</a>
+        <a href="submit.html"><i class="fas fa-edit"></i> Submit</a>
+        <a href="getalert.html"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+        <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
+        <div class="nav-spacer"></div>
+        <a href="admin-map.html" class="special-btn"><i class="fas fa-map-marked-alt"></i> Live Map</a>
+        <a href="settings.html" class="active-nav"><i class="fas fa-cog"></i> Settings</a>
+    </nav>
+
+    <div class="hero-wrap">
+        <div class="hero-banner">
+            <div class="hero-deco"></div>
+            <div class="hero-icon-wrap">⚙️</div>
+            <div class="hero-content">
+                <div class="hero-eyebrow">System Configuration</div>
+                <h1>Site <span>Settings</span></h1>
+                <p>Configure deployment options, notification preferences, user permissions, and platform integrations for the CIEPD Conflict/Peace Watch Center.</p>
+                <div class="hero-quick-stats">
+                    <div class="hqs-item"><span class="hqs-dot a"></span><div><div class="hqs-num">6</div><div class="hqs-lbl">Sections</div></div></div>
+                    <div class="hqs-item"><span class="hqs-dot g"></span><div><div class="hqs-num">Active</div><div class="hqs-lbl">Status</div></div></div>
+                    <div class="hqs-item"><span class="hqs-dot i"></span><div><div class="hqs-num">v4.0</div><div class="hqs-lbl">Platform</div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+
+        <div class="section-header">
+            <div class="section-title">Configuration Panel</div>
+        </div>
+
+        <form id="settingsForm" onsubmit="handleSave(event)">
+        <div class="settings-groups">
+
+            <!-- GROUP 1: General -->
+            <div class="settings-group">
+                <div class="group-header open" onclick="toggleGroup(this)">
+                    <div class="group-icon gi-cyan"><i class="fas fa-globe"></i></div>
+                    <div>
+                        <div class="group-title">General Information</div>
+                        <div class="group-desc">Site identity, branding &amp; contact details</div>
+                    </div>
+                    <i class="fas fa-chevron-down group-chevron"></i>
+                </div>
+                <div class="group-body">
+                    <div class="field">
+                        <label><i class="fas fa-tag"></i> Site Name</label>
+                        <input type="text" value="CIEPD Conflict/Peace Watch Center">
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-quote-left"></i> Site Tagline</label>
+                        <input type="text" value="Send Reports also via SMS/WhatsApp to: 09056454523">
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-envelope"></i> Site Email Address</label>
+                        <input type="email" value="ciepdngo@gmail.com">
+                        <div class="field-hint">Used for receiving reports by email. Configure your email settings separately.</div>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-language"></i> Site Language (Locale)</label>
+                        <select><option selected>English (US)</option></select>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-clock"></i> Timezone</label>
+                        <select><option selected>Africa/Lagos</option></select>
+                        <div class="field-hint">Server Time: 11/11/2025 11:47:21 (Africa/Lagos)</div>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-image"></i> Site Banner</label>
+                        <div class="file-input-wrap">
+                            <input type="file" accept="image/*">
+                            <div class="file-drop-zone">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <div>
+                                    <div class="file-cta">Choose File or Drag &amp; Drop</div>
+                                    <span>Max size: 250KB · JPG, PNG, GIF</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field full-width">
+                        <label><i class="fas fa-align-left"></i> Site Message</label>
+                        <textarea>Community Initiative for Enhanced Peace and Development domiciled Conflict Watch Center, which relies on various community based sources of information, and community specific indicators to generate analysis on potential conflict hotspots. The approach of the CWC is tune towards predicting, tracking, monitoring and reporting on situations, events and actors (individual, group and institutional) with the capacity to cause violence. It is built on conflict preventive measures more than mitigating.</textarea>
+                    </div>
+                    <div class="field full-width">
+                        <label><i class="fas fa-copyright"></i> Site Copyright Statement</label>
+                        <textarea style="min-height:60px;">All right reserved. No part of this report should be used without acknowledgment of the source</textarea>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-paper-plane"></i> Submit Report Message</label>
+                        <input type="text" placeholder="Message shown on report submission…">
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUP 2: Display -->
+            <div class="settings-group">
+                <div class="group-header" onclick="toggleGroup(this)">
+                    <div class="group-icon gi-indigo"><i class="fas fa-desktop"></i></div>
+                    <div>
+                        <div class="group-title">Display &amp; Layout</div>
+                        <div class="group-desc">Pagination, grid layout &amp; contact page visibility</div>
+                    </div>
+                    <i class="fas fa-chevron-down group-chevron"></i>
+                </div>
+                <div class="group-body hidden">
+                    <div class="field">
+                        <label><i class="fas fa-list"></i> Items Per Page — Front End</label>
+                        <input type="text" value="5 Items" class="mini-input">
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-list-ul"></i> Items Per Page — Admin</label>
+                        <input type="text" value="20 Items" class="mini-input">
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-th"></i> Blocks Per Row</label>
+                        <input type="text" value="2" class="mini-input">
+                    </div>
+                    <div class="field full-width">
+                        <div class="toggle-field">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Display Contact Page</div>
+                                <div class="toggle-hint">Show the contact page link in navigation</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUP 3: User Submissions & Alerts -->
+            <div class="settings-group">
+                <div class="group-header" onclick="toggleGroup(this)">
+                    <div class="group-icon gi-emerald"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="group-title">User Submissions &amp; Alerts</div>
+                        <div class="group-desc">Control what users can submit and how alerts are sent</div>
+                    </div>
+                    <i class="fas fa-chevron-down group-chevron"></i>
+                </div>
+                <div class="group-body hidden single-col">
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Allow Users To Submit Reports</div>
+                            <div class="toggle-hint">Enable community-sourced incident reporting</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Allow Users To Subscribe For Alerts</div>
+                            <div class="toggle-hint">Let community members opt-in to email/SMS notifications</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Allow Users to Submit Comments to Reports</div>
+                            <div class="toggle-hint">Auto-approve submitted comments without moderation</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-bell"></i> Alerts Email Address</label>
+                        <input type="email" value="ciepdngo@gmail.com">
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUP 4: News Feeds & Geolocation -->
+            <div class="settings-group">
+                <div class="group-header" onclick="toggleGroup(this)">
+                    <div class="group-icon gi-violet"><i class="fas fa-rss"></i></div>
+                    <div>
+                        <div class="group-title">News Feeds &amp; Geolocation</div>
+                        <div class="group-desc">RSS integration and geographic data configuration</div>
+                    </div>
+                    <i class="fas fa-chevron-down group-chevron"></i>
+                </div>
+                <div class="group-body hidden single-col">
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Include RSS News Feed on Website</div>
+                            <div class="toggle-hint">Pull in external news feeds related to Niger Delta</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Create New Category from Feeds</div>
+                            <div class="toggle-hint">Automatically generate categories from RSS feed data</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-map-pin"></i> Feeds Geolocation — Geonames Username</label>
+                        <input type="text" placeholder="Enter your Geonames username…">
+                        <div class="field-hint">Required for automatic geolocation tagging of feed items.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUP 5: Performance & Privacy -->
+            <div class="settings-group">
+                <div class="group-header" onclick="toggleGroup(this)">
+                    <div class="group-icon gi-amber"><i class="fas fa-tachometer-alt"></i></div>
+                    <div>
+                        <div class="group-title">Performance &amp; Privacy</div>
+                        <div class="group-desc">Caching, private deployment &amp; user approval policies</div>
+                    </div>
+                    <i class="fas fa-chevron-down group-chevron"></i>
+                </div>
+                <div class="group-body hidden single-col">
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Enable Statistics</div>
+                            <div class="toggle-hint">Store analytics on Ushahidi's server for reporting insights</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Cache Pages</div>
+                            <div class="toggle-hint">Improve load speed by caching rendered pages</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-hourglass-half"></i> Cache Pages Lifetime</label>
+                        <input type="text" value="30 Minutes" class="mini-input">
+                    </div>
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Private Deployment</div>
+                            <div class="toggle-hint">Restrict platform access to authorized users only</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Manually Approve Users</div>
+                            <div class="toggle-hint">Admin review required before new users can post</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-field">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Require User Email Confirmation</div>
+                            <div class="toggle-hint">New accounts must verify email address before activation</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUP 6: Integrations -->
+            <div class="settings-group">
+                <div class="group-header" onclick="toggleGroup(this)">
+                    <div class="group-icon gi-crimson"><i class="fas fa-plug"></i></div>
+                    <div>
+                        <div class="group-title">Third-Party Integrations</div>
+                        <div class="group-desc">Analytics, spam protection &amp; API keys</div>
+                    </div>
+                    <i class="fas fa-chevron-down group-chevron"></i>
+                </div>
+                <div class="group-body hidden">
+                    <div class="field">
+                        <label><i class="fab fa-google"></i> Google Web Property ID</label>
+                        <input type="text" placeholder="UA-XXXXX-XX">
+                        <div class="field-hint">Enable Google Analytics tracking on all pages.</div>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-shield-alt"></i> Akismet Key</label>
+                        <input type="text" placeholder="Prevent comment spam using Akismet from Automattic">
+                        <div class="field-hint">Obtain a free key at akismet.com.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.settings-groups -->
+
+        <div class="save-zone">
+            <div class="save-hint"><i class="fas fa-info-circle"></i> Changes apply immediately after saving.</div>
+            <div class="save-actions">
+                <button type="button" class="btn-reset" onclick="handleReset()"><i class="fas fa-undo"></i> Reset</button>
+                <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Settings</button>
+            </div>
+        </div>
+
+        </form>
+    </main>
 </div>
 
-<div class="container">
-    <h2>Site Settings</h2>
-    <form>
+<nav class="mob-nav">
+    <a href="index.html"     class="mob-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="report.html"    class="mob-item"><i class="fas fa-file-alt"></i><span>Reports</span></a>
+    <a href="submit.html"    class="mob-item"><i class="fas fa-plus-circle"></i><span>Submit</span></a>
+    <a href="getalert.html"  class="mob-item"><i class="fas fa-bell"></i><span>Alerts</span></a>
+    <a href="settings.html"  class="mob-item mob-active"><i class="fas fa-cog"></i><span>Settings</span></a>
+</nav>
 
-        <label>Site Name</label>
-        <input type="text" value="CIEPD Conflict/Peace Watch Center">
+<div class="toast-rack" id="toastRack"></div>
 
-        <label>Site Tagline</label>
-        <input type="text" value="Send Reports also via SMS/WhatsApp to: 09056454523">
+<script>
+/* DARK MODE */
+const dmBtn = document.getElementById('darkModeToggle');
+function updateThemeIcon(){
+    const i = dmBtn?.querySelector('i');
+    if (!i) return;
+    i.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+}
+updateThemeIcon();
+dmBtn?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    updateThemeIcon();
+});
 
-        <label>Site Banner</label>
-        <input type="file">
-        <div class="small-text">Max size: 250KB</div>
-        <div class="checkbox-group">
-            <input type="checkbox" id="deleteBanner">
-            <label for="deleteBanner">Delete Banner Image</label>
-        </div>
+/* TOAST */
+function showToast(msg, type = 'info', dur = 3200) {
+    const rack = document.getElementById('toastRack');
+    const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+    const t = document.createElement('div');
+    t.className = 'toast-item t-' + type;
+    t.innerHTML = '<i class="fas ' + (icons[type] || 'fa-info-circle') + ' t-ico"></i>' + msg;
+    rack.appendChild(t);
+    setTimeout(() => {
+        t.style.animation = 'toast-out .3s var(--ease) forwards';
+        setTimeout(() => t.remove(), 300);
+    }, dur);
+}
 
-        <label>Site Email Address</label>
-        <input type="email" value="ciepdngo@gmail.com">
-        <div class="small-text">In order to receive reports by email, please configure your email account settings.</div>
+/* ACCORDION TOGGLE */
+function toggleGroup(header) {
+    const body = header.nextElementSibling;
+    const isOpen = !body.classList.contains('hidden');
+    if (isOpen) {
+        body.classList.add('hidden');
+        header.classList.remove('open');
+    } else {
+        body.classList.remove('hidden');
+        header.classList.add('open');
+    }
+}
 
-        <label>Site Message</label>
-        <textarea>Community Initiative for Enhanced Peace and Development domiciled Conflict Watch Center, which relies on various community based sources of information, and community specific indicators to generate analysis on potential conflict hotspots. The approach of the CWC is tune towards predicting, tracking, monitoring and reporting on situations, events and actors (individual, group and institutional) with the capacity to cause violence. It is built on conflict preventive measures more than mitigating.</textarea>
+/* SAVE */
+function handleSave(e) {
+    e.preventDefault();
+    const btn = document.querySelector('.btn-save');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+    btn.style.opacity = '.7';
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Settings';
+        btn.style.opacity = '';
+        showToast('Settings saved successfully.', 'success', 3000);
+    }, 1100);
+}
 
-        <label>Site Copyright Statement</label>
-        <textarea>All right reserved. No part of this report should be used without acknowledgment of the source</textarea>
-
-        <label>Submit Report Message</label>
-        <input type="text" value="">
-
-        <label>Site Language (Locale)</label>
-        <select>
-            <option selected>English (US)</option>
-        </select>
-
-        <label>Timezone</label>
-        <select>
-            <option selected>Africa/Lagos</option>
-        </select>
-        <div class="small-text">Server Time: 11/11/2025 11:47:21 (Africa/Lagos)</div>
-
-        <label>Display Contact Page</label>
-        <div class="checkbox-group">
-            <input type="checkbox" checked>
-            <label>YES</label>
-        </div>
-
-        <label>Items Per Page - Front End</label>
-        <input type="text" value="5 Items">
-
-        <label>Items Per Page - Admin</label>
-        <input type="text" value="20 Items">
-
-        <label>Blocks Per Row</label>
-        <input type="text" value="2">
-
-        <label>Allow Users To Submit Reports</label>
-        <div class="checkbox-group">
-            <input type="checkbox" checked>
-            <label>YES</label>
-        </div>
-
-        <label>Allow Users To Subscribe For Alerts</label>
-        <div class="checkbox-group">
-            <input type="checkbox" checked>
-            <label>YES</label>
-        </div>
-
-        <label>Alerts Email Address</label>
-        <input type="email" value="ciepdngo@gmail.com">
-
-        <label>Allow Users to Submit Comments to Reports</label>
-        <div class="checkbox-group">
-            <input type="checkbox" checked>
-            <label>YES - AUTO APPROVE</label>
-        </div>
-
-        <label>Include RSS News Feed on Website</label>
-        <div class="checkbox-group">
-            <input type="checkbox" checked>
-            <label>YES</label>
-        </div>
-
-        <label>Create New Category from Feeds</label>
-        <div class="checkbox-group">
-            <input type="checkbox">
-            <label>NO</label>
-        </div>
-
-        <label>Feeds geolocation - Geonames username</label>
-        <input type="text" value="">
-
-        <label>Enable Statistics (Stored on Ushahidi's server)</label>
-        <div class="checkbox-group">
-            <input type="checkbox" checked>
-            <label>YES</label>
-        </div>
-
-        <label>Cache Pages</label>
-        <div class="checkbox-group">
-            <input type="checkbox">
-            <label>NO</label>
-        </div>
-
-        <label>Cache Pages Lifetime</label>
-        <input type="text" value="30 Minutes">
-
-        <label>Private Deployment</label>
-        <div class="checkbox-group">
-            <input type="checkbox">
-            <label>NO</label>
-        </div>
-
-        <label>Manually Approve Users</label>
-        <div class="checkbox-group">
-            <input type="checkbox">
-            <label>NO</label>
-        </div>
-
-        <label>Require User Email Confirmation</label>
-        <div class="checkbox-group">
-            <input type="checkbox">
-            <label>NO</label>
-        </div>
-
-        <label>Google Web Property ID</label>
-        <input type="text" placeholder="UA-XXXXX-XX">
-
-        <label>Akismet Key</label>
-        <input type="text" placeholder="Prevent comment spam using Akismet from Automattic">
-
-        <button class="save-btn" type="submit">Save Settings</button>
-    </form>
-</div>
-
+/* RESET */
+function handleReset() {
+    if (confirm('Reset all settings to defaults?')) {
+        showToast('Settings reset to defaults.', 'info', 2500);
+    }
+}
+</script>
 </body>
 </html>
