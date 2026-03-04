@@ -1,829 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script>
+        (function(){
+            const t=localStorage.getItem('theme');
+            const d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if(d) document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
     <title>CIEPD Intelligence Portal | Secure Login</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+
     <style>
-        /* ====== ROOT VARIABLES ====== */
-        :root {
-            --primary: #004e89;
-            --primary-light: #0066b3;
-            --secondary: #00b4d8;
-            --accent: #ff9f1c;
-            --danger: #d90429;
-            --success: #06d6a0;
-            --white: #ffffff;
-            --text-dark: #1a1a1a;
-            --text-light: #4a5568;
-            --bg-light: #f8fafc;
-            --border-light: #e2e8f0;
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.15);
-            --shadow-lg: 0 10px 30px rgba(0,0,0,0.2);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        .dark {
-            --text-dark: #e6f7ff;
-            --bg-light: #121820;
-            --border-light: #2c3e50;
-        }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Inter', 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #000 0%, #0a1128 50%, #001a33 100%);
-            color: var(--text-dark);
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* ====== ANIMATED BACKGROUND ====== */
-        .bg-animation {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 20s linear infinite;
-            filter: blur(40px);
-        }
-
-        .shape.small { width: 60px; height: 60px; }
-        .shape.medium { width: 120px; height: 120px; }
-        .shape.large { width: 200px; height: 200px; }
-
-        @keyframes float {
-            0% { transform: translateY(0) translateX(0) rotate(0deg); }
-            33% { transform: translateY(-50px) translateX(30px) rotate(120deg); }
-            66% { transform: translateY(50px) translateX(-30px) rotate(240deg); }
-            100% { transform: translateY(0) translateX(0) rotate(360deg); }
-        }
-
-        .shape:nth-child(1) { top: 5%; left: 10%; background: var(--secondary); animation-delay: 0s; }
-        .shape:nth-child(2) { bottom: 10%; right: 15%; background: var(--accent); animation-delay: 2s; }
-        .shape:nth-child(3) { top: 40%; right: 5%; background: var(--danger); animation-delay: 4s; }
-        .shape:nth-child(4) { top: 20%; right: 20%; background: var(--success); animation-delay: 6s; }
-        .shape:nth-child(5) { bottom: 30%; left: 10%; background: var(--secondary); animation-delay: 8s; }
-
-        /* ====== GRID BACKGROUND ====== */
-        .grid-bg {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 180, 216, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 180, 216, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        /* ====== CONTAINER ====== */
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 25px;
-            width: 100%;
-            max-width: 450px;
-            padding: 50px 40px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0, 78, 137, 0.3);
-            position: relative;
-            z-index: 100;
-            border: 1px solid rgba(0, 78, 137, 0.1);
-            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ====== BRANDING HEADER ====== */
-        .branding-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            gap: 15px;
-            animation: slideDown 0.8s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .branding-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            box-shadow: 0 8px 20px rgba(0, 78, 137, 0.3);
-            animation: spin 3s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            color: var(--primary);
-            font-weight: 900;
-            letter-spacing: -1px;
-            margin: 0;
-        }
-
-        .subtitle {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-bottom: 30px;
-            line-height: 1.5;
-            font-weight: 500;
-            animation: fadeIn 0.8s ease-out 0.2s both;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* ====== STATUS INDICATOR ====== */
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, rgba(6, 214, 160, 0.15), rgba(0, 180, 216, 0.15));
-            padding: 10px 16px;
-            border-radius: 50px;
-            margin-bottom: 25px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--success);
-            border: 2px solid var(--success);
-            animation: slideUp 0.8s ease-out 0.3s both;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        /* ====== TABS ====== */
-        .tabs {
-            display: flex;
-            margin-bottom: 30px;
-            background: var(--bg-light);
-            border-radius: 12px;
-            padding: 6px;
-            gap: 6px;
-            animation: slideUp 0.8s ease-out 0.4s both;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px 16px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--text-light);
-            transition: var(--transition);
-            border-radius: 10px;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tab::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(0, 78, 137, 0.1);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-            z-index: -1;
-        }
-
-        .tab:hover::before {
-            width: 200px;
-            height: 200px;
-        }
-
-        .tab.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 4px 12px rgba(0, 78, 137, 0.2);
-            border-color: var(--secondary);
-        }
-
-        /* ====== MESSAGE BOX ====== */
-        #message-box {
-            margin-bottom: 20px;
-            padding: 14px 16px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: none;
-            animation: slideInDown 0.5s ease-out;
-            border-left: 4px solid transparent;
-        }
-
-        @keyframes slideInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .msg-error {
-            background: linear-gradient(135deg, rgba(217, 4, 41, 0.15), rgba(255, 107, 91, 0.15));
-            color: var(--danger);
-            border-left-color: var(--danger);
-        }
-
-        .msg-success {
-            background: linear-gradient(135deg, rgba(6, 214, 160, 0.15), rgba(5, 201, 136, 0.15));
-            color: var(--success);
-            border-left-color: var(--success);
-        }
-
-        /* ====== FORM STYLING ====== */
-        form {
-            display: none;
-            text-align: left;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        form.active {
-            display: block;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-            animation: slideUp 0.6s ease-out;
-        }
-
-        .input-group:nth-child(1) { animation-delay: 0s; }
-        .input-group:nth-child(2) { animation-delay: 0.1s; }
-        .input-group:nth-child(3) { animation-delay: 0.2s; }
-
-        label {
-            font-size: 0.8rem;
-            font-weight: 800;
-            display: block;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            color: var(--primary);
-            letter-spacing: 0.3px;
-            padding-left: 2px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 16px;
-            color: var(--secondary);
-            font-size: 1.1rem;
-            pointer-events: none;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 16px 14px 48px;
-            border: 2px solid var(--border-light);
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            outline: none;
-            background: white;
-            transition: var(--transition);
-            color: var(--text-dark);
-        }
-
-        input::placeholder {
-            color: #b0bec5;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(0, 78, 137, 0.15);
-            background: rgba(0, 78, 137, 0.02);
-        }
-
-        input:focus + i {
-            color: var(--primary);
-            transform: scale(1.2);
-        }
-
-        /* ====== BUTTONS ====== */
-        button {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            box-shadow: 0 6px 20px rgba(0, 78, 137, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-            animation: slideUp 0.6s ease-out 0.3s both;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        button:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        button:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 78, 137, 0.5);
-        }
-
-        button:active {
-            transform: translateY(-2px);
-        }
-
-        button:disabled {
-            background: #bdc3c7;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ====== FOOTER ====== */
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid var(--border-light);
-            font-size: 0.8rem;
-            color: var(--text-light);
-            line-height: 1.8;
-            animation: fadeIn 0.8s ease-out 0.5s both;
-        }
-
-        .footer p {
-            margin: 8px 0;
-        }
-
-        .footer strong {
-            color: var(--primary);
-            font-weight: 800;
-        }
-
-        .emergency-contact {
-            margin-top: 15px;
-            padding: 12px;
-            background: linear-gradient(135deg, rgba(217, 4, 41, 0.1), rgba(255, 159, 28, 0.1));
-            border-radius: 10px;
-            border-left: 4px solid var(--danger);
-            font-weight: 700;
-            color: var(--danger);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .emergency-contact i {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        /* ====== MOBILE RESPONSIVE ====== */
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-
-            .container {
-                padding: 40px 25px;
-                border-radius: 20px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .subtitle {
-                font-size: 0.8rem;
-            }
-
-            .branding-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-            }
-
-            input {
-                font-size: 16px; /* Prevents iOS auto-zoom */
-                padding: 12px 14px 12px 44px;
-            }
-
-            button {
-                padding: 14px;
-                font-size: 0.95rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 30px 20px;
-            }
-
-            h1 {
-                font-size: 1.3rem;
-            }
-
-            .subtitle {
-                font-size: 0.75rem;
-                margin-bottom: 20px;
-            }
-
-            .tabs {
-                margin-bottom: 20px;
-            }
-
-            .tab {
-                padding: 10px 12px;
-                font-size: 0.8rem;
-            }
-
-            .status-indicator {
-                padding: 8px 12px;
-                font-size: 0.75rem;
-                margin-bottom: 20px;
-            }
-
-            .branding-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3rem;
-            }
-
-            input {
-                padding: 11px 12px 11px 40px;
-                font-size: 16px;
-                border-radius: 10px;
-            }
-
-            .input-wrapper i {
-                left: 12px;
-                font-size: 1rem;
-            }
-
-            button {
-                padding: 12px;
-                font-size: 0.9rem;
-                gap: 8px;
-            }
-
-            .footer {
-                font-size: 0.75rem;
-                margin-top: 25px;
-            }
-
-            .emergency-contact {
-                font-size: 0.8rem;
-                padding: 10px;
-            }
-        }
-
-        /* ====== SCROLLBAR ====== */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 78, 137, 0.1);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, var(--secondary), var(--primary));
-        }
+/* ================================================================
+   CIEPD COMMAND INTELLIGENCE — DESIGN SYSTEM v4.0 — LOGIN PAGE
+================================================================ */
+
+:root {
+    --void:#04060a; --deep:#080c14; --dark:#0c1220; --mid:#121a2e;
+    --surface:#18223a; --lift:#1e2d48; --raised:#243354;
+    --g0:rgba(255,255,255,0.02); --g1:rgba(255,255,255,0.04);
+    --g2:rgba(255,255,255,0.07); --g3:rgba(255,255,255,0.11); --g4:rgba(255,255,255,0.16);
+    --b0:rgba(255,255,255,0.04); --b1:rgba(255,255,255,0.08);
+    --b2:rgba(255,255,255,0.14); --b3:rgba(255,255,255,0.22); --b4:rgba(255,255,255,0.32);
+    --cyan:#00f0ff; --cyan-60:rgba(0,240,255,0.60); --cyan-40:rgba(0,240,255,0.40);
+    --cyan-20:rgba(0,240,255,0.20); --cyan-10:rgba(0,240,255,0.10); --cyan-05:rgba(0,240,255,0.05);
+    --cyan-glow:0 0 28px rgba(0,240,255,0.35);
+    --cyan-glow-xl:0 0 60px rgba(0,240,255,0.25),0 0 120px rgba(0,240,255,0.10);
+    --indigo:#6366f1; --indigo-dim:rgba(99,102,241,0.20);
+    --emerald:#10ffb0; --emerald-dim:rgba(16,255,176,0.12); --emerald-border:rgba(16,255,176,0.25);
+    --crimson:#ff1a4b; --crimson-dim:rgba(255,26,75,0.12); --crimson-border:rgba(255,26,75,0.28);
+    --amber:#ffb020; --amber-dim:rgba(255,176,32,0.12);
+    --violet:#bf5af2;
+    --tx1:#f0f6ff; --tx2:#8896b0; --tx3:#4a5a78; --tx4:#283048; --tx-inv:#040610;
+    --f-disp:'Syne',sans-serif; --f-body:'DM Sans',sans-serif; --f-mono:'JetBrains Mono',monospace;
+    --ease:cubic-bezier(0.16,1,0.3,1); --spring:cubic-bezier(0.34,1.56,0.64,1);
+    --card-bg:rgba(8,12,20,0.90);
+    --input-bg:rgba(255,255,255,0.04); --input-focus-bg:rgba(255,255,255,0.07);
+}
+
+html:not(.dark) {
+    --void:#e8eef8; --deep:#dde6f4; --dark:#d2dcf0; --mid:#c8d4ec;
+    --surface:#f4f7fd; --lift:#ffffff; --raised:#ffffff;
+    --g0:rgba(0,60,140,0.015); --g1:rgba(0,60,140,0.035);
+    --g2:rgba(0,60,140,0.065); --g3:rgba(0,60,140,0.10); --g4:rgba(0,60,140,0.14);
+    --b0:rgba(0,50,120,0.04); --b1:rgba(0,50,120,0.09);
+    --b2:rgba(0,50,120,0.16); --b3:rgba(0,50,120,0.24); --b4:rgba(0,50,120,0.36);
+    --cyan:#005bcc; --cyan-60:rgba(0,91,204,0.60); --cyan-40:rgba(0,91,204,0.40);
+    --cyan-20:rgba(0,91,204,0.20); --cyan-10:rgba(0,91,204,0.10); --cyan-05:rgba(0,91,204,0.05);
+    --cyan-glow:0 0 20px rgba(0,91,204,0.18); --cyan-glow-xl:0 0 36px rgba(0,91,204,0.22);
+    --indigo:#4f46e5; --indigo-dim:rgba(79,70,229,0.10);
+    --emerald:#00916e; --emerald-dim:rgba(0,145,110,0.10); --emerald-border:rgba(0,145,110,0.25);
+    --crimson:#c8003d; --crimson-dim:rgba(200,0,61,0.10); --crimson-border:rgba(200,0,61,0.28);
+    --amber:#b45a00; --amber-dim:rgba(180,90,0,0.10);
+    --violet:#7c3aed;
+    --tx1:#0a1020; --tx2:#3a4f6e; --tx3:#7088aa; --tx4:#a8bcd8; --tx-inv:#f0f6ff;
+    --card-bg:rgba(255,255,255,0.96);
+    --input-bg:rgba(0,50,120,0.035); --input-focus-bg:rgba(0,50,120,0.06);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html { font-size:16px; -webkit-font-smoothing:antialiased; height:100%; }
+
+body {
+    font-family:var(--f-body);
+    background:var(--void); color:var(--tx1);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    overflow-x:hidden; position:relative;
+    padding:20px 16px;
+    transition:background 0.4s,color 0.4s;
+}
+
+/* ── BACKGROUND ───────────────────────────────────────────── */
+#bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+
+#bg-video {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; opacity:0.18; filter:saturate(0.4) brightness(0.35);
+}
+html:not(.dark) #bg-video { opacity:0.06; filter:saturate(0.2) brightness(0.8); }
+
+#bg-scanlines {
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px);
+}
+#bg-grid {
+    position:absolute; inset:-200px; z-index:1;
+    background-image:linear-gradient(rgba(0,240,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,0.025) 1px,transparent 1px);
+    background-size:64px 64px;
+    animation:grid-drift 90s linear infinite;
+}
+html:not(.dark) #bg-grid {
+    background-image:linear-gradient(rgba(0,91,204,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,91,204,0.04) 1px,transparent 1px);
+}
+@keyframes grid-drift { to { transform:translate(64px,64px); } }
+
+.bg-orb { position:absolute; border-radius:50%; filter:blur(140px); pointer-events:none; z-index:0; animation:orb-drift 28s ease-in-out infinite alternate; }
+html:not(.dark) .bg-orb { opacity:0.06 !important; }
+.bg-orb.o1 { width:800px;height:800px;background:var(--cyan);   top:-320px;left:-280px; opacity:0.11;animation-duration:32s; }
+.bg-orb.o2 { width:600px;height:600px;background:var(--violet); bottom:-240px;right:-220px; opacity:0.09;animation-duration:26s;animation-delay:-14s; }
+.bg-orb.o3 { width:440px;height:440px;background:var(--emerald);top:45%;left:58%; opacity:0.07;animation-duration:20s;animation-delay:-7s; }
+@keyframes orb-drift { 0%{transform:translate(0,0) scale(1);}50%{transform:translate(60px,-80px) scale(1.08);}100%{transform:translate(-40px,50px) scale(0.96);} }
+
+#bg-vignette { position:absolute; inset:0; pointer-events:none; z-index:3; background:radial-gradient(ellipse at center,transparent 20%,rgba(4,6,10,0.70) 100%); }
+html:not(.dark) #bg-vignette { background:radial-gradient(ellipse at center,transparent 20%,rgba(180,200,240,0.45) 100%); }
+
+/* corner brackets */
+.corner { position:fixed; width:36px; height:36px; pointer-events:none; z-index:5; opacity:0.18; }
+.corner::before,.corner::after { content:''; position:absolute; background:var(--cyan); border-radius:2px; }
+.corner::before { width:2px; height:100%; } .corner::after { width:100%; height:2px; }
+.corner.tl { top:12px;left:12px; }  .corner.tl::before,.corner.tl::after { top:0;left:0; }
+.corner.tr { top:12px;right:12px; } .corner.tr::before { top:0;right:0; } .corner.tr::after { top:0;right:0; }
+.corner.bl { bottom:12px;left:12px; }  .corner.bl::before { bottom:0;left:0; } .corner.bl::after { bottom:0;left:0; }
+.corner.br { bottom:12px;right:12px; } .corner.br::before { bottom:0;right:0; } .corner.br::after { bottom:0;right:0; }
+
+/* ── THEME BUTTON ─────────────────────────────────────────── */
+#themeBtn {
+    position:fixed; top:16px; right:16px; z-index:300;
+    width:42px; height:42px; border-radius:11px;
+    border:1px solid var(--b2); background:var(--g1);
+    color:var(--tx2); font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.25s var(--ease);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+#themeBtn:hover { background:var(--g3); border-color:var(--cyan-20); color:var(--cyan); transform:rotate(20deg) scale(1.1); }
+
+/* ── PAGE WRAP ────────────────────────────────────────────── */
+#page-wrap {
+    position:relative; z-index:10;
+    width:100%; max-width:468px;
+    animation:wrap-rise 0.85s var(--spring) both;
+}
+@keyframes wrap-rise { from{opacity:0;transform:translateY(44px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);} }
+
+/* ── IDENTITY BAR ─────────────────────────────────────────── */
+.identity-bar {
+    display:flex; align-items:center; justify-content:center;
+    gap:15px; margin-bottom:26px;
+}
+.id-icon {
+    width:54px; height:54px; flex-shrink:0;
+    background:linear-gradient(135deg,var(--cyan-20),var(--indigo-dim));
+    border:1px solid var(--cyan-40); border-radius:15px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; color:var(--cyan);
+    box-shadow:var(--cyan-glow);
+    animation:icon-pulse 4s ease-in-out infinite;
+}
+@keyframes icon-pulse { 0%,100%{box-shadow:var(--cyan-glow);}50%{box-shadow:var(--cyan-glow-xl);} }
+.id-name {
+    font-family:var(--f-disp); font-size:1.55rem; font-weight:800;
+    color:var(--tx1); letter-spacing:0.07em; text-transform:uppercase; line-height:1;
+}
+.id-tagline {
+    font-family:var(--f-mono); font-size:0.58rem; font-weight:500;
+    color:var(--cyan); letter-spacing:0.17em; text-transform:uppercase; margin-top:4px;
+}
+
+/* ── GLASS CARD ───────────────────────────────────────────── */
+.glass-card {
+    width:100%;
+    background:var(--card-bg);
+    backdrop-filter:blur(32px); -webkit-backdrop-filter:blur(32px);
+    border:1px solid var(--b2); border-radius:28px;
+    box-shadow:0 32px 80px rgba(0,0,0,0.65),0 0 0 1px rgba(255,255,255,0.03),inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow:hidden; position:relative;
+}
+html:not(.dark) .glass-card { box-shadow:0 24px 60px rgba(0,0,0,0.12),0 0 0 1px rgba(0,50,120,0.04); }
+
+/* scanline overlay */
+.glass-card::before {
+    content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:28px;
+    background:repeating-linear-gradient(0deg,transparent 0px,transparent 5px,rgba(0,240,255,0.006) 5px,rgba(0,240,255,0.006) 6px);
+}
+
+/* top gradient accent */
+.card-accent {
+    height:3px; position:relative; z-index:2;
+    background:linear-gradient(90deg,var(--cyan),var(--indigo),var(--violet),transparent);
+    opacity:0.85;
+}
+
+.card-body { padding:36px 40px 38px; position:relative; z-index:2; }
+
+/* ── SYSTEM STATUS PILL ───────────────────────────────────── */
+.sys-pill {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin:0 auto 28px; width:fit-content;
+    padding:8px 18px;
+    background:var(--emerald-dim); border:1px solid var(--emerald-border);
+    border-radius:99px;
+    font-family:var(--f-mono); font-size:0.60rem; font-weight:700;
+    color:var(--emerald); letter-spacing:0.10em; text-transform:uppercase;
+}
+.sys-dot {
+    width:6px; height:6px; flex-shrink:0;
+    background:var(--emerald); border-radius:50%; box-shadow:0 0 8px var(--emerald);
+    animation:dot-blink 2.2s ease-in-out infinite;
+}
+@keyframes dot-blink { 0%,100%{transform:scale(1);}50%{transform:scale(0.5);opacity:0.4;} }
+
+/* ── TABS ─────────────────────────────────────────────────── */
+.tabs {
+    display:flex; gap:5px; margin-bottom:26px;
+    background:var(--g1); border:1px solid var(--b1);
+    border-radius:14px; padding:5px;
+}
+.tab {
+    flex:1; display:flex; align-items:center; justify-content:center; gap:7px;
+    padding:11px 10px; border-radius:10px;
+    background:none; border:1px solid transparent;
+    color:var(--tx3); font-family:var(--f-body); font-size:0.76rem;
+    font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    cursor:pointer; white-space:nowrap;
+    transition:all 0.22s var(--ease);
+}
+.tab i { font-size:11px; }
+.tab:hover { background:var(--g2); color:var(--tx2); }
+.tab.active { background:var(--g3); border-color:var(--b2); color:var(--tx1); box-shadow:0 2px 12px rgba(0,0,0,0.28); }
+.tab.active i { color:var(--cyan); filter:drop-shadow(0 0 5px var(--cyan)); }
+
+/* ── MESSAGE BOX ──────────────────────────────────────────── */
+#message-box {
+    display:none; align-items:center; gap:10px;
+    padding:12px 16px; border-radius:12px;
+    font-family:var(--f-body); font-size:0.82rem; font-weight:600;
+    margin-bottom:22px; border:1px solid transparent;
+}
+#message-box.show { display:flex; animation:msg-appear 0.3s var(--ease) both; }
+@keyframes msg-appear { from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);} }
+#message-box.msg-success { background:var(--emerald-dim); border-color:var(--emerald-border); color:var(--emerald); }
+#message-box.msg-error   { background:var(--crimson-dim); border-color:var(--crimson-border); color:var(--crimson); }
+#msg-icon { font-size:14px; flex-shrink:0; }
+
+/* ── FORMS ────────────────────────────────────────────────── */
+form { display:none; animation:form-slide 0.32s var(--ease) both; }
+@keyframes form-slide { from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);} }
+form.active { display:block; }
+
+.input-group { margin-bottom:18px; }
+.input-group label {
+    display:block; margin-bottom:7px;
+    font-family:var(--f-mono); font-size:0.60rem; font-weight:700;
+    color:var(--tx3); text-transform:uppercase; letter-spacing:0.12em;
+}
+.input-wrapper { position:relative; display:flex; align-items:center; }
+.input-wrapper .ico {
+    position:absolute; left:15px;
+    color:var(--tx3); font-size:13px; pointer-events:none;
+    transition:color 0.2s;
+}
+.input-wrapper input {
+    width:100%; padding:13px 44px 13px 44px;
+    background:var(--input-bg); border:1px solid var(--b2); border-radius:12px;
+    font-family:var(--f-body); font-size:0.90rem; /* 16px on mobile */
+    color:var(--tx1); outline:none;
+    transition:all 0.22s var(--ease); -webkit-appearance:none;
+}
+.input-wrapper input::placeholder { color:var(--tx3); }
+.input-wrapper input:focus {
+    background:var(--input-focus-bg); border-color:var(--cyan);
+    box-shadow:0 0 0 3px var(--cyan-10);
+}
+.input-wrapper:focus-within .ico { color:var(--cyan); }
+
+/* password eye */
+.pw-eye {
+    position:absolute; right:14px; padding:4px;
+    color:var(--tx3); font-size:12px;
+    cursor:pointer; transition:color 0.2s;
+}
+.pw-eye:hover { color:var(--tx2); }
+
+/* ── SUBMIT BUTTONS ───────────────────────────────────────── */
+.btn-submit {
+    width:100%; margin-top:22px;
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    padding:15px 20px; border:none; border-radius:12px;
+    font-family:var(--f-body); font-size:0.84rem;
+    font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    cursor:pointer; transition:all 0.25s var(--ease);
+    position:relative; overflow:hidden;
+}
+.btn-submit::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.09); opacity:0; transition:opacity 0.2s; }
+.btn-submit:hover::after { opacity:1; }
+.btn-submit:hover  { transform:translateY(-3px); }
+.btn-submit:active { transform:translateY(-1px); }
+.btn-submit:disabled { opacity:0.38; pointer-events:none; }
+
+/* login — cyan */
+#login .btn-submit {
+    background:linear-gradient(135deg,var(--cyan),#00c8d8); color:var(--tx-inv);
+    box-shadow:0 4px 20px var(--cyan-20);
+}
+#login .btn-submit:hover { box-shadow:0 8px 32px var(--cyan-40); }
+html:not(.dark) #login .btn-submit { color:#fff; }
+
+/* signup — indigo */
+#signup .btn-submit {
+    background:linear-gradient(135deg,var(--indigo),#818cf8); color:#fff;
+    box-shadow:0 4px 20px var(--indigo-dim);
+}
+#signup .btn-submit:hover { box-shadow:0 8px 32px rgba(99,102,241,0.45); }
+
+/* reset — amber */
+#reset .btn-submit {
+    background:linear-gradient(135deg,var(--amber),#ffcc60); color:var(--tx-inv);
+    box-shadow:0 4px 20px var(--amber-dim);
+}
+#reset .btn-submit:hover { box-shadow:0 8px 32px rgba(255,176,32,0.42); }
+html:not(.dark) #reset .btn-submit { color:#fff; }
+
+/* ── CARD FOOTER ──────────────────────────────────────────── */
+.card-footer {
+    position:relative; z-index:2;
+    border-top:1px solid var(--b1); padding:18px 40px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px; flex-wrap:wrap;
+}
+.ft-item {
+    display:flex; align-items:center; gap:7px;
+    font-family:var(--f-mono); font-size:0.59rem; font-weight:600;
+    color:var(--tx3); text-transform:uppercase; letter-spacing:0.07em;
+}
+.ft-item i { font-size:11px; color:var(--cyan); }
+
+.emergency-chip {
+    display:flex; align-items:center; gap:7px;
+    padding:7px 14px;
+    background:var(--crimson-dim); border:1px solid var(--crimson-border);
+    border-radius:99px; text-decoration:none;
+    font-family:var(--f-mono); font-size:0.59rem; font-weight:700;
+    color:var(--crimson); text-transform:uppercase; letter-spacing:0.07em;
+    transition:all 0.22s var(--ease);
+}
+.emergency-chip:hover { background:rgba(255,26,75,0.18); transform:translateY(-2px); }
+.emergency-chip i { animation:pulse-ec 1.3s infinite; font-size:11px; }
+@keyframes pulse-ec { 0%,100%{opacity:1;}50%{opacity:0.35;} }
+
+/* ── SPINNER ──────────────────────────────────────────────── */
+.fa-spin { animation:spin 0.75s linear infinite; display:inline-block; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width:520px) {
+    .card-body   { padding:28px 22px 30px; }
+    .card-footer { padding:16px 22px 18px; flex-direction:column; align-items:flex-start; gap:8px; }
+    .id-name     { font-size:1.3rem; }
+    .id-icon     { width:46px; height:46px; font-size:18px; }
+    .identity-bar{ gap:11px; margin-bottom:20px; }
+    .input-wrapper input { font-size:16px; } /* prevent iOS zoom */
+}
+@media (max-width:380px) {
+    .tab { font-size:0.68rem; padding:9px 5px; gap:4px; }
+    .tab i { display:none; }
+}
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--b3); border-radius:3px; }
     </style>
 </head>
 
 <body>
 
-<div class="bg-animation">
-    <div class="grid-bg"></div>
-    <div class="shape small"></div>
-    <div class="shape medium"></div>
-    <div class="shape large"></div>
-    <div class="shape medium"></div>
-    <div class="shape small"></div>
+<!-- ─── BACKGROUND ──────────────────────────────────── -->
+<div id="bg-canvas">
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="videos/vid.mp4" type="video/mp4">
+    </video>
+    <div id="bg-scanlines"></div>
+    <div id="bg-grid"></div>
+    <div class="bg-orb o1"></div>
+    <div class="bg-orb o2"></div>
+    <div class="bg-orb o3"></div>
+    <div id="bg-vignette"></div>
 </div>
 
-<div class="container">
-    
-    <div class="branding-header">
-        <div class="branding-icon">
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<!-- THEME TOGGLE -->
+<button id="themeBtn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+    <i class="fas fa-sun"></i>
+</button>
+
+<!-- ─── MAIN CARD ─────────────────────────────────── -->
+<div id="page-wrap">
+
+    <!-- IDENTITY -->
+    <div class="identity-bar">
+        <div class="id-icon">
             <i class="fas fa-satellite-dish"></i>
         </div>
         <div>
-            <h1>CIEPD</h1>
+            <div class="id-name">CIEPD</div>
+            <div class="id-tagline">Conflict Intelligence Portal</div>
         </div>
     </div>
 
-    <p class="subtitle">Conflict Intelligence & Early Peace Detection System</p>
+    <div class="glass-card">
+        <div class="card-accent"></div>
 
-    <div class="status-indicator">
-        <div class="status-dot"></div>
-        System Online • 24/7 Monitoring Active
-    </div>
+        <div class="card-body">
 
-    <div class="tabs">
-        <div class="tab active" data-tab-id="login" onclick="showTab('login', this)">
-            <i class="fas fa-sign-in-alt"></i> Login
-        </div>
-        <div class="tab" data-tab-id="signup" onclick="showTab('signup', this)">
-            <i class="fas fa-user-plus"></i> Register
-        </div>
-        <div class="tab" data-tab-id="reset" onclick="showTab('reset', this)">
-            <i class="fas fa-key"></i> Reset
-        </div>
-    </div>
-
-    <div id="message-box"></div>
-
-    <form id="login" class="active">
-        <div class="input-group">
-            <label for="loginEmail"><i class="fas fa-envelope"></i> Administrator Email</label>
-            <div class="input-wrapper">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="loginEmail" placeholder="email" required />
+            <!-- STATUS PILL -->
+            <div class="sys-pill">
+                <span class="sys-dot"></span>
+                System Online &nbsp;·&nbsp; 24/7 Monitoring Active
             </div>
-        </div>
-        <div class="input-group">
-            <label for="loginPassword"><i class="fas fa-lock"></i> Secure Password</label>
-            <div class="input-wrapper">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="loginPassword" placeholder="••••••••" required />
-            </div>
-        </div>
-        <button type="submit" id="login-btn">
-            <i class="fas fa-sign-in-alt"></i> Access Intelligence Portal
-        </button>
-    </form>
 
-    <form id="signup">
-        <div class="input-group">
-            <label for="signupName"><i class="fas fa-user"></i> Full Name</label>
-            <div class="input-wrapper">
-                <i class="fas fa-user"></i>
-                <input type="text" id="signupName" placeholder="Enter your full name" required />
+            <!-- TABS -->
+            <div class="tabs">
+                <div class="tab active" data-tab-id="login" onclick="showTab('login',this)">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </div>
+                <div class="tab" data-tab-id="signup" onclick="showTab('signup',this)">
+                    <i class="fas fa-user-plus"></i> Register
+                </div>
+                <div class="tab" data-tab-id="reset" onclick="showTab('reset',this)">
+                    <i class="fas fa-key"></i> Reset
+                </div>
             </div>
-        </div>
-        <div class="input-group">
-            <label for="signupEmail"><i class="fas fa-envelope"></i> Work Email</label>
-            <div class="input-wrapper">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="signupEmail" placeholder="email@ciepd.org" required />
-            </div>
-        </div>
-        <div class="input-group">
-            <label for="signupPassword"><i class="fas fa-key"></i> New Password</label>
-            <div class="input-wrapper">
-                <i class="fas fa-key"></i>
-                <input type="password" id="signupPassword" placeholder="Min. 8 characters" required />
-            </div>
-        </div>
-        <button type="submit" id="signup-btn">
-            <i class="fas fa-user-plus"></i> Create Account
-        </button>
-    </form>
 
-    <form id="reset">
-        <div class="input-group">
-            <label for="resetEmail"><i class="fas fa-envelope"></i> Email Address</label>
-            <div class="input-wrapper">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="resetEmail" placeholder="Enter registered email" required />
+            <!-- MESSAGE BOX -->
+            <div id="message-box">
+                <i id="msg-icon" class="fas fa-info-circle"></i>
+                <span id="msg-text"></span>
             </div>
-        </div>
-        <div class="input-group">
-            <label for="resetNewPassword"><i class="fas fa-unlock"></i> New Password</label>
-            <div class="input-wrapper">
-                <i class="fas fa-unlock"></i>
-                <input type="password" id="resetNewPassword" placeholder="Set new password" required />
-            </div>
-        </div>
-        <button type="submit" id="reset-btn">
-            <i class="fas fa-redo-alt"></i> Recover Password
-        </button>
-    </form>
 
-    <div class="footer">
-        <p>📋 Secure Intelligence Portal</p>
-        <p>🔐 End-to-End Encrypted Access</p>
-        <div class="emergency-contact">
-            <i class="fab fa-whatsapp"></i> Emergency: 08034559689
-        </div>
-    </div>
+            <!-- LOGIN FORM -->
+            <form id="login" class="active">
+                <div class="input-group">
+                    <label for="loginEmail">Administrator Email</label>
+                    <div class="input-wrapper">
+                        <i class="ico fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="admin@ciepd.org" autocomplete="email" required/>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">Secure Password</label>
+                    <div class="input-wrapper">
+                        <i class="ico fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="••••••••••" autocomplete="current-password" required/>
+                        <span class="pw-eye" onclick="togglePw('loginPassword',this)" title="Show/hide">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Access Intelligence Portal
+                </button>
+            </form>
 
-</div>
+            <!-- SIGNUP FORM -->
+            <form id="signup">
+                <div class="input-group">
+                    <label for="signupName">Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="ico fas fa-user"></i>
+                        <input type="text" id="signupName" placeholder="Enter your full name" autocomplete="name" required/>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="signupEmail">Work Email</label>
+                    <div class="input-wrapper">
+                        <i class="ico fas fa-envelope"></i>
+                        <input type="email" id="signupEmail" placeholder="email@ciepd.org" autocomplete="email" required/>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="signupPassword">New Password</label>
+                    <div class="input-wrapper">
+                        <i class="ico fas fa-key"></i>
+                        <input type="password" id="signupPassword" placeholder="Min. 8 characters" autocomplete="new-password" required/>
+                        <span class="pw-eye" onclick="togglePw('signupPassword',this)" title="Show/hide">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="signup-btn">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+
+            <!-- RESET FORM -->
+            <form id="reset">
+                <div class="input-group">
+                    <label for="resetEmail">Registered Email</label>
+                    <div class="input-wrapper">
+                        <i class="ico fas fa-envelope"></i>
+                        <input type="email" id="resetEmail" placeholder="Enter registered email" autocomplete="email" required/>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="resetNewPassword">New Password</label>
+                    <div class="input-wrapper">
+                        <i class="ico fas fa-unlock"></i>
+                        <input type="password" id="resetNewPassword" placeholder="Set new password" autocomplete="new-password" required/>
+                        <span class="pw-eye" onclick="togglePw('resetNewPassword',this)" title="Show/hide">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="reset-btn">
+                    <i class="fas fa-redo-alt"></i> Recover Password
+                </button>
+            </form>
+
+        </div><!-- /card-body -->
+
+        <!-- FOOTER STRIP -->
+        <div class="card-footer">
+            <div class="ft-item"><i class="fas fa-shield-alt"></i> Encrypted Access</div>
+            <div class="ft-item"><i class="fas fa-lock"></i> Secure Portal</div>
+            <a href="tel:08034559689" class="emergency-chip">
+                <i class="fab fa-whatsapp"></i> 08034559689
+            </a>
+        </div>
+
+    </div><!-- /glass-card -->
+</div><!-- /page-wrap -->
+
 
 <script>
-    /* Pointing directly to Vercel production domain */
-    const BASE_URL =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1"
-            ? "http://localhost:3000"
-            : "https://ciepdcwc.vercel.app";
-    
-    const messageBox = document.getElementById('message-box');
+/* ── THEME ──────────────────────────────────────────────── */
+function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    updateThemeIcon();
+}
+function updateThemeIcon() {
+    const icon = document.querySelector('#themeBtn i');
+    icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+}
+updateThemeIcon();
 
-    function showTab(tabId, element) {
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
-        element.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-        messageBox.style.display = 'none';
+/* ── TABS ───────────────────────────────────────────────── */
+function showTab(tabId, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('form').forEach(f => f.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    hideMessage();
+}
+
+/* ── PASSWORD TOGGLE ────────────────────────────────────── */
+function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon  = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type     = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type     = 'password';
+        icon.className = 'fas fa-eye';
     }
+}
 
-    function showMessage(msg, type = 'error') {
-        messageBox.textContent = msg;
-        messageBox.className = '';
-        messageBox.classList.add(type === 'success' ? 'msg-success' : 'msg-error');
-        messageBox.style.display = 'block';
-    }
+/* ── MESSAGES ───────────────────────────────────────────── */
+function showMessage(text, type = 'error') {
+    const box  = document.getElementById('message-box');
+    const txt  = document.getElementById('msg-text');
+    const icon = document.getElementById('msg-icon');
+    txt.textContent = text;
+    box.className   = `show msg-${type}`;
+    icon.className  = `fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`;
+}
+function hideMessage() {
+    document.getElementById('message-box').className = '';
+}
 
-    function toggleButtonLoading(btnId, isLoading, defaultText, iconClass) {
-        const btn = document.getElementById(btnId);
-        btn.disabled = isLoading;
-        if (isLoading) {
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Processing...`;
+/* ── BUTTON LOADING ─────────────────────────────────────── */
+function toggleButtonLoading(btnId, isLoading, defaultText, iconClass) {
+    const btn    = document.getElementById(btnId);
+    btn.disabled = isLoading;
+    btn.innerHTML = isLoading
+        ? `<i class="fas fa-circle-notch fa-spin"></i> Processing…`
+        : `<i class="${iconClass}"></i> ${defaultText}`;
+}
+
+/* ── BASE URL ───────────────────────────────────────────── */
+/* Pointing directly to Vercel production domain */
+const BASE_URL =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : 'https://ciepdcwc.vercel.app';
+
+/* ── FORM SUBMIT HANDLERS ───────────────────────────────── */
+['login', 'signup', 'reset'].forEach(formId => {
+    const formEl = document.getElementById(formId);
+    if (!formEl) return;
+
+    formEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideMessage();
+
+        let btnId, btnText, btnIcon, endpoint;
+        const payload = {};
+
+        if (formId === 'login') {
+            btnId    = 'login-btn';
+            btnText  = 'Access Intelligence Portal';
+            btnIcon  = 'fas fa-sign-in-alt';
+            endpoint = '/api/login';
+            payload.email    = document.getElementById('loginEmail').value.trim();
+            payload.password = document.getElementById('loginPassword').value.trim();
+
+        } else if (formId === 'signup') {
+            btnId    = 'signup-btn';
+            btnText  = 'Create Account';
+            btnIcon  = 'fas fa-user-plus';
+            endpoint = '/api/signup';
+            payload.name     = document.getElementById('signupName').value.trim();
+            payload.email    = document.getElementById('signupEmail').value.trim();
+            payload.password = document.getElementById('signupPassword').value.trim();
+
         } else {
-            btn.innerHTML = `<i class="${iconClass}"></i> ${defaultText}`;
+            btnId    = 'reset-btn';
+            btnText  = 'Recover Password';
+            btnIcon  = 'fas fa-redo-alt';
+            endpoint = '/api/reset-password';
+            payload.email       = document.getElementById('resetEmail').value.trim();
+            payload.newPassword = document.getElementById('resetNewPassword').value.trim();
         }
-    }
-    
-    // Form Submission Handlers
-    const forms = ['login', 'signup', 'reset'];
-    forms.forEach(formId => {
-        const formElement = document.getElementById(formId);
-        if(!formElement) return;
 
-        formElement.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            messageBox.style.display = 'none';
-            
-            let btnId, btnText, btnIcon, endpoint;
-            const payload = {};
+        toggleButtonLoading(btnId, true, btnText, btnIcon);
 
-            if(formId === 'login') {
-                btnId = 'login-btn'; 
-                btnText = 'Access Intelligence Portal'; 
-                btnIcon = 'fas fa-sign-in-alt'; 
-                endpoint = '/api/login'; 
-                payload.email = document.getElementById("loginEmail").value.trim();
-                payload.password = document.getElementById("loginPassword").value.trim();
-            } else if(formId === 'signup') {
-                btnId = 'signup-btn'; 
-                btnText = 'Create Account'; 
-                btnIcon = 'fas fa-user-plus'; 
-                endpoint = '/api/signup';
-                payload.name = document.getElementById("signupName").value.trim();
-                payload.email = document.getElementById("signupEmail").value.trim();
-                payload.password = document.getElementById("signupPassword").value.trim();
-            } else {
-                btnId = 'reset-btn'; 
-                btnText = 'Recover Password'; 
-                btnIcon = 'fas fa-redo-alt'; 
-                endpoint = '/api/reset-password';
-                payload.email = document.getElementById("resetEmail").value.trim();
-                payload.newPassword = document.getElementById("resetNewPassword").value.trim();
-            }
+        try {
+            // Pointing to Vercel via BASE_URL
+            const res = await fetch(`${BASE_URL}${endpoint}`, {
+                method:      'POST',
+                headers:     { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body:        JSON.stringify(payload),
+            });
 
-            toggleButtonLoading(btnId, true, btnText, btnIcon);
+            const data = await res.json();
 
-            try {
-                // Pointing to Vercel via BASE_URL
-                const res = await fetch(`${BASE_URL}${endpoint}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-
-                if (res.ok && (data.success || formId !== 'login')) {
-                    if(formId === 'login') {
-                        // Successful login: save role and redirect
-                        if(data.user && data.user.role) {
-                           localStorage.setItem('userRole', data.user.role);
-                        }
-                        window.location.href = data.redirect || "admin.html";
-                    } else {
-                        showMessage(data.message || "✅ Action successful! You can now log in.", 'success');
-                        showTab("login", document.querySelector('[data-tab-id="login"]'));
+            if (res.ok && (data.success || formId !== 'login')) {
+                if (formId === 'login') {
+                    // Successful login — save role then redirect
+                    if (data.user && data.user.role) {
+                        localStorage.setItem('userRole', data.user.role);
                     }
+                    showMessage('Authentication successful. Redirecting…', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'admin.html';
+                    }, 900);
                 } else {
-                    showMessage(data.error || data.message || "❌ Operation failed. Please check your details.");
+                    showMessage(data.message || '✅ Action successful! You can now log in.', 'success');
+                    showTab('login', document.querySelector('[data-tab-id="login"]'));
                 }
-
-            } catch (err) {
-                console.error("Fetch Error:", err);
-                showMessage("⚠️ Server Connection Failed. Ensure backend is active on Vercel.");
-            } finally {
-                toggleButtonLoading(btnId, false, btnText, btnIcon);
+            } else {
+                showMessage(data.error || data.message || '❌ Operation failed. Please check your details.');
             }
-        });
+
+        } catch (err) {
+            console.error('Fetch Error:', err);
+            showMessage('⚠️ Server connection failed. Ensure backend is active on Vercel.');
+        } finally {
+            toggleButtonLoading(btnId, false, btnText, btnIcon);
+        }
     });
+});
 </script>
 
 </body>
