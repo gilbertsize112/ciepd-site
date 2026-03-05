@@ -79,7 +79,6 @@ if (isS3Configured) {
     storage = multer.diskStorage({
         destination: function (req, file, cb) {
             const uploadPath = process.env.MULTER_STORAGE_PATH || "./public/uploads";
-            // Check if we are on Vercel (Read-only FS)
             if (process.env.VERCEL) {
                 return cb(new Error("Local uploads not supported on Vercel. Use S3."));
             }
@@ -118,7 +117,7 @@ const __dirname = path.dirname(__filename);
 
 
 // ==========================
-// CORS (Updated for Vercel)
+// CORS
 // ==========================
 app.use(
     cors({
@@ -131,7 +130,6 @@ app.use(
                 "https://ciepd.org",
                 "https://ciepdcwc.vercel.app"
             ];
-            // Allow requests with no origin (mobile, Postman, etc.)
             if (!origin || allowed.indexOf(origin) !== -1) {
                 callback(null, true);
             } else {
@@ -144,10 +142,9 @@ app.use(
     })
 );
 
-// Handle preflight requests for ALL routes
-app.options("(.*)", (req, res) => {
+
 // ==========================
-// SESSION (Updated for Vercel HTTPS)
+// SESSION
 // ==========================
 app.use(
     session({
@@ -157,16 +154,18 @@ app.use(
         store: MongoStore.create({
             mongoUrl: process.env.MONGODB_URI,
             dbName: "ciepd",
-            ttl: 14 * 24 * 60 * 60, // 14 days
+            ttl: 14 * 24 * 60 * 60,
         }),
         cookie: {
-            secure: true, // Required for HTTPS on Vercel
+            secure: true,
             httpOnly: true,
-            sameSite: "none", // Critical for Cross-Origin cookies
+            sameSite: "none",
         },
     })
 );
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 // ==========================
@@ -180,15 +179,13 @@ const ConfigSchema = new mongoose.Schema({
 const Config = mongoose.model("Config", ConfigSchema);
 
 async function connectDB() {
-    if (mongoose.connection.readyState >= 1) return; // Prevent multiple connections on Vercel
+    if (mongoose.connection.readyState >= 1) return;
     try {
         console.log("DEBUG:: MONGODB_URI =", process.env.MONGODB_URI);
-
         await mongoose.connect(process.env.MONGODB_URI, {
             dbName: "ciepd",
             serverSelectionTimeoutMS: 30000,
         });
-
         console.log("✅ MongoDB Connected Successfully");
     } catch (err) {
         console.error("❌ MongoDB Connection Error:", err);
@@ -328,7 +325,7 @@ async function cleanDuplicates() {
 async function ensureAdmin() {
     const email = process.env.ADMIN_EMAIL;
     const password = process.env.ADMIN_PASSWORD;
-    if(!email || !password) return;
+    if (!email || !password) return;
 
     const exist = await User.findOne({ email });
     if (!exist) {
@@ -400,7 +397,7 @@ app.get("/api/alerts", (req, res) => {
 // ==========================
 app.post("/api/login", async (req, res) => {
     try {
-        await connectDB(); // Ensure DB is hot on Vercel
+        await connectDB();
         const { email, password } = req.body;
 
         console.log("LOGIN ATTEMPT:", email);
@@ -415,8 +412,8 @@ app.post("/api/login", async (req, res) => {
             return res.status(401).json({ error: "Invalid login details" });
         }
 
-         req.session.user = { id: user._id, email: user.email, role: user.role || "admin" };
-         return res.json({ success: true, redirect: "/admin.html", user: { email: user.email, role: user.role || "admin" } });
+        req.session.user = { id: user._id, email: user.email, role: user.role || "admin" };
+        return res.json({ success: true, redirect: "/admin.html", user: { email: user.email, role: user.role || "admin" } });
     } catch (err) {
         console.error("LOGIN ERROR:", err);
         return res.status(500).json({ error: "Server error" });
@@ -579,7 +576,7 @@ app.get("/api/news/:id", async (req, res) => {
     }
 });
 
-// 6. CREATE NEWS (single definition)
+// 6. CREATE NEWS
 app.post("/api/news", async (req, res) => {
     try {
         const {
@@ -680,8 +677,7 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
             messages: [
                 {
                     role: "system",
-                    content:
-                        "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary.",
+                    content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary.",
                 },
                 { role: "user", content: prompt },
             ],
@@ -729,8 +725,7 @@ app.post("/api/ai/analyze-item", async (req, res) => {
         }
 
         const incidentTitle = item?.title || item?.incidentType || bodyTitle || "Untitled Report";
-        const incidentContent =
-            item?.content || item?.description || item?.details || bodyContent || "No content available.";
+        const incidentContent = item?.content || item?.description || item?.details || bodyContent || "No content available.";
         const location = item?.location || item?.state || "Unknown Location";
         const categories = (item?.categories || item?.tags || []).filter((c) => c).join(", ");
 
@@ -757,8 +752,7 @@ Return ONLY the JSON object, following this exact format and structure. Do not a
             messages: [
                 {
                     role: "system",
-                    content:
-                        "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary.",
+                    content: "You are an expert crisis analyst. Your output must ONLY be a valid JSON object matching the requested schema. The JSON object must contain only the fields: severity, incidentType, and summary.",
                 },
                 { role: "user", content: prompt },
             ],
@@ -1002,7 +996,6 @@ async function notifySubscribers(news) {
 // CSV AUTO-BACKUP HELPER
 // ==========================
 const appendToCSV = (item) => {
-    // ONLY RUN LOCALLY. Vercel is read-only.
     if (process.env.VERCEL) return;
 
     const filePath = path.join(__dirname, "news.csv");
@@ -1015,7 +1008,6 @@ const appendToCSV = (item) => {
 };
 
 
-
 // ==========================
 // STATIC FILES
 // ==========================
@@ -1023,10 +1015,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 // ==========================
-// SERVER START 
+// SERVER START
+// ==========================
 const PORT = process.env.PORT || 3000;
 
-// Unified Start Logic
 if (process.env.NODE_ENV !== 'production') {
     server.listen(PORT, async () => {
         console.log(`🚀 Local Server running on port ${PORT}`);
@@ -1035,12 +1027,9 @@ if (process.env.NODE_ENV !== 'production') {
         await importCSV();
     });
 } else {
-    // VERCEL PRODUCTION FLOW
-    // We pre-connect to DB so first request is fast
     connectDB().then(() => {
         ensureAdmin().catch(e => console.error("Admin check failed", e));
     });
 }
 
-// Export for Vercel
 export default app;
