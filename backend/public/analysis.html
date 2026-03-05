@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <script src="theme.js" defer></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>CIEPD — Intelligence Analysis</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>const io = () => ({ on: () => {}, emit: () => {} });</script>
+
+    <style>
+        :root {
+            --void:#04060a; --deep:#080c14; --dark:#0c1220; --mid:#121a2e;
+            --surface:#18223a; --lift:#1e2d48; --raised:#243354;
+            --g0:rgba(255,255,255,0.02); --g1:rgba(255,255,255,0.04);
+            --g2:rgba(255,255,255,0.07); --g3:rgba(255,255,255,0.11);
+            --g4:rgba(255,255,255,0.16);
+            --b0:rgba(255,255,255,0.04); --b1:rgba(255,255,255,0.08);
+            --b2:rgba(255,255,255,0.14); --b3:rgba(255,255,255,0.22);
+            --b4:rgba(255,255,255,0.32);
+            --cyan:#00f0ff; --cyan-80:rgba(0,240,255,0.80);
+            --cyan-40:rgba(0,240,255,0.40); --cyan-20:rgba(0,240,255,0.20);
+            --cyan-10:rgba(0,240,255,0.10); --cyan-05:rgba(0,240,255,0.05);
+            --cyan-glow:0 0 30px rgba(0,240,255,0.35);
+            --cyan-glow-xl:0 0 60px rgba(0,240,255,0.25),0 0 120px rgba(0,240,255,0.10);
+            --indigo:#6366f1; --indigo-dim:rgba(99,102,241,0.20);
+            --indigo-glow:0 0 30px rgba(99,102,241,0.35);
+            --emerald:#10ffb0; --emerald-dim:rgba(16,255,176,0.12);
+            --emerald-glow:0 0 30px rgba(16,255,176,0.30);
+            --crimson:#ff1a4b; --crimson-dim:rgba(255,26,75,0.12);
+            --crimson-glow:0 0 30px rgba(255,26,75,0.30);
+            --amber:#ffb020; --amber-dim:rgba(255,176,32,0.12);
+            --amber-glow:0 0 30px rgba(255,176,32,0.30);
+            --violet:#bf5af2; --violet-dim:rgba(191,90,242,0.12);
+            --tx1:#f0f6ff; --tx2:#8896b0; --tx3:#4a5a78; --tx4:#283048;
+            --tx-inv:#040610;
+            --f-disp:'Syne',sans-serif; --f-body:'DM Sans',sans-serif;
+            --f-mono:'JetBrains Mono',monospace;
+            --sp-xs:4px; --sp-sm:8px; --sp-md:16px;
+            --sp-lg:24px; --sp-xl:36px; --sp-2xl:56px;
+            --r-xs:4px; --r-sm:8px; --r-md:12px;
+            --r-lg:18px; --r-xl:26px; --r-2xl:40px;
+            --ease:cubic-bezier(0.16,1,0.3,1);
+            --spring:cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        html:not(.dark) {
+            --void:#eef3ff; --deep:#e4ecfc; --dark:#d8e4f8; --mid:#ccd8f4;
+            --surface:#f8fbff; --lift:#ffffff; --raised:#ffffff;
+            --g0:rgba(0,60,140,0.02); --g1:rgba(0,60,140,0.04);
+            --g2:rgba(0,60,140,0.06); --g3:rgba(0,60,140,0.09);
+            --g4:rgba(0,60,140,0.13);
+            --b0:rgba(0,50,120,0.04); --b1:rgba(0,50,120,0.09);
+            --b2:rgba(0,50,120,0.15); --b3:rgba(0,50,120,0.22);
+            --b4:rgba(0,50,120,0.32);
+            --cyan:#005fcc; --cyan-40:rgba(0,95,204,0.40);
+            --cyan-20:rgba(0,95,204,0.20); --cyan-10:rgba(0,95,204,0.10);
+            --cyan-05:rgba(0,95,204,0.05);
+            --cyan-glow:0 0 20px rgba(0,95,204,0.20);
+            --emerald:#00916e; --emerald-dim:rgba(0,145,110,0.10);
+            --crimson:#c8003d; --crimson-dim:rgba(200,0,61,0.10);
+            --amber:#c47700; --amber-dim:rgba(196,119,0,0.10);
+            --indigo:#4f46e5; --indigo-dim:rgba(79,70,229,0.10);
+            --tx1:#0c1428; --tx2:#3d5070; --tx3:#8098c0; --tx4:#b8ccee;
+            --tx-inv:#f0f6ff;
+        }
+
+        *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+        html { font-size:16px; scroll-behavior:smooth; -webkit-font-smoothing:antialiased; }
+        body {
+            font-family:var(--f-body);
+            background:var(--void); color:var(--tx1);
+            min-height:100vh; overflow-x:hidden; line-height:1.6;
+            transition:background 0.5s,color 0.5s;
+        }
+
+        /* ── BACKGROUND ── */
+        #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+        #video-background {
+            position:absolute; inset:0; width:100%; height:100%;
+            object-fit:cover; opacity:0.25;
+            filter:saturate(0.4) brightness(0.45);
+        }
+        html:not(.dark) #video-background { opacity:0.07; filter:saturate(0.3) brightness(0.7); }
+        #bg-scanlines {
+            position:absolute; inset:0; pointer-events:none; z-index:2;
+            background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(0,0,0,0.035) 3px,rgba(0,0,0,0.035) 4px);
+        }
+        #bg-grid {
+            position:absolute; inset:-200px;
+            background-image:linear-gradient(rgba(0,240,255,0.032) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,0.032) 1px,transparent 1px);
+            background-size:64px 64px;
+            animation:grid-drift 90s linear infinite; z-index:1;
+        }
+        html:not(.dark) #bg-grid {
+            background-image:linear-gradient(rgba(0,95,204,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,95,204,0.04) 1px,transparent 1px);
+        }
+        @keyframes grid-drift { to { transform:translate(64px,64px); } }
+        .bg-orb { position:absolute; border-radius:50%; filter:blur(130px); pointer-events:none; z-index:0; animation:orb-drift 28s ease-in-out infinite alternate; }
+        html:not(.dark) .bg-orb { opacity:0.06; }
+        .bg-orb.o1 { width:900px;height:900px;background:var(--cyan);top:-350px;left:-300px;opacity:0.12;animation-duration:32s; }
+        .bg-orb.o2 { width:700px;height:700px;background:var(--violet);bottom:-200px;right:-150px;opacity:0.10;animation-duration:26s;animation-delay:-12s; }
+        .bg-orb.o3 { width:500px;height:500px;background:var(--emerald);top:38%;left:40%;opacity:0.08;animation-duration:22s;animation-delay:-6s; }
+        @keyframes orb-drift { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(60px,-80px) scale(1.08);} 100%{transform:translate(-40px,50px) scale(0.95);} }
+        #bg-vignette {
+            position:absolute; inset:0; pointer-events:none; z-index:3;
+            background:radial-gradient(ellipse at center,transparent 30%,rgba(4,6,10,0.55) 100%);
+        }
+        html:not(.dark) #bg-vignette { background:radial-gradient(ellipse at center,transparent 30%,rgba(200,215,245,0.35) 100%); }
+        .corner { position:fixed; width:40px; height:40px; pointer-events:none; z-index:5; opacity:0.25; }
+        .corner::before,.corner::after { content:''; position:absolute; background:var(--cyan); border-radius:2px; }
+        .corner::before { width:2px; height:100%; }
+        .corner::after  { width:100%; height:2px; }
+        .corner.tl { top:8px; left:8px; }
+        .corner.tl::before,.corner.tl::after { top:0; left:0; }
+        .corner.tr { top:8px; right:8px; }
+        .corner.tr::before,.corner.tr::after { top:0; right:0; }
+        .corner.bl { bottom:8px; left:8px; }
+        .corner.bl::before,.corner.bl::after { bottom:0; left:0; }
+        .corner.br { bottom:8px; right:8px; }
+        .corner.br::before,.corner.br::after { bottom:0; right:0; }
+
+        /* ── APP SHELL ── */
+        #content-wrapper { position:relative; z-index:10; min-height:100vh; display:flex; flex-direction:column; }
+
+        /* ── HEADER ── */
+        .header {
+            display:flex; align-items:center; justify-content:space-between;
+            gap:var(--sp-md); padding:0 var(--sp-xl); height:68px; flex-shrink:0;
+            background:rgba(4,6,10,0.92);
+            backdrop-filter:blur(32px) saturate(1.5);
+            border-bottom:1px solid var(--b2);
+            box-shadow:0 1px 0 var(--b1),0 8px 32px rgba(0,0,0,0.6);
+            position:sticky; top:0; z-index:1000;
+            animation:hdr-drop 0.7s var(--ease) both;
+        }
+        html:not(.dark) .header { background:rgba(238,243,255,0.94); box-shadow:0 1px 0 var(--b1),0 8px 32px rgba(0,0,0,0.10); }
+        @keyframes hdr-drop { from{transform:translateY(-100%);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+        .brand { display:flex; align-items:center; gap:12px; cursor:pointer; text-decoration:none; flex-shrink:0; }
+        .brand-icon {
+            width:42px; height:42px;
+            background:linear-gradient(135deg,var(--cyan-20),var(--indigo-dim));
+            border:1px solid var(--cyan-40); border-radius:var(--r-md);
+            display:flex; align-items:center; justify-content:center;
+            font-size:18px; position:relative; overflow:hidden;
+            box-shadow:var(--cyan-glow);
+            animation:brand-pulse 4s ease-in-out infinite;
+        }
+        @keyframes brand-pulse { 0%,100%{box-shadow:var(--cyan-glow);} 50%{box-shadow:var(--cyan-glow-xl);} }
+        .brand-icon::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.2)); animation:brand-sweep 3s ease-in-out infinite; }
+        @keyframes brand-sweep { 0%,100%{opacity:0;} 50%{opacity:1;} }
+        .brand-text { line-height:1.15; }
+        .brand-name { font-family:var(--f-disp); font-size:1.05rem; font-weight:800; color:var(--tx1); letter-spacing:0.08em; text-transform:uppercase; }
+        .brand-sub  { font-family:var(--f-mono); font-size:0.52rem; color:var(--cyan); letter-spacing:0.18em; text-transform:uppercase; }
+
+        .scroll-container {
+            flex:1; max-width:440px; overflow:hidden; height:36px;
+            background:var(--g2); border:1px solid var(--b2); border-radius:99px;
+            padding:0 20px; margin:0 var(--sp-lg); display:flex; align-items:center;
+            mask-image:linear-gradient(90deg,transparent,black 15%,black 85%,transparent);
+            -webkit-mask-image:linear-gradient(90deg,transparent,black 15%,black 85%,transparent);
+        }
+        .scroll-text {
+            display:inline-block; white-space:nowrap;
+            font-family:var(--f-mono); font-size:0.70rem; font-weight:500;
+            color:var(--cyan); letter-spacing:0.04em;
+            padding-left:100%; animation:scroll-left 25s linear infinite;
+        }
+        @keyframes scroll-left { 0%{transform:translateX(0);} 100%{transform:translateX(-100%);} }
+        .live-dot { display:inline-block; width:7px; height:7px; background:var(--crimson); border-radius:50%; margin-right:10px; vertical-align:middle; box-shadow:0 0 8px var(--crimson); animation:live-blink 1.1s ease-in-out infinite; }
+        @keyframes live-blink { 0%,100%{opacity:1;} 50%{opacity:0.15;} }
+
+        .header-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        .status-pill {
+            display:flex; align-items:center; gap:7px; padding:6px 14px;
+            background:var(--emerald-dim); border:1px solid rgba(16,255,176,0.22);
+            border-radius:99px; font-family:var(--f-mono); font-size:0.64rem;
+            font-weight:600; color:var(--emerald); letter-spacing:0.08em; text-transform:uppercase;
+        }
+        .status-pill-dot { width:6px; height:6px; background:var(--emerald); border-radius:50%; box-shadow:0 0 8px var(--emerald); animation:sys-pulse 2s ease-in-out infinite; }
+        @keyframes sys-pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(0.6);opacity:0.5;} }
+        #darkModeToggle {
+            width:38px; height:38px; border-radius:var(--r-md);
+            border:1px solid var(--b2); background:var(--g1);
+            color:var(--tx2); font-size:14px; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            transition:all 0.25s var(--ease);
+        }
+        #darkModeToggle:hover { background:var(--g3); border-color:var(--cyan-20); color:var(--cyan); transform:rotate(22deg) scale(1.1); }
+        .icon-btn { width:38px; height:38px; border-radius:var(--r-md); border:1px solid var(--b2); background:var(--g1); color:var(--tx2); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.22s var(--ease); position:relative; }
+        .icon-btn:hover { background:var(--g3); border-color:var(--b3); color:var(--tx1); transform:translateY(-2px); }
+        .notif-dot { position:absolute; top:7px; right:7px; width:7px; height:7px; background:var(--crimson); border-radius:50%; border:1.5px solid var(--void); box-shadow:0 0 6px var(--crimson); animation:notif-pop 2s infinite; }
+        @keyframes notif-pop { 0%,100%{box-shadow:0 0 0 0 rgba(255,26,75,0.5);} 50%{box-shadow:0 0 0 5px rgba(255,26,75,0);} }
+        .logout-btn {
+            display:flex; align-items:center; gap:8px; padding:9px 18px;
+            background:var(--crimson-dim); border:1px solid rgba(255,26,75,0.28);
+            border-radius:var(--r-md); color:var(--crimson); font-family:var(--f-body);
+            font-size:0.8rem; font-weight:700; cursor:pointer; position:relative;
+            overflow:hidden; letter-spacing:0.02em; transition:all 0.25s var(--ease);
+        }
+        .logout-btn::before { content:''; position:absolute; inset:0; background:var(--crimson); transform:scaleX(0); transform-origin:left; transition:transform 0.3s var(--ease); }
+        .logout-btn:hover::before { transform:scaleX(1); }
+        .logout-btn:hover { color:white; box-shadow:var(--crimson-glow); transform:translateY(-2px); }
+        .logout-btn span,.logout-btn i { position:relative; z-index:1; }
+
+        /* ── NAV BAR ── */
+        .nav-bar {
+            display:flex; align-items:center; gap:4px; padding:10px var(--sp-xl);
+            background:rgba(4,6,10,0.72); backdrop-filter:blur(20px);
+            border-bottom:1px solid var(--b1);
+            overflow-x:auto; -webkit-overflow-scrolling:touch;
+            white-space:nowrap; scrollbar-width:none; flex-shrink:0;
+            animation:hdr-drop 0.7s var(--ease) 0.1s both;
+        }
+        html:not(.dark) .nav-bar { background:rgba(238,243,255,0.80); }
+        .nav-bar::-webkit-scrollbar { display:none; }
+        .nav-bar a {
+            display:inline-flex; align-items:center; gap:7px;
+            padding:8px 15px; border-radius:var(--r-md); border:1px solid transparent;
+            color:var(--tx2); font-family:var(--f-body); font-size:0.8rem; font-weight:500;
+            text-decoration:none; white-space:nowrap; flex-shrink:0;
+            transition:all 0.2s var(--ease); letter-spacing:0.01em;
+            position:relative; overflow:hidden;
+        }
+        .nav-bar a::after { content:''; position:absolute; bottom:2px; left:12px; right:12px; height:1px; background:var(--cyan); transform:scaleX(0); transform-origin:left; transition:transform 0.3s var(--ease); }
+        .nav-bar a:hover::after,.nav-bar a.active-nav::after { transform:scaleX(1); }
+        .nav-bar a:hover { background:var(--g2); border-color:var(--b2); color:var(--tx1); }
+        .nav-bar a.active-nav { background:var(--cyan-10); border-color:var(--cyan-20); color:var(--cyan); }
+        .nav-bar a.special-btn { background:linear-gradient(135deg,var(--cyan-20),var(--indigo-dim)); border-color:var(--cyan-20); color:var(--cyan); box-shadow:var(--cyan-glow); font-weight:700; }
+        .nav-bar a.special-btn:hover { box-shadow:var(--cyan-glow-xl); transform:translateY(-2px); }
+        .nav-bar a.special-btn::after { display:none; }
+        .nav-bar a.danger-btn { background:var(--crimson-dim); border-color:rgba(255,26,75,0.25); color:var(--crimson); font-weight:700; animation:danger-pulse 3s ease-in-out infinite; }
+        @keyframes danger-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,26,75,0.2);} 50%{box-shadow:0 0 0 5px rgba(255,26,75,0);} }
+        .nav-bar a.danger-btn:hover { background:var(--crimson); color:white; animation:none; box-shadow:var(--crimson-glow); transform:translateY(-2px); }
+        .nav-bar a.danger-btn::after { display:none; }
+        .nav-spacer { flex:1; min-width:12px; }
+
+        /* ── MAIN PAGE ── */
+        .page-wrap {
+            width:92%; max-width:1600px; margin:var(--sp-xl) auto;
+            display:flex; flex-direction:column; gap:var(--sp-xl);
+            animation:rise 0.8s var(--ease) 0.2s both;
+        }
+        @keyframes rise { from{opacity:0;transform:translateY(22px);} to{opacity:1;transform:translateY(0);} }
+
+        /* ── PAGE HERO ── */
+        .page-hero {
+            display:flex; align-items:center; justify-content:space-between;
+            flex-wrap:wrap; gap:var(--sp-lg);
+        }
+        .page-hero-left { display:flex; align-items:center; gap:16px; }
+        .hero-icon {
+            width:64px; height:64px;
+            background:linear-gradient(135deg,var(--cyan-10),var(--indigo-dim));
+            border:1px solid var(--b2); border-radius:var(--r-lg);
+            display:flex; align-items:center; justify-content:center;
+            font-size:26px; color:var(--cyan);
+            box-shadow:var(--cyan-glow);
+        }
+        .hero-title { font-family:var(--f-disp); font-size:2rem; font-weight:800; color:var(--tx1); line-height:1.1; }
+        .hero-sub   { font-family:var(--f-mono); font-size:0.68rem; color:var(--tx3); letter-spacing:0.1em; text-transform:uppercase; margin-top:4px; }
+
+        /* Year + Month selectors */
+        .hero-controls { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+        .ctrl-select {
+            padding:10px 16px; background:var(--g1); border:1px solid var(--b2);
+            border-radius:var(--r-md); font-family:var(--f-body); font-size:0.88rem;
+            color:var(--tx1); outline:none; cursor:pointer;
+            transition:all 0.22s var(--ease); min-width:130px;
+        }
+        .ctrl-select:focus { border-color:var(--cyan); box-shadow:0 0 0 3px var(--cyan-10); background:var(--g2); }
+        .ctrl-select option { background:var(--mid); color:var(--tx1); }
+        .btn-run {
+            display:inline-flex; align-items:center; gap:8px;
+            padding:11px 22px; border:none; border-radius:var(--r-md);
+            background:linear-gradient(135deg,var(--cyan),#0096c7);
+            color:var(--tx-inv); font-family:var(--f-body);
+            font-size:0.84rem; font-weight:800; cursor:pointer;
+            letter-spacing:0.04em; text-transform:uppercase;
+            box-shadow:0 4px 20px rgba(0,240,255,0.28);
+            transition:all 0.22s var(--ease);
+        }
+        .btn-run:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,240,255,0.45); }
+        .btn-export {
+            display:inline-flex; align-items:center; gap:8px;
+            padding:11px 22px; border:1px solid var(--b2); border-radius:var(--r-md);
+            background:var(--g1); color:var(--tx1); font-family:var(--f-body);
+            font-size:0.84rem; font-weight:700; cursor:pointer;
+            letter-spacing:0.04em; text-transform:uppercase;
+            transition:all 0.22s var(--ease);
+        }
+        .btn-export:hover { background:var(--emerald-dim); border-color:rgba(16,255,176,0.3); color:var(--emerald); transform:translateY(-2px); }
+
+        /* ── KPI ROW ── */
+        .kpi-row {
+            display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
+        }
+        .kpi {
+            position:relative; overflow:hidden;
+            background:var(--g1); border:1px solid var(--b1); border-radius:var(--r-lg);
+            padding:20px 22px; display:flex; align-items:center; gap:14px;
+            transition:all 0.3s var(--ease); cursor:default;
+            animation:rise 0.6s var(--ease) both;
+        }
+        .kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; opacity:0; transition:opacity 0.3s; }
+        .kpi:hover { transform:translateY(-4px); border-color:var(--b3); }
+        .kpi:hover::before { opacity:1; }
+        .kpi:hover .kpi-icon { transform:scale(1.1) rotate(6deg); }
+        .kpi-c::before { background:linear-gradient(90deg,var(--cyan),transparent); }
+        .kpi-c:hover   { box-shadow:0 12px 36px rgba(0,240,255,0.12); }
+        .kpi-g::before { background:linear-gradient(90deg,var(--emerald),transparent); }
+        .kpi-g:hover   { box-shadow:0 12px 36px rgba(16,255,176,0.12); }
+        .kpi-r::before { background:linear-gradient(90deg,var(--crimson),transparent); }
+        .kpi-r:hover   { box-shadow:0 12px 36px rgba(255,26,75,0.12); }
+        .kpi-a::before { background:linear-gradient(90deg,var(--amber),transparent); }
+        .kpi-a:hover   { box-shadow:0 12px 36px rgba(255,176,32,0.12); }
+        .kpi-v::before { background:linear-gradient(90deg,var(--violet),transparent); }
+        .kpi-v:hover   { box-shadow:0 12px 36px rgba(191,90,242,0.12); }
+        .kpi-icon { width:52px; height:52px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; transition:transform 0.3s var(--spring); }
+        .kpi-c .kpi-icon { background:var(--cyan-10); color:var(--cyan); box-shadow:0 0 20px rgba(0,240,255,0.20); }
+        .kpi-g .kpi-icon { background:var(--emerald-dim); color:var(--emerald); box-shadow:0 0 20px rgba(16,255,176,0.20); }
+        .kpi-r .kpi-icon { background:var(--crimson-dim); color:var(--crimson); box-shadow:0 0 20px rgba(255,26,75,0.20); }
+        .kpi-a .kpi-icon { background:var(--amber-dim); color:var(--amber); box-shadow:0 0 20px rgba(255,176,32,0.20); }
+        .kpi-v .kpi-icon { background:var(--violet-dim); color:var(--violet); box-shadow:0 0 20px rgba(191,90,242,0.20); }
+        .kpi-body { flex:1; min-width:0; }
+        .kpi-num { font-family:var(--f-disp); font-size:2rem; font-weight:800; color:var(--tx1); line-height:1; margin-bottom:3px; font-variant-numeric:tabular-nums; }
+        .kpi-label { font-family:var(--f-mono); font-size:0.60rem; color:var(--tx3); text-transform:uppercase; letter-spacing:0.12em; font-weight:500; }
+        .kpi-change { font-family:var(--f-mono); font-size:0.62rem; font-weight:700; margin-top:4px; }
+        .kpi-change.up   { color:var(--emerald); }
+        .kpi-change.down { color:var(--crimson); }
+        .kpi-change.flat { color:var(--tx3); }
+
+        /* ── CHART GRID ── */
+        .chart-grid {
+            display:grid; grid-template-columns:1fr 1fr; gap:20px;
+        }
+        .chart-grid.full { grid-template-columns:1fr; }
+
+        .chart-card {
+            background:rgba(8,12,20,0.88);
+            backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+            border:1px solid var(--b2); border-radius:var(--r-xl);
+            padding:var(--sp-xl);
+            box-shadow:0 20px 50px rgba(0,0,0,0.6);
+            animation:rise 0.7s var(--ease) 0.3s both;
+            position:relative; overflow:hidden;
+        }
+        html:not(.dark) .chart-card { background:rgba(255,255,255,0.94); box-shadow:0 20px 50px rgba(0,0,0,0.08); }
+        .chart-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,var(--cyan),var(--indigo),transparent);
+        }
+        .chart-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:var(--sp-lg); flex-wrap:wrap; gap:8px; }
+        .chart-title { font-family:var(--f-disp); font-size:1rem; font-weight:700; color:var(--tx1); display:flex; align-items:center; gap:10px; }
+        .chart-title::before { content:''; display:block; width:3px; height:18px; background:linear-gradient(180deg,var(--cyan),var(--indigo)); border-radius:2px; box-shadow:0 0 8px var(--cyan-40); }
+        .chart-sub { font-family:var(--f-mono); font-size:0.62rem; color:var(--tx3); text-transform:uppercase; letter-spacing:0.08em; margin-top:3px; }
+        .chart-wrap { position:relative; width:100%; }
+        .chart-wrap canvas { max-height:280px; }
+
+        /* ── BREAKDOWN TABLE ── */
+        .breakdown-card {
+            background:rgba(8,12,20,0.88);
+            backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+            border:1px solid var(--b2); border-radius:var(--r-xl);
+            padding:var(--sp-xl);
+            box-shadow:0 20px 50px rgba(0,0,0,0.6);
+            animation:rise 0.7s var(--ease) 0.4s both;
+            position:relative; overflow:hidden;
+        }
+        html:not(.dark) .breakdown-card { background:rgba(255,255,255,0.94); box-shadow:0 20px 50px rgba(0,0,0,0.08); }
+        .breakdown-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--amber),var(--crimson),transparent); }
+
+        .month-table { width:100%; border-collapse:collapse; margin-top:var(--sp-md); }
+        .month-table th {
+            font-family:var(--f-mono); font-size:0.62rem; font-weight:700;
+            text-transform:uppercase; letter-spacing:0.10em; color:var(--tx3);
+            padding:10px 14px; text-align:left;
+            border-bottom:1px solid var(--b2);
+        }
+        .month-table td {
+            padding:12px 14px; font-size:0.86rem; color:var(--tx2);
+            border-bottom:1px solid var(--b1);
+            transition:background 0.15s;
+        }
+        .month-table tr:hover td { background:var(--g2); }
+        .month-table tr:last-child td { border-bottom:none; }
+        .tbl-month { font-family:var(--f-disp); font-weight:700; color:var(--tx1); font-size:0.92rem; }
+        .tbl-num { font-family:var(--f-mono); font-weight:700; font-size:0.88rem; }
+        .tbl-cyan   { color:var(--cyan); }
+        .tbl-green  { color:var(--emerald); }
+        .tbl-red    { color:var(--crimson); }
+        .tbl-amber  { color:var(--amber); }
+        .tbl-bar-wrap { display:flex; align-items:center; gap:10px; }
+        .tbl-bar { height:6px; border-radius:3px; background:var(--g3); flex:1; overflow:hidden; }
+        .tbl-bar-fill { height:100%; border-radius:3px; transition:width 1s var(--ease); }
+        .badge-sm {
+            display:inline-flex; align-items:center; gap:4px;
+            padding:3px 8px; border-radius:6px;
+            font-family:var(--f-mono); font-size:0.60rem; font-weight:700;
+            text-transform:uppercase; letter-spacing:0.05em; border:1px solid transparent;
+        }
+        .badge-sm.up   { background:var(--emerald-dim); color:var(--emerald); border-color:rgba(16,255,176,0.22); }
+        .badge-sm.down { background:var(--crimson-dim); color:var(--crimson); border-color:rgba(255,26,75,0.22); }
+        .badge-sm.flat { background:var(--g2); color:var(--tx3); border-color:var(--b1); }
+
+        /* ── INSIGHTS PANEL ── */
+        .insights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .insight-card {
+            background:var(--g1); border:1px solid var(--b1);
+            border-radius:var(--r-lg); padding:20px;
+            transition:all 0.3s var(--ease);
+            animation:rise 0.6s var(--ease) both;
+        }
+        .insight-card:hover { transform:translateY(-4px); border-color:var(--b3); }
+        .insight-icon { font-size:1.6rem; margin-bottom:10px; }
+        .insight-label { font-family:var(--f-mono); font-size:0.62rem; color:var(--tx3); text-transform:uppercase; letter-spacing:0.10em; font-weight:700; margin-bottom:6px; }
+        .insight-val { font-family:var(--f-disp); font-size:1.3rem; font-weight:800; color:var(--tx1); line-height:1.2; }
+        .insight-sub { font-size:0.80rem; color:var(--tx2); margin-top:5px; line-height:1.5; }
+
+        /* ── SECTION HEADER ── */
+        .section-head {
+            display:flex; align-items:center; gap:12px;
+            font-family:var(--f-disp); font-size:1.1rem; font-weight:800; color:var(--tx1);
+        }
+        .section-head::before { content:''; display:block; width:4px; height:22px; background:linear-gradient(180deg,var(--cyan),var(--indigo)); border-radius:2px; box-shadow:0 0 10px var(--cyan-40); }
+        .section-sub { font-family:var(--f-mono); font-size:0.64rem; color:var(--tx3); text-transform:uppercase; letter-spacing:0.10em; margin-top:3px; }
+
+        /* ── LOADING OVERLAY ── */
+        .loading-overlay {
+            display:none; position:fixed; inset:0; z-index:5000;
+            background:rgba(4,6,10,0.85); backdrop-filter:blur(8px);
+            align-items:center; justify-content:center; flex-direction:column; gap:20px;
+        }
+        .loading-overlay.show { display:flex; }
+        .loader-ring {
+            width:56px; height:56px;
+            border:3px solid var(--b2); border-top-color:var(--cyan);
+            border-radius:50%; animation:spin 0.9s linear infinite;
+        }
+        @keyframes spin { to{transform:rotate(360deg);} }
+        .loader-text { font-family:var(--f-mono); font-size:0.78rem; color:var(--cyan); letter-spacing:0.1em; text-transform:uppercase; }
+
+        /* ── TOAST ── */
+        .toast-rack { position:fixed; bottom:24px; right:18px; z-index:10000; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+        .toast-item { display:flex; align-items:center; gap:10px; padding:12px 16px; min-width:230px; background:var(--mid); border:1px solid var(--b3); border-radius:var(--r-md); font-family:var(--f-body); font-size:0.82rem; font-weight:500; color:var(--tx1); pointer-events:all; box-shadow:0 8px 28px rgba(0,0,0,0.5); animation:toast-in 0.4s var(--spring) both; }
+        .toast-item.t-success { border-color:rgba(16,255,176,0.30); }
+        .toast-item.t-success .t-ico { color:var(--emerald); }
+        .toast-item.t-error { border-color:rgba(255,26,75,0.30); }
+        .toast-item.t-error .t-ico { color:var(--crimson); }
+        .toast-item .t-ico { font-size:14px; flex-shrink:0; color:var(--cyan); }
+        @keyframes toast-in  { from{opacity:0;transform:translateX(18px) scale(0.94);} to{opacity:1;transform:translateX(0) scale(1);} }
+        @keyframes toast-out { from{opacity:1;transform:translateX(0) scale(1);} to{opacity:0;transform:translateX(18px) scale(0.94);} }
+
+        /* ── MOBILE NAV ── */
+        .mob-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:rgba(4,6,10,0.97); backdrop-filter:blur(24px); border-top:1px solid var(--b2); padding:8px 0 max(8px,env(safe-area-inset-bottom)); z-index:800; grid-template-columns:repeat(5,1fr); }
+        html:not(.dark) .mob-nav { background:rgba(238,243,255,0.97); }
+        .mob-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 2px; text-decoration:none; color:var(--tx3); transition:all 0.2s; font-family:var(--f-mono); font-size:0.54rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; }
+        .mob-item i { font-size:18px; }
+        .mob-item.mob-active { color:var(--cyan); }
+        .mob-item.mob-active i { filter:drop-shadow(0 0 5px var(--cyan)); }
+        .mob-item.mob-danger { color:var(--crimson); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width:1200px) { .kpi-row { grid-template-columns:repeat(2,1fr); } .chart-grid { grid-template-columns:1fr; } .insights-grid { grid-template-columns:repeat(2,1fr); } }
+        @media (max-width:768px) {
+            .header { padding:0 14px; height:58px; }
+            .scroll-container,.status-pill { display:none; }
+            .nav-bar { display:none; }
+            .mob-nav { display:grid; }
+            .page-wrap { margin:var(--sp-md) 14px; margin-bottom:88px; gap:var(--sp-lg); }
+            .hero-title { font-size:1.4rem; }
+            .kpi-row { grid-template-columns:1fr 1fr; }
+            .chart-grid { grid-template-columns:1fr; }
+            .insights-grid { grid-template-columns:1fr 1fr; }
+            .hero-controls { width:100%; }
+            .ctrl-select { flex:1; }
+            .chart-card,.breakdown-card { padding:var(--sp-lg); }
+        }
+        @media (max-width:480px) {
+            .brand-text { display:none; }
+            .logout-btn span { display:none; }
+            .logout-btn { padding:8px 11px; }
+            .kpi-row { grid-template-columns:1fr 1fr; }
+            .kpi-num { font-size:1.5rem; }
+            .insights-grid { grid-template-columns:1fr; }
+        }
+
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--b3); border-radius:3px; }
+        ::-webkit-scrollbar-thumb:hover { background:var(--b4); }
+    </style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div id="bg-canvas">
+    <video autoplay muted loop playsinline id="video-background">
+        <source src="videos/vid.mp4" type="video/mp4">
+    </video>
+    <div id="bg-scanlines"></div>
+    <div id="bg-grid"></div>
+    <div class="bg-orb o1"></div>
+    <div class="bg-orb o2"></div>
+    <div class="bg-orb o3"></div>
+    <div id="bg-vignette"></div>
+</div>
+<div class="corner tl"></div><div class="corner tr"></div>
+<div class="corner bl"></div><div class="corner br"></div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Analyzing Intelligence Data…</div>
+</div>
+
+<div id="content-wrapper">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="brand" onclick="window.location.href='admin.html'">
+            <div class="brand-icon">🛰️</div>
+            <div class="brand-text">
+                <div class="brand-name">CIEPD</div>
+                <div class="brand-sub">Command Center</div>
+            </div>
+        </div>
+        <div class="scroll-container">
+            <div class="scroll-text">
+                <span class="live-dot"></span>
+                INTELLIGENCE ANALYSIS MODULE · Monthly Report Breakdown · Niger Delta Operations · Conflict &amp; Peace Monitoring · Data-Driven Decision Making
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="live-dot"></span>
+                INTELLIGENCE ANALYSIS MODULE · Monthly Report Breakdown · Niger Delta Operations
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-pill"><span class="status-pill-dot"></span>Analysis Ready</div>
+            <button id="darkModeToggle" onclick="toggleDarkMode()" aria-label="Toggle Dark Mode" title="Toggle Theme"><i class="fas fa-sun"></i></button>
+            <button class="icon-btn" title="Notifications"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+            <button onclick="window.location.href='login.html'" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- NAVBAR -->
+    <nav class="nav-bar">
+        <a href="admin.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="report.html"><i class="fas fa-file-alt"></i> Reports</a>
+        <a href="submit.html"><i class="fas fa-plus-circle"></i> Submit</a>
+        <a href="getalert.html"><i class="fas fa-bell"></i> Alerts</a>
+        <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+        <a href="hatealert.html"><i class="fas fa-exclamation-triangle"></i> Hate Alerts</a>
+        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+        <a href="analysis.html" class="active-nav"><i class="fas fa-chart-bar"></i> Analysis</a>
+        <div class="nav-spacer"></div>
+        <a href="admin-map.html" class="special-btn"><i class="fas fa-map-marked-alt"></i> Live Map</a>
+        <a href="urgent-queue.html" class="danger-btn"><i class="fas fa-fire"></i> Urgent Queue</a>
+    </nav>
+
+    <!-- PAGE -->
+    <div class="page-wrap">
+
+        <!-- HERO -->
+        <div class="page-hero">
+            <div class="page-hero-left">
+                <div class="hero-icon"><i class="fas fa-chart-bar"></i></div>
+                <div>
+                    <div class="hero-title">Intelligence Analysis</div>
+                    <div class="hero-sub">Monthly Report Breakdown &amp; Trend Intelligence</div>
+                </div>
+            </div>
+            <div class="hero-controls">
+                <select id="yearSelect" class="ctrl-select"></select>
+                <select id="monthSelect" class="ctrl-select">
+                    <option value="all">All Months</option>
+                    <option value="0">January</option><option value="1">February</option>
+                    <option value="2">March</option><option value="3">April</option>
+                    <option value="4">May</option><option value="5">June</option>
+                    <option value="6">July</option><option value="7">August</option>
+                    <option value="8">September</option><option value="9">October</option>
+                    <option value="10">November</option><option value="11">December</option>
+                </select>
+                <button class="btn-run" id="runBtn" onclick="runAnalysis()">
+                    <i class="fas fa-play"></i> Analyze
+                </button>
+                <button class="btn-export" onclick="exportCSV()">
+                    <i class="fas fa-file-download"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI STRIP -->
+        <div class="kpi-row">
+            <div class="kpi kpi-c" style="animation-delay:0.05s">
+                <div class="kpi-icon"><i class="fas fa-database"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-num" id="kTotal">—</div>
+                    <div class="kpi-label">Total Reports</div>
+                    <div class="kpi-change flat" id="kTotalChange">—</div>
+                </div>
+            </div>
+            <div class="kpi kpi-g" style="animation-delay:0.10s">
+                <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-num" id="kVerified">—</div>
+                    <div class="kpi-label">Verified</div>
+                    <div class="kpi-change flat" id="kVerifiedPct">—</div>
+                </div>
+            </div>
+            <div class="kpi kpi-r" style="animation-delay:0.15s">
+                <div class="kpi-icon"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-num" id="kUnverified">—</div>
+                    <div class="kpi-label">Unverified</div>
+                    <div class="kpi-change flat" id="kUnverifiedPct">—</div>
+                </div>
+            </div>
+            <div class="kpi kpi-a" style="animation-delay:0.20s">
+                <div class="kpi-icon"><i class="fas fa-fire"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-num" id="kEscalated">—</div>
+                    <div class="kpi-label">Escalated</div>
+                    <div class="kpi-change flat" id="kEscalatedPct">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW 1 -->
+        <div>
+            <div class="section-head">Monthly Report Volume</div>
+            <div class="section-sub" style="font-family:var(--f-mono);font-size:0.63rem;color:var(--tx3);text-transform:uppercase;letter-spacing:0.10em;margin-top:3px;margin-bottom:var(--sp-lg);">Reports submitted per month across the selected year</div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Reports Per Month</div>
+                        <div class="chart-sub" id="chartSubBar">Full Year Overview</div>
+                    </div>
+                    <div id="trendBadge" style="font-family:var(--f-mono);font-size:0.68rem;color:var(--tx3);"></div>
+                </div>
+                <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW 2 -->
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Verification Status</div>
+                        <div class="chart-sub">Verified vs Unverified breakdown</div>
+                    </div>
+                </div>
+                <div class="chart-wrap" style="display:flex;justify-content:center;">
+                    <canvas id="doughnutChart" style="max-height:260px;max-width:260px;"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Escalation Trend</div>
+                        <div class="chart-sub">Escalated reports over months</div>
+                    </div>
+                </div>
+                <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- MONTHLY BREAKDOWN TABLE -->
+        <div>
+            <div class="section-head">Month-by-Month Breakdown</div>
+            <div class="section-sub" style="font-family:var(--f-mono);font-size:0.63rem;color:var(--tx3);text-transform:uppercase;letter-spacing:0.10em;margin-top:3px;margin-bottom:var(--sp-lg);">Detailed intelligence metrics for each month</div>
+            <div class="breakdown-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Monthly Intelligence Table</div>
+                        <div class="chart-sub" id="tableSubLabel">Showing all months</div>
+                    </div>
+                    <div style="font-family:var(--f-mono);font-size:0.66rem;color:var(--tx3);" id="tableTotal"></div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="month-table" id="monthTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total</th>
+                                <th>Verified</th>
+                                <th>Unverified</th>
+                                <th>Escalated</th>
+                                <th>Volume</th>
+                                <th>vs Prev</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- INSIGHTS -->
+        <div>
+            <div class="section-head">Key Insights</div>
+            <div class="section-sub" style="font-family:var(--f-mono);font-size:0.63rem;color:var(--tx3);text-transform:uppercase;letter-spacing:0.10em;margin-top:3px;margin-bottom:var(--sp-lg);">Automatically derived from the current dataset</div>
+            <div class="insights-grid" id="insightsGrid"></div>
+        </div>
+
+    </div><!-- /.page-wrap -->
+</div><!-- /#content-wrapper -->
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav">
+    <a href="admin.html" class="mob-item"><i class="fas fa-chart-line"></i><span>Home</span></a>
+    <a href="report.html" class="mob-item"><i class="fas fa-file-alt"></i><span>Reports</span></a>
+    <a href="submit.html" class="mob-item"><i class="fas fa-plus-circle"></i><span>Submit</span></a>
+    <a href="urgent-queue.html" class="mob-item mob-danger"><i class="fas fa-fire"></i><span>Urgent</span></a>
+    <a href="analysis.html" class="mob-item mob-active"><i class="fas fa-chart-bar"></i><span>Analysis</span></a>
+</nav>
+
+<div class="toast-rack" id="toastRack"></div>
+
+
+<script>
+const BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:3000" : "";
+
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+let allReports    = [];
+let barChart      = null;
+let lineChart     = null;
+let doughnutChart = null;
+let usingDemoData = false;
+
+/* DARK MODE */
+function toggleDarkMode() {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    updateDarkModeIcon();
+    if (allReports.length) runAnalysis();
+}
+function updateDarkModeIcon() {
+    const icon = document.getElementById('darkModeToggle')?.querySelector('i');
+    if (!icon) return;
+    icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+/* TOAST */
+function showToast(msg, type, dur) {
+    type = type || 'info'; dur = dur || 3500;
+    const rack = document.getElementById('toastRack');
+    const icons = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle' };
+    const t = document.createElement('div');
+    t.className = 'toast-item t-' + type;
+    t.innerHTML = '<i class="fas ' + (icons[type]||'fa-info-circle') + ' t-ico"></i>' + msg;
+    rack.appendChild(t);
+    setTimeout(function() {
+        t.style.animation = 'toast-out 0.3s forwards';
+        setTimeout(function() { t.remove(); }, 300);
+    }, dur);
+}
+
+/* COUNT-UP */
+function animateCount(id, target) {
+    var elem = document.getElementById(id);
+    if (!elem) return;
+    var start = parseInt(elem.textContent.replace(/\D/g,'')) || 0;
+    var dur = 700;
+    function step(ts, t0) {
+        var p = Math.min((ts - t0) / dur, 1);
+        var e = 1 - Math.pow(1 - p, 3);
+        elem.textContent = Math.round(start + (target - start) * e).toLocaleString();
+        if (p < 1) requestAnimationFrame(function(ts2){ step(ts2, t0); });
+    }
+    requestAnimationFrame(function(ts){ step(ts, ts); });
+}
+
+/* YEAR SELECTOR */
+function buildYearSelect() {
+    var sel = document.getElementById('yearSelect');
+    var now = new Date().getFullYear();
+    sel.innerHTML = '';
+    for (var y = now; y >= now - 5; y--) {
+        var opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        if (y === now) opt.selected = true;
+        sel.appendChild(opt);
+    }
+}
+
+/* DEMO DATA */
+function generateDemoData(year) {
+    var items = [];
+    for (var m = 0; m < 12; m++) {
+        var count = Math.floor(Math.random() * 45) + 8;
+        for (var i = 0; i < count; i++) {
+            var d = new Date(year, m, Math.floor(Math.random()*28)+1);
+            items.push({
+                createdAt: d.toISOString(),
+                verified:  Math.random() > 0.38,
+                escalated: Math.random() > 0.78
+            });
+        }
+    }
+    return items;
+}
+
+/* FETCH ALL */
+async function fetchAllReports() {
+    document.getElementById('loadingOverlay').classList.add('show');
+    try {
+        var res = await fetch(BASE_URL + '/api/news?limit=10000&t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
+        var loaded = (data.items || data || []).filter(function(r){ return r.createdAt; });
+        if (loaded.length === 0) throw new Error('empty');
+        allReports    = loaded;
+        usingDemoData = false;
+        showToast('Loaded ' + allReports.length + ' reports from database.', 'success', 2500);
+    } catch(e) {
+        var year   = new Date().getFullYear();
+        allReports    = generateDemoData(year);
+        usingDemoData = true;
+        showToast('API unavailable — showing demo data.', 'info', 3000);
+    }
+    document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+/* CHART DEFAULTS */
+function chartDefaults() {
+    var dark = document.documentElement.classList.contains('dark');
+    return {
+        gridColor:   dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,50,120,0.07)',
+        textColor:   dark ? '#4a5a78' : '#8098c0',
+        tooltipBg:   dark ? '#121a2e' : '#ffffff',
+        tooltipText: dark ? '#f0f6ff' : '#0c1428'
+    };
+}
+
+/* DESTROY CHARTS */
+function destroyCharts() {
+    [barChart, lineChart, doughnutChart].forEach(function(c){ try { if (c) c.destroy(); } catch(e){} });
+    barChart = lineChart = doughnutChart = null;
+}
+
+/* RUN ANALYSIS — main entry point */
+function runAnalysis() {
+    var yearEl  = document.getElementById('yearSelect');
+    var monthEl = document.getElementById('monthSelect');
+    if (!yearEl || !monthEl) { showToast('Page not ready yet.', 'error'); return; }
+
+    var year     = parseInt(yearEl.value);
+    var monthVal = monthEl.value;
+
+    /* If demo mode, regenerate for chosen year so it always has data */
+    if (usingDemoData) {
+        allReports = generateDemoData(year);
+    }
+
+    /* Filter to selected year */
+    var filtered = allReports.filter(function(r) {
+        try { return new Date(r.createdAt).getFullYear() === year; } catch(e){ return false; }
+    });
+
+    /* Still empty? Auto-generate demo */
+    if (filtered.length === 0) {
+        allReports    = generateDemoData(year);
+        filtered      = allReports;
+        usingDemoData = true;
+        showToast('No reports for ' + year + ' — showing demo data.', 'info', 2500);
+    }
+
+    /* Build 12 monthly buckets */
+    var months = [];
+    for (var i = 0; i < 12; i++) {
+        months.push({ idx:i, name:MONTH_NAMES[i], short:MONTH_SHORT[i], total:0, verified:0, unverified:0, escalated:0 });
+    }
+    filtered.forEach(function(r) {
+        try {
+            var m = new Date(r.createdAt).getMonth();
+            if (m >= 0 && m <= 11) {
+                months[m].total++;
+                if (r.verified)  months[m].verified++;  else months[m].unverified++;
+                if (r.escalated) months[m].escalated++;
+            }
+        } catch(e){}
+    });
+
+    /* KPI totals */
+    var focusMonths = monthVal === 'all' ? months : [months[parseInt(monthVal)]];
+    var tot = focusMonths.reduce(function(a,m){ return a + m.total; }, 0);
+    var ver = focusMonths.reduce(function(a,m){ return a + m.verified; }, 0);
+    var unv = focusMonths.reduce(function(a,m){ return a + m.unverified; }, 0);
+    var esc = focusMonths.reduce(function(a,m){ return a + m.escalated; }, 0);
+
+    animateCount('kTotal',     tot);
+    animateCount('kVerified',  ver);
+    animateCount('kUnverified',unv);
+    animateCount('kEscalated', esc);
+
+    document.getElementById('kVerifiedPct').textContent   = tot ? (Math.round(ver/tot*100) + '% of total') : '—';
+    document.getElementById('kUnverifiedPct').textContent = tot ? (Math.round(unv/tot*100) + '% of total') : '—';
+    document.getElementById('kEscalatedPct').textContent  = tot ? (Math.round(esc/tot*100) + '% of total') : '—';
+    document.getElementById('kTotalChange').textContent   = year + ' · ' + (monthVal === 'all' ? 'Full Year' : MONTH_NAMES[parseInt(monthVal)]);
+
+    destroyCharts();
+
+    /* Short delay so canvas repaints cleanly after destroy */
+    setTimeout(function() {
+        try { renderBarChart(months, monthVal); }         catch(e){ console.error('bar:', e); }
+        try { renderDoughnutChart(ver, unv, esc); }       catch(e){ console.error('doughnut:', e); }
+        try { renderLineChart(months); }                  catch(e){ console.error('line:', e); }
+        try { renderTable(months, monthVal); }            catch(e){ console.error('table:', e); }
+        try { renderInsights(months, tot, ver, unv, esc); } catch(e){ console.error('insights:', e); }
+    }, 80);
+}
+
+/* BAR CHART */
+function renderBarChart(months, monthVal) {
+    var d   = chartDefaults();
+    var ctx = document.getElementById('barChart').getContext('2d');
+    var highlight = monthVal !== 'all' ? parseInt(monthVal) : -1;
+
+    var bgColors = months.map(function(m, i) {
+        return highlight === -1 ? 'rgba(0,240,255,0.55)' : (i === highlight ? 'rgba(0,240,255,0.85)' : 'rgba(0,240,255,0.18)');
+    });
+    var borderColors = months.map(function(m, i) {
+        return highlight === -1 ? 'rgba(0,240,255,1)' : (i === highlight ? 'rgba(0,240,255,1)' : 'rgba(0,240,255,0.35)');
+    });
+
+    document.getElementById('chartSubBar').textContent = monthVal === 'all' ? 'All 12 months' : ('Highlighted: ' + MONTH_NAMES[parseInt(monthVal)]);
+
+    var maxVal = Math.max.apply(null, months.map(function(m){ return m.total; }));
+    var last   = months[11].total, first = months[0].total;
+    var trend  = last > first ? '↑ Trending Up' : (last < first ? '↓ Trending Down' : '→ Stable');
+    document.getElementById('trendBadge').textContent = trend;
+
+    barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months.map(function(m){ return m.short; }),
+            datasets: [
+                { label:'Total Reports', data:months.map(function(m){return m.total;}),     backgroundColor:bgColors,                      borderColor:borderColors,                      borderWidth:2, borderRadius:6, borderSkipped:false },
+                { label:'Verified',      data:months.map(function(m){return m.verified;}),   backgroundColor:'rgba(16,255,176,0.35)',        borderColor:'rgba(16,255,176,0.8)',            borderWidth:2, borderRadius:6, borderSkipped:false },
+                { label:'Escalated',     data:months.map(function(m){return m.escalated;}),  backgroundColor:'rgba(255,176,32,0.35)',        borderColor:'rgba(255,176,32,0.8)',            borderWidth:2, borderRadius:6, borderSkipped:false }
+            ]
+        },
+        options: {
+            responsive:true, maintainAspectRatio:true,
+            animation:{ duration:900, easing:'easeOutQuart' },
+            plugins: {
+                legend:{ labels:{ color:d.textColor, font:{family:'JetBrains Mono',size:11}, padding:16 } },
+                tooltip:{ backgroundColor:d.tooltipBg, titleColor:d.tooltipText, bodyColor:d.textColor, borderColor:'rgba(255,255,255,0.1)', borderWidth:1, cornerRadius:8, padding:12 }
+            },
+            scales: {
+                x:{ grid:{color:d.gridColor}, ticks:{color:d.textColor, font:{family:'JetBrains Mono',size:11}} },
+                y:{ grid:{color:d.gridColor}, ticks:{color:d.textColor, font:{family:'JetBrains Mono',size:11}}, beginAtZero:true, suggestedMax: maxVal + 2 }
+            }
+        }
+    });
+}
+
+/* DOUGHNUT CHART */
+function renderDoughnutChart(ver, unv, esc) {
+    var d   = chartDefaults();
+    var ctx = document.getElementById('doughnutChart').getContext('2d');
+    doughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Verified','Unverified','Escalated'],
+            datasets:[{
+                data:[ver, unv, esc],
+                backgroundColor:['rgba(16,255,176,0.65)','rgba(255,26,75,0.65)','rgba(255,176,32,0.65)'],
+                borderColor:    ['rgba(16,255,176,1)',    'rgba(255,26,75,1)',    'rgba(255,176,32,1)'],
+                borderWidth:2, hoverOffset:8
+            }]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:true, cutout:'68%',
+            animation:{ duration:900 },
+            plugins:{
+                legend:{ position:'bottom', labels:{ color:d.textColor, font:{family:'JetBrains Mono',size:11}, padding:14 } },
+                tooltip:{ backgroundColor:d.tooltipBg, titleColor:d.tooltipText, bodyColor:d.textColor, borderColor:'rgba(255,255,255,0.1)', borderWidth:1, cornerRadius:8, padding:12 }
+            }
+        }
+    });
+}
+
+/* LINE CHART */
+function renderLineChart(months) {
+    var d   = chartDefaults();
+    var ctx = document.getElementById('lineChart').getContext('2d');
+    lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months.map(function(m){ return m.short; }),
+            datasets:[
+                { label:'Escalated',  data:months.map(function(m){return m.escalated;}),  borderColor:'rgba(255,176,32,0.9)', backgroundColor:'rgba(255,176,32,0.12)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'rgba(255,176,32,1)',  pointRadius:4, pointHoverRadius:7 },
+                { label:'Unverified', data:months.map(function(m){return m.unverified;}), borderColor:'rgba(255,26,75,0.9)',  backgroundColor:'rgba(255,26,75,0.08)',  borderWidth:2,   tension:0.4, fill:true, pointBackgroundColor:'rgba(255,26,75,1)',   pointRadius:3, pointHoverRadius:6 }
+            ]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:true,
+            animation:{ duration:900 },
+            plugins:{
+                legend:{ labels:{ color:d.textColor, font:{family:'JetBrains Mono',size:11}, padding:14 } },
+                tooltip:{ backgroundColor:d.tooltipBg, titleColor:d.tooltipText, bodyColor:d.textColor, borderColor:'rgba(255,255,255,0.1)', borderWidth:1, cornerRadius:8, padding:12 }
+            },
+            scales:{
+                x:{ grid:{color:d.gridColor}, ticks:{color:d.textColor, font:{family:'JetBrains Mono',size:11}} },
+                y:{ grid:{color:d.gridColor}, ticks:{color:d.textColor, font:{family:'JetBrains Mono',size:11}}, beginAtZero:true }
+            }
+        }
+    });
+}
+
+/* TABLE */
+function renderTable(months, monthVal) {
+    var tbody    = document.getElementById('monthTableBody');
+    var maxTotal = Math.max.apply(null, months.map(function(m){ return m.total; })) || 1;
+    var focusList = monthVal === 'all' ? months : [months[parseInt(monthVal)]];
+
+    document.getElementById('tableSubLabel').textContent = monthVal === 'all' ? 'Showing all 12 months' : ('Filtered: ' + MONTH_NAMES[parseInt(monthVal)]);
+    document.getElementById('tableTotal').textContent    = focusList.reduce(function(a,m){return a+m.total;},0) + ' total reports';
+
+    tbody.innerHTML = '';
+    focusList.forEach(function(m, i) {
+        var prev  = (monthVal === 'all' && i > 0) ? months[i-1].total : null;
+        var delta = prev !== null ? m.total - prev : null;
+        var pct   = (m.total / maxTotal * 100).toFixed(0);
+        var verPct = m.total ? Math.round(m.verified/m.total*100) : 0;
+
+        var changeHtml = '<span class="badge-sm flat">—</span>';
+        if (delta !== null) {
+            if (delta > 0)      changeHtml = '<span class="badge-sm up">↑ +' + delta + '</span>';
+            else if (delta < 0) changeHtml = '<span class="badge-sm down">↓ ' + delta + '</span>';
+            else                changeHtml = '<span class="badge-sm flat">→ 0</span>';
+        }
+
+        tbody.innerHTML += '<tr>' +
+            '<td><span class="tbl-month">' + m.name + '</span></td>' +
+            '<td><span class="tbl-num tbl-cyan">' + m.total + '</span></td>' +
+            '<td><span class="tbl-num tbl-green">' + m.verified + ' <span style="color:var(--tx3);font-size:0.74rem;">(' + verPct + '%)</span></span></td>' +
+            '<td><span class="tbl-num tbl-red">' + m.unverified + '</span></td>' +
+            '<td><span class="tbl-num tbl-amber">' + m.escalated + '</span></td>' +
+            '<td><div class="tbl-bar-wrap"><div class="tbl-bar"><div class="tbl-bar-fill" style="width:' + pct + '%;background:linear-gradient(90deg,var(--cyan),var(--indigo));"></div></div><span style="font-family:var(--f-mono);font-size:0.62rem;color:var(--tx3);width:30px;text-align:right;">' + pct + '%</span></div></td>' +
+            '<td>' + changeHtml + '</td>' +
+            '</tr>';
+    });
+}
+
+/* INSIGHTS */
+function renderInsights(months, tot, ver, unv, esc) {
+    var grid     = document.getElementById('insightsGrid');
+    var busiest  = months.reduce(function(a,m){ return m.total > a.total ? m : a; }, months[0]);
+    var active   = months.filter(function(m){ return m.total > 0; });
+    var quietest = active.length ? active.reduce(function(a,m){ return m.total < a.total ? m : a; }, active[0]) : months[0];
+    var verPct   = tot ? Math.round(ver/tot*100) : 0;
+    var escPct   = tot ? Math.round(esc/tot*100) : 0;
+    var avg      = tot ? (tot/12).toFixed(1) : '—';
+    var peaks    = months.filter(function(m){ return m.total === busiest.total; }).map(function(m){ return m.name; }).join(', ');
+    var last3unv = months.slice(-3).reduce(function(a,m){ return a + m.unverified; }, 0);
+
+    var items = [
+        { icon:'🔥', label:'Busiest Month',        val:peaks,              sub:busiest.total + ' reports submitted' },
+        { icon:'📊', label:'Monthly Average',       val:avg,                sub:'Reports per month this year' },
+        { icon:'✅', label:'Verification Rate',     val:verPct + '%',       sub:ver + ' of ' + tot + ' reports verified' },
+        { icon:'⚠️', label:'Escalation Rate',       val:escPct + '%',       sub:esc + ' reports escalated to urgent' },
+        { icon:'📉', label:'Quietest Month',        val:quietest ? quietest.name : '—', sub:(quietest ? quietest.total : 0) + ' reports submitted' },
+        { icon:'🔍', label:'Unverified (Last 3 Mo)',val:last3unv,           sub:'Reports still needing verification' }
+    ];
+
+    grid.innerHTML = items.map(function(it, idx) {
+        return '<div class="insight-card" style="animation-delay:' + (idx * 0.05 + 0.05) + 's">' +
+            '<div class="insight-icon">' + it.icon + '</div>' +
+            '<div class="insight-label">' + it.label + '</div>' +
+            '<div class="insight-val">'   + it.val   + '</div>' +
+            '<div class="insight-sub">'   + it.sub   + '</div>' +
+            '</div>';
+    }).join('');
+}
+
+/* EXPORT CSV */
+function exportCSV() {
+    if (!allReports.length) { showToast('No data to export.','error'); return; }
+    var year     = parseInt(document.getElementById('yearSelect').value);
+    var filtered = allReports.filter(function(r){ try{ return new Date(r.createdAt).getFullYear()===year; }catch(e){ return false;} });
+    var months   = [];
+    for (var i = 0; i < 12; i++) months.push({name:MONTH_NAMES[i],total:0,verified:0,unverified:0,escalated:0});
+    filtered.forEach(function(r){
+        var m = new Date(r.createdAt).getMonth();
+        months[m].total++;
+        if (r.verified) months[m].verified++; else months[m].unverified++;
+        if (r.escalated) months[m].escalated++;
+    });
+    var csv = 'CIEPD Monthly Analysis - ' + year + '\nMonth,Total,Verified,Unverified,Escalated,Verification %\n';
+    months.forEach(function(m){
+        var vp = m.total ? Math.round(m.verified/m.total*100) : 0;
+        csv += m.name + ',' + m.total + ',' + m.verified + ',' + m.unverified + ',' + m.escalated + ',' + vp + '%\n';
+    });
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    var url  = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url; link.download = 'CIEPD_Analysis_' + year + '.csv';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    showToast('Exported analysis for ' + year + '.', 'success');
+}
+
+/* INIT */
+async function init() {
+    updateDarkModeIcon();
+    buildYearSelect();
+    await fetchAllReports();
+    runAnalysis();
+}
+
+init();
+</script>
+</body>
+</html>
