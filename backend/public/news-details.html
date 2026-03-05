@@ -568,8 +568,8 @@
     function qs(k) { return new URLSearchParams(location.search).get(k); }
     const id = qs('id');
 
-    const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:3000' : 'https://ciepdcwc.up.railway.app';
+   const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000' : '';
 
     if (!id) {
         document.getElementById('loading-state').innerHTML = `
