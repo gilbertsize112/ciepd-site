@@ -120,25 +120,32 @@ const __dirname = path.dirname(__filename);
 // ==========================
 // CORS (Updated for Vercel)
 // ==========================
-
 app.use(
     cors({
-        origin: [
-            "http://localhost:3000",
-            "http://localhost:5500",
-            "https://ciepdcwc.onrender.com",
-            "https://ciepd.org",
-            "https://ciepdcwc.vercel.app"
-        ],
+        origin: function(origin, callback) {
+            const allowed = [
+                "http://localhost:3000",
+                "http://localhost:5500",
+                "http://127.0.0.1:5500",
+                "https://ciepdcwc.onrender.com",
+                "https://ciepd.org",
+                "https://ciepdcwc.vercel.app"
+            ];
+            // Allow requests with no origin (mobile, Postman, etc.)
+            if (!origin || allowed.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                callback(new Error("CORS: Not allowed — " + origin));
+            }
+        },
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"]
     })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+// Handle preflight requests for ALL routes
+app.options("*", cors());
 // ==========================
 // SESSION (Updated for Vercel HTTPS)
 // ==========================
