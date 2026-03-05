@@ -145,7 +145,7 @@ app.use(
 );
 
 // Handle preflight requests for ALL routes
-app.options("*", cors());
+app.options("(.*)", (req, res) => {
 // ==========================
 // SESSION (Updated for Vercel HTTPS)
 // ==========================
