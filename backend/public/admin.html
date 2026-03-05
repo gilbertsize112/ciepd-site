@@ -531,12 +531,11 @@
         .nav-spacer { flex: 1; min-width: 12px; }
 
         /* ================================================================
-           STATS STRIP — glowing KPI cards
+           STATS STRIP — single KPI card
         ================================================================ */
         .stats-strip {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
+            display: flex;
+            justify-content: center;
             padding: var(--sp-xl) var(--sp-xl) 0;
             animation: rise 0.7s var(--ease) 0.2s both;
         }
@@ -554,6 +553,7 @@
             display: flex; align-items: center; gap: 14px;
             transition: all 0.3s var(--ease);
             cursor: default;
+            min-width: 220px;
         }
         /* Colored top edge */
         .kpi::before {
@@ -568,19 +568,7 @@
         .kpi-c::before { background: linear-gradient(90deg, var(--cyan), transparent); }
         .kpi-c:hover   { box-shadow: 0 12px 36px rgba(0,240,255,0.12); }
 
-        .kpi-g { animation-delay: 0.10s; }
-        .kpi-g::before { background: linear-gradient(90deg, var(--emerald), transparent); }
-        .kpi-g:hover   { box-shadow: 0 12px 36px rgba(16,255,176,0.12); }
-
-        .kpi-r { animation-delay: 0.15s; }
-        .kpi-r::before { background: linear-gradient(90deg, var(--crimson), transparent); }
-        .kpi-r:hover   { box-shadow: 0 12px 36px rgba(255,26,75,0.12); }
-
-        .kpi-a { animation-delay: 0.20s; }
-        .kpi-a::before { background: linear-gradient(90deg, var(--amber), transparent); }
-        .kpi-a:hover   { box-shadow: 0 12px 36px rgba(255,176,32,0.12); }
-
-        .kpi, .kpi-c, .kpi-g, .kpi-r, .kpi-a {
+        .kpi, .kpi-c {
             animation: rise 0.6s var(--ease) both;
         }
 
@@ -590,9 +578,6 @@
             font-size: 22px; flex-shrink: 0; transition: transform 0.3s var(--spring);
         }
         .kpi-c .kpi-icon { background:var(--cyan-10);   color:var(--cyan);    box-shadow:0 0 20px rgba(0,240,255,0.20); }
-        .kpi-g .kpi-icon { background:var(--emerald-dim); color:var(--emerald); box-shadow:0 0 20px rgba(16,255,176,0.20); }
-        .kpi-r .kpi-icon { background:var(--crimson-dim); color:var(--crimson); box-shadow:0 0 20px rgba(255,26,75,0.20); }
-        .kpi-a .kpi-icon { background:var(--amber-dim);   color:var(--amber);   box-shadow:0 0 20px rgba(255,176,32,0.20); }
 
         .kpi-body { flex: 1; min-width: 0; }
         .kpi-num {
@@ -609,9 +594,6 @@
             padding: 3px 8px; border-radius: 6px; align-self: flex-start;
         }
         .kpi-c .kpi-pill { background:var(--cyan-10);    color:var(--cyan);    border:1px solid var(--cyan-20); }
-        .kpi-g .kpi-pill { background:var(--emerald-dim); color:var(--emerald); border:1px solid rgba(16,255,176,0.20); }
-        .kpi-r .kpi-pill { background:var(--crimson-dim); color:var(--crimson); border:1px solid rgba(255,26,75,0.20); }
-        .kpi-a .kpi-pill { background:var(--amber-dim);   color:var(--amber);   border:1px solid rgba(255,176,32,0.20); }
 
         /* ================================================================
            MAIN CONTAINER
@@ -1158,7 +1140,7 @@
            RESPONSIVE BREAKPOINTS
         ================================================================ */
         @media (max-width: 1200px) {
-            .stats-strip { grid-template-columns: repeat(2, 1fr); padding: var(--sp-lg) var(--sp-lg) 0; }
+            .stats-strip { padding: var(--sp-lg) var(--sp-lg) 0; }
             .container   { padding: var(--sp-xl); }
         }
         @media (max-width: 960px) {
@@ -1170,7 +1152,7 @@
             .status-pill      { display: none; }
             .nav-bar          { display: none; }
             .mob-nav          { display: grid; }
-            .stats-strip      { grid-template-columns: 1fr 1fr; gap: 10px; padding: var(--sp-md) var(--sp-md) 0; }
+            .stats-strip      { padding: var(--sp-md) var(--sp-md) 0; }
             .kpi              { padding: 14px; }
             .kpi-num          { font-size: 1.6rem; }
             .kpi-icon         { width: 44px; height: 44px; font-size: 18px; }
@@ -1189,7 +1171,6 @@
             .header { height: 54px; }
             .logout-btn span { display: none; }
             .logout-btn { padding: 8px 11px; }
-            .stats-strip { grid-template-columns: 1fr 1fr; }
             .kpi-num { font-size: 1.4rem; }
             .news-card { padding: 16px; }
             .panel-scroll { padding: 18px; }
@@ -1293,7 +1274,7 @@
         <a href="urgent-queue.html" class="danger-btn"><i class="fas fa-fire"></i> Urgent Queue</a>
     </nav>
 
-    <!-- ── STATS STRIP ── -->
+    <!-- ── STATS STRIP (Total Reports only) ── -->
     <section class="stats-strip">
         <div class="kpi kpi-c">
             <div class="kpi-icon"><i class="fas fa-database"></i></div>
@@ -1302,30 +1283,6 @@
                 <div class="kpi-label">Total Reports</div>
             </div>
             <span class="kpi-pill">Live</span>
-        </div>
-        <div class="kpi kpi-g">
-            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-num" id="statVerified">—</div>
-                <div class="kpi-label">Verified</div>
-            </div>
-            <span class="kpi-pill">↑ Active</span>
-        </div>
-        <div class="kpi kpi-r">
-            <div class="kpi-icon"><i class="fas fa-exclamation-circle"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-num" id="statUnverified">—</div>
-                <div class="kpi-label">Unverified</div>
-            </div>
-            <span class="kpi-pill">Review</span>
-        </div>
-        <div class="kpi kpi-a">
-            <div class="kpi-icon"><i class="fas fa-fire"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-num" id="statEscalated">—</div>
-                <div class="kpi-label">Escalated</div>
-            </div>
-            <span class="kpi-pill">Urgent</span>
         </div>
     </section>
 
@@ -1552,10 +1509,7 @@
     }
 
     function updateStats(items, total) {
-        animateCount('statTotal',      total || items.length);
-        animateCount('statVerified',   items.filter(i => i.verified).length);
-        animateCount('statUnverified', items.filter(i => !i.verified).length);
-        animateCount('statEscalated',  items.filter(i => i.escalated).length);
+        animateCount('statTotal', total || items.length);
     }
 
     /* ════════════════════════════════════════
