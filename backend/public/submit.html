@@ -197,12 +197,14 @@
         .brand { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; flex-shrink: 0; }
         .brand-icon {
             width: 42px; height: 42px;
-            background: linear-gradient(135deg, var(--cyan-20), var(--indigo-dim));
             border: 1px solid var(--cyan-40); border-radius: var(--r-md);
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; box-shadow: var(--cyan-glow);
+            overflow: hidden;
+            box-shadow: var(--cyan-glow);
             animation: brand-pulse 4s ease-in-out infinite;
         }
+        /* ── LOGO IMAGE ── */
+        .brand-icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
         @keyframes brand-pulse { 0%,100%{box-shadow:var(--cyan-glow);} 50%{box-shadow:var(--cyan-glow-xl);} }
         .brand-name { font-family: var(--f-disp); font-size: 1.05rem; font-weight: 800; color: var(--tx1); letter-spacing: 0.08em; text-transform: uppercase; }
         .brand-sub  { font-family: var(--f-mono); font-size: 0.52rem; color: var(--cyan); letter-spacing: 0.18em; text-transform: uppercase; }
@@ -422,6 +424,12 @@
 
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
+        /* ═══════════════════════════════════════════════════
+           CHECKBOX FIX
+           The element IS a <label> so the browser natively
+           toggles the hidden <input> on click — no JS click
+           handler needed or wanted (double-toggle was the bug).
+        ═══════════════════════════════════════════════════ */
         .check-item {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 13px;
@@ -431,15 +439,31 @@
         .check-item:hover { background: var(--g2); border-color: var(--b2); }
         .check-item.checked { background: var(--cyan-10); border-color: var(--cyan-20); }
 
+        /* Hide native checkbox — label still activates it */
+        .check-item input[type="checkbox"] {
+            position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+        }
+
         .check-box {
             width: 18px; height: 18px; border-radius: 5px;
             border: 1.5px solid var(--b3); background: var(--g2);
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; transition: all 0.2s var(--ease);
+            position: relative;
         }
-        .check-item.checked .check-box { background: var(--cyan); border-color: var(--cyan); }
-        .check-item.checked .check-box::after { content: ''; display: block; width: 5px; height: 9px; border: 2px solid var(--tx-inv); border-top: 0; border-left: 0; transform: rotate(45deg) translateY(-1px); }
-        .check-item input[type="checkbox"] { display: none; }
+        /* Tick mark — shown via JS .checked class */
+        .check-item.checked .check-box {
+            background: var(--cyan); border-color: var(--cyan);
+        }
+        .check-item.checked .check-box::after {
+            content: '';
+            display: block;
+            width: 5px; height: 9px;
+            border: 2px solid var(--tx-inv);
+            border-top: 0; border-left: 0;
+            transform: rotate(45deg) translateY(-1px);
+        }
+
         .check-label { font-size: 0.82rem; color: var(--tx2); transition: color 0.2s; line-height: 1.3; }
         .check-item.checked .check-label { color: var(--tx1); }
 
@@ -612,7 +636,9 @@
     <!-- ── HEADER ── -->
     <header class="header">
         <a href="index.html" class="brand">
-            <div class="brand-icon">🛰️</div>
+            <div class="brand-icon">
+                <img src="logo.png" alt="CIEPD Logo" />
+            </div>
             <div>
                 <div class="brand-name">CIEPD</div>
                 <div class="brand-sub">Report Portal</div>
@@ -701,7 +727,6 @@
                 <div class="card-desc">Provide comprehensive, accurate information about the incident to help our team assess and respond effectively.</div>
             </div>
 
-            <!-- BASIC DETAILS -->
             <div class="field-group">
                 <label>Report Title <span class="req">*</span></label>
                 <input type="text" id="title" required placeholder="e.g., Communal clash in Rivers State, Bayelsa kidnapping…" />
@@ -724,10 +749,8 @@
                 </div>
             </div>
 
-            <!-- DIVIDER -->
             <div class="divider"><span class="divider-label">Incident Classification</span></div>
 
-            <!-- CATEGORIES -->
             <div class="card-eyebrow" style="margin-bottom:var(--sp-md);"><i class="fas fa-tags"></i> Select All Relevant Categories <span class="req" style="margin-left:4px;">*</span></div>
 
             <div class="cat-section">
@@ -781,23 +804,19 @@
         <!-- RIGHT COLUMN: EVIDENCE + SUBMIT -->
         <div class="sticky-col">
 
-            <!-- EVIDENCE CARD -->
             <div class="glass-card" style="margin-bottom:var(--sp-lg);">
                 <div class="card-header">
                     <div class="card-eyebrow"><i class="fas fa-paperclip"></i> Evidence</div>
                     <div class="card-title">Media &amp; Sources</div>
                 </div>
-
                 <div class="field-group">
                     <label>News Source Link</label>
                     <input type="url" id="newsSource" placeholder="https://example.com/article…" />
                 </div>
-
                 <div class="field-group">
                     <label>Video Evidence Link</label>
                     <input type="url" id="videoLink" placeholder="YouTube or Google Drive URL…" />
                 </div>
-
                 <div class="field-group">
                     <label>Upload Photos</label>
                     <div class="file-input-wrap" onclick="document.getElementById('photos').click()">
@@ -808,14 +827,12 @@
                 </div>
             </div>
 
-            <!-- REPORTER CARD -->
             <div class="glass-card" style="margin-bottom:var(--sp-lg);">
                 <div class="card-header">
                     <div class="card-eyebrow"><i class="fas fa-user-shield"></i> Your Info</div>
                     <div class="card-title">Reporter Details</div>
                     <div class="card-desc">Optional — leave blank to report anonymously.</div>
                 </div>
-
                 <div class="field-group">
                     <label>First Name</label>
                     <input type="text" id="firstName" placeholder="Your name (optional)" />
@@ -826,7 +843,6 @@
                 </div>
             </div>
 
-            <!-- SUBMIT CARD -->
             <div class="glass-card">
                 <div class="card-header">
                     <div class="card-eyebrow"><i class="fas fa-paper-plane"></i> Submit</div>
@@ -944,16 +960,17 @@
             : 'Click to attach images';
     }
 
-    /* ── CUSTOM CHECKBOXES ── */
-    document.querySelectorAll('.check-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            if (e.target.tagName === 'INPUT') return; // let native handle
-            const cb = item.querySelector('input[type="checkbox"]');
-            cb.checked = !cb.checked;
-            item.classList.toggle('checked', cb.checked);
+    /* ══════════════════════════════════════════════════════
+       CHECKBOX FIX
+       Each .check-item IS a <label> so the browser already
+       toggles the hidden checkbox on click — no manual
+       click handler needed. We ONLY listen to the native
+       "change" event to update the visual .checked class.
+    ══════════════════════════════════════════════════════ */
+    document.querySelectorAll('.check-item input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', function () {
+            this.closest('.check-item').classList.toggle('checked', this.checked);
         });
-        const cb = item.querySelector('input[type="checkbox"]');
-        cb.addEventListener('change', () => item.classList.toggle('checked', cb.checked));
     });
 
     /* ── PROGRESS TRACKER ── */
@@ -966,7 +983,6 @@
         const s1 = document.getElementById('step1');
         const s2 = document.getElementById('step2');
         const s3 = document.getElementById('step3');
-        const s4 = document.getElementById('step4');
 
         if (title && content && location) {
             s1.classList.add('done'); s1.classList.remove('active');
@@ -990,11 +1006,8 @@
         document.getElementById('successDesc').textContent  = isCritical
             ? 'Your critical alert has been dispatched immediately to our response team. They will act on this within the hour. Stay safe.'
             : 'Your intelligence report has been received and encrypted. Our team will review it within 24 hours. Thank you for helping build peace in the Niger Delta.';
-
-        // Mark step 4 done
         document.getElementById('step3').classList.add('done');
         document.getElementById('step4').classList.add('active','done');
-
         overlay.classList.add('show');
     }
 
@@ -1004,7 +1017,6 @@
         document.querySelectorAll('.check-item').forEach(i => i.classList.remove('checked'));
         document.getElementById('contentCounter').textContent = '0 / 2000 characters';
         document.getElementById('fileLabel').textContent = 'Click to attach images';
-        // Reset steps
         ['step1','step2','step3','step4'].forEach((id, i) => {
             const el = document.getElementById(id);
             el.classList.remove('done','active');
@@ -1022,19 +1034,18 @@
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const title    = document.getElementById('title').value.trim();
-        const content  = document.getElementById('content').value.trim();
-        const location = document.getElementById('location').value.trim();
+        const title      = document.getElementById('title').value.trim();
+        const content    = document.getElementById('content').value.trim();
+        const location   = document.getElementById('location').value.trim();
         const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(c => c.value);
         const newsSource = document.getElementById('newsSource').value.trim();
         const videoLink  = document.getElementById('videoLink').value.trim();
         const firstName  = document.getElementById('firstName').value.trim();
         const email      = document.getElementById('email').value.trim();
 
-        // Validation
-        if (!title)              { showToast('Please enter a report title.', 'error'); document.getElementById('title').focus(); return; }
-        if (!content)            { showToast('Please provide a detailed description.', 'error'); document.getElementById('content').focus(); return; }
-        if (!location)           { showToast('Please specify the incident location.', 'error'); document.getElementById('location').focus(); return; }
+        if (!title)                  { showToast('Please enter a report title.', 'error'); document.getElementById('title').focus(); return; }
+        if (!content)                { showToast('Please provide a detailed description.', 'error'); document.getElementById('content').focus(); return; }
+        if (!location)               { showToast('Please specify the incident location.', 'error'); document.getElementById('location').focus(); return; }
         if (categories.length === 0) { showToast('Please select at least one incident category.', 'error'); return; }
 
         const isCritical = lastSubmitter === 'urgent';
@@ -1052,7 +1063,6 @@
             escalated: isCritical
         };
 
-        // Set loading state
         const btn = isCritical
             ? document.getElementById('alertDispatchButton')
             : document.getElementById('standardSubmitButton');

@@ -241,6 +241,19 @@
             transition: opacity 0.8s var(--ease), visibility 0.8s;
         }
         #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        /* ── SPLASH LOGO ── */
+        .splash-logo-wrap {
+            width: 80px; height: 80px; margin-bottom: 20px;
+            border-radius: var(--r-xl);
+            overflow: hidden;
+            border: 2px solid var(--cyan-40);
+            box-shadow: var(--cyan-glow);
+            animation: brand-pulse 3s ease-in-out infinite;
+        }
+        .splash-logo-wrap img {
+            width: 100%; height: 100%; object-fit: contain;
+        }
         .splash-ring {
             width: 72px; height: 72px;
             border: 3px solid var(--b2);
@@ -278,12 +291,17 @@
         .brand { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; flex-shrink: 0; }
         .brand-icon {
             width: 42px; height: 42px;
-            background: linear-gradient(135deg, var(--cyan-20), var(--indigo-dim));
             border: 1px solid var(--cyan-40); border-radius: var(--r-md);
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; position: relative; overflow: hidden;
+            overflow: hidden;
             box-shadow: var(--cyan-glow);
             animation: brand-pulse 4s ease-in-out infinite;
+        }
+        /* Logo image inside brand icon */
+        .brand-icon img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            display: block;
         }
         @keyframes brand-pulse { 0%,100%{box-shadow:var(--cyan-glow);} 50%{box-shadow:var(--cyan-glow-xl);} }
         .brand-text { line-height: 1.15; }
@@ -396,9 +414,38 @@
             position: relative; overflow: hidden;
             animation: rise 0.9s var(--ease) 0.2s both;
         }
-        @keyframes rise { from{opacity:0;transform:translateY(22px);} to{opacity:1;transform:translateY(0);} }
 
-        .hero-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+        /* Hero background image with overlay */
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url('hero.jpg') center center / cover no-repeat;
+            opacity: 0.18;
+            z-index: 0;
+            transition: opacity 0.5s;
+        }
+        html:not(.dark) .hero::before { opacity: 0.10; }
+        .hero::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg,
+                rgba(4,6,10,0.55) 0%,
+                rgba(4,6,10,0.25) 40%,
+                rgba(4,6,10,0.70) 100%);
+            z-index: 1;
+        }
+        html:not(.dark) .hero::after {
+            background: linear-gradient(180deg,
+                rgba(238,243,255,0.50) 0%,
+                rgba(238,243,255,0.15) 40%,
+                rgba(238,243,255,0.65) 100%);
+        }
+        .hero-inner {
+            max-width: 900px; margin: 0 auto; text-align: center;
+            position: relative; z-index: 2;
+        }
+
+        @keyframes rise { from{opacity:0;transform:translateY(22px);} to{opacity:1;transform:translateY(0);} }
 
         .hero-overline {
             display: inline-flex; align-items: center; gap: 10px;
@@ -691,6 +738,21 @@
         .step-title { font-family:var(--f-disp);font-size:1rem;font-weight:700;color:var(--tx1);margin-bottom:10px; }
         .step-text  { font-size:0.83rem;color:var(--tx2);line-height:1.7; }
 
+        /* ── STEP IMAGE BLOCKS ── */
+        .step-img {
+            width: 100%; height: 130px; border-radius: var(--r-md); overflow: hidden;
+            margin-top: 18px; border: 1px solid var(--b1);
+        }
+        .step-img img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.5s var(--ease);
+            filter: saturate(0.75) brightness(0.85);
+        }
+        .step-card:hover .step-img img {
+            transform: scale(1.06);
+            filter: saturate(1) brightness(0.95);
+        }
+
         /* ── TESTIMONIALS ── */
         .testimonials-grid {
             display: grid; grid-template-columns: repeat(3,1fr);
@@ -704,6 +766,23 @@
         .tcard:hover { transform:translateY(-4px);border-color:var(--b2);border-left-color:var(--cyan);box-shadow:0 14px 40px rgba(0,0,0,0.35); }
         .tcard-stars { color: var(--amber); font-size: 0.8rem; margin-bottom: 14px; letter-spacing: 2px; }
         .tcard-quote { font-size:0.86rem;color:var(--tx2);line-height:1.8;font-style:italic;margin-bottom:18px;border-left:2px solid var(--b2);padding-left:14px; }
+
+        /* Testimonial avatar row */
+        .tcard-author-row {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .tcard-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            overflow: hidden; flex-shrink: 0;
+            border: 2px solid var(--b2);
+            box-shadow: 0 0 12px rgba(0,240,255,0.15);
+        }
+        .tcard-avatar img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: saturate(0.8);
+            transition: filter 0.3s;
+        }
+        .tcard:hover .tcard-avatar img { filter: saturate(1.1); }
         .tcard-author { font-family:var(--f-mono);font-size:0.7rem;font-weight:700;color:var(--tx1);text-transform:uppercase;letter-spacing:0.06em; }
         .tcard-role   { font-family:var(--f-mono);font-size:0.62rem;color:var(--tx3); }
 
@@ -722,6 +801,7 @@
             width: calc(50% - 40px);
             background: var(--g1); border: 1px solid var(--b1); border-radius: var(--r-lg);
             padding: 22px; transition: all 0.3s var(--ease);
+            overflow: hidden;
         }
         .tl-item:nth-child(odd)  .tl-content { margin-right:auto; }
         .tl-item:nth-child(even) .tl-content { margin-left:auto; }
@@ -736,6 +816,59 @@
         }
         .tl-year { font-family:var(--f-disp);font-size:1.1rem;font-weight:800;color:var(--cyan);margin-bottom:6px; }
         .tl-text { font-size:0.85rem;color:var(--tx2);line-height:1.7; }
+
+        /* Timeline image */
+        .tl-img {
+            width: 100%; height: 110px; border-radius: var(--r-md);
+            overflow: hidden; margin-top: 14px;
+        }
+        .tl-img img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: saturate(0.6) brightness(0.80);
+            transition: all 0.5s var(--ease);
+        }
+        .tl-content:hover .tl-img img {
+            filter: saturate(1) brightness(0.95);
+            transform: scale(1.05);
+        }
+
+        /* ── LANDSCAPE BANNER ── */
+        .landscape-banner {
+            border-radius: var(--r-xl); overflow: hidden;
+            position: relative; height: 260px;
+            margin-bottom: var(--sp-2xl);
+            border: 1px solid var(--b2);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+        }
+        .landscape-banner img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: saturate(0.7) brightness(0.6);
+            transition: transform 8s ease;
+        }
+        .landscape-banner:hover img { transform: scale(1.04); }
+        .landscape-banner-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(90deg,
+                rgba(4,6,10,0.85) 0%,
+                rgba(4,6,10,0.40) 50%,
+                rgba(4,6,10,0.15) 100%);
+            display: flex; align-items: center;
+            padding: var(--sp-2xl);
+        }
+        html:not(.dark) .landscape-banner-overlay {
+            background: linear-gradient(90deg,
+                rgba(238,243,255,0.90) 0%,
+                rgba(238,243,255,0.50) 50%,
+                rgba(238,243,255,0.10) 100%);
+        }
+        .landscape-banner-text h3 {
+            font-family: var(--f-disp); font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 800; color: var(--tx1); margin-bottom: 10px; line-height: 1.2;
+        }
+        .landscape-banner-text p {
+            font-size: 0.88rem; color: var(--tx2);
+            max-width: 480px; line-height: 1.7;
+        }
 
         /* ── FOOTER ── */
         footer {
@@ -770,6 +903,17 @@
         .footer-col p  { font-size:0.83rem;color:var(--tx2);line-height:1.7;margin-bottom:8px; }
         .footer-col a.contact-link { display:flex;align-items:center;gap:7px;color:var(--tx2); }
         .footer-col a.contact-link i { color:var(--cyan);font-size:11px;flex-shrink:0; }
+
+        /* Footer logo */
+        .footer-logo-row {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+        }
+        .footer-logo {
+            width: 46px; height: 46px; border-radius: var(--r-md);
+            overflow: hidden; border: 1px solid var(--b2);
+            flex-shrink: 0;
+        }
+        .footer-logo img { width:100%;height:100%;object-fit:contain; }
 
         .newsletter-form { display:flex;flex-direction:column;gap:10px;margin-top:var(--sp-sm); }
         .newsletter-form input {
@@ -850,6 +994,7 @@
             .tl-content, .tl-item:nth-child(even) .tl-content { width:calc(100% - 44px);margin-left:44px; }
             .tl-dot { left:20px; }
             .callout { flex-direction:column; }
+            .landscape-banner { height: 200px; }
         }
         @media (max-width: 768px) {
             .header { padding:0 14px;height:58px; }
@@ -869,6 +1014,8 @@
             .page-main { width:calc(100% - 20px);margin-bottom:92px; }
             .glass-card { padding:var(--sp-xl) var(--sp-md); }
             .footer-grid { grid-template-columns:1fr; }
+            .landscape-banner { height: 160px; }
+            .landscape-banner-overlay { padding: var(--sp-lg); }
         }
         @media (max-width: 480px) {
             .brand-text { display:none; }
@@ -895,7 +1042,9 @@
 
 <!-- SPLASH -->
 <div id="splash-screen">
-    <div class="splash-ring"></div>
+    <div class="splash-logo-wrap">
+        <img src="logo.png" alt="CIEPD Logo" />
+    </div>
     <div class="splash-brand">CIEPD</div>
     <div class="splash-sub">Conflict Watch Center · Loading…</div>
 </div>
@@ -924,7 +1073,9 @@
     <!-- ── HEADER ── -->
     <header class="header">
         <a href="home.html" class="brand">
-            <div class="brand-icon">🛰️</div>
+            <div class="brand-icon">
+                <img src="logo.png" alt="CIEPD Logo" />
+            </div>
             <div class="brand-text">
                 <div class="brand-name">CIEPD</div>
                 <div class="brand-sub">Conflict Watch Center</div>
@@ -1112,6 +1263,17 @@
             </div>
         </div>
 
+        <!-- ── LANDSCAPE BANNER ── -->
+        <div class="landscape-banner section-gap">
+            <img src="landscape.jpg" alt="Niger Delta Landscape" />
+            <div class="landscape-banner-overlay">
+                <div class="landscape-banner-text">
+                    <h3>Monitoring Every Corner<br>of the Niger Delta</h3>
+                    <p>From the creeks of Bayelsa to the plains of Edo — our intelligence network spans 9 states, safeguarding communities through real-time awareness and rapid response.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- ── QUICK ACCESS ── -->
         <div class="section-gap">
             <div class="section-head">
@@ -1195,16 +1357,25 @@
                     <div class="step-num">01</div>
                     <div class="step-title">Collect Intelligence</div>
                     <div class="step-text">Community members, field reporters, and partner networks submit incident reports via web, mobile, or WhatsApp. All submissions are encrypted and securely stored.</div>
+                    <div class="step-img">
+                        <img src="field.jpg" alt="Field reporter collecting intelligence" />
+                    </div>
                 </div>
                 <div class="step-card">
                     <div class="step-num">02</div>
                     <div class="step-title">Analyze &amp; Verify</div>
                     <div class="step-text">Our analysts and AI engine cross-reference incoming reports, identify patterns, verify claims, and assign severity ratings to each incident.</div>
+                    <div class="step-img">
+                        <img src="mapv.jpg" alt="Analysts reviewing intelligence map" />
+                    </div>
                 </div>
                 <div class="step-card">
                     <div class="step-num">03</div>
                     <div class="step-title">Alert &amp; Respond</div>
                     <div class="step-text">Verified intelligence is published and pushed to subscribers, government agencies, and peace-building partners to enable rapid, targeted intervention.</div>
+                    <div class="step-img">
+                        <img src="peace.jpg" alt="Peace advocates and community dialogue" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -1231,20 +1402,41 @@
                 <div class="tcard">
                     <div class="tcard-stars">★★★★★</div>
                     <div class="tcard-quote">CIEPD has transformed how we report conflicts. The real-time alerts help us respond faster and protect our people before situations escalate.</div>
-                    <div class="tcard-author">Chief Okoro</div>
-                    <div class="tcard-role">Community Leader, Rivers State</div>
+                    <div class="tcard-author-row">
+                        <div class="tcard-avatar">
+                            <img src="face.jpg" alt="Chief Okoro" />
+                        </div>
+                        <div>
+                            <div class="tcard-author">Chief Okoro</div>
+                            <div class="tcard-role">Community Leader, Rivers State</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="tcard">
                     <div class="tcard-stars">★★★★★</div>
                     <div class="tcard-quote">Transparent reporting and genuine community engagement make CIEPD a trusted partner. The data-backed approach builds real credibility.</div>
-                    <div class="tcard-author">Mrs. Adeyemi</div>
-                    <div class="tcard-role">Peace Advocate, Delta State</div>
+                    <div class="tcard-author-row">
+                        <div class="tcard-avatar">
+                            <img src="face.jpg" alt="Mrs. Adeyemi" />
+                        </div>
+                        <div>
+                            <div class="tcard-author">Mrs. Adeyemi</div>
+                            <div class="tcard-role">Peace Advocate, Delta State</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="tcard">
                     <div class="tcard-stars">★★★★★</div>
                     <div class="tcard-quote">The intelligence dashboard gives us the insights we need to make informed, evidence-based peace-building and policy decisions.</div>
-                    <div class="tcard-author">Dr. Ibrahim</div>
-                    <div class="tcard-role">Government Official</div>
+                    <div class="tcard-author-row">
+                        <div class="tcard-avatar">
+                            <img src="face.jpg" alt="Dr. Ibrahim" />
+                        </div>
+                        <div>
+                            <div class="tcard-author">Dr. Ibrahim</div>
+                            <div class="tcard-role">Government Official</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1261,6 +1453,9 @@
                     <div class="tl-content">
                         <div class="tl-year">2017</div>
                         <div class="tl-text">CIEPD founded — launched conflict monitoring with community partners across the Niger Delta, establishing the foundation for a community-driven intelligence network.</div>
+                        <div class="tl-img">
+                            <img src="peace.jpeg" alt="CIEPD founding community partners" />
+                        </div>
                     </div>
                 </div>
                 <div class="tl-item">
@@ -1268,6 +1463,9 @@
                     <div class="tl-content">
                         <div class="tl-year">2020</div>
                         <div class="tl-text">Digital platform launched — enabling online report submissions and expanding the reporter network to over 200 active community contributors across 6 states.</div>
+                        <div class="tl-img">
+                            <img src="field.jpg" alt="Field reporters using digital platform" />
+                        </div>
                     </div>
                 </div>
                 <div class="tl-item">
@@ -1275,6 +1473,9 @@
                     <div class="tl-content">
                         <div class="tl-year">2022</div>
                         <div class="tl-text">Scaled to 50+ communities with real-time alert systems and SMS notifications, significantly reducing average response time to emerging conflicts.</div>
+                        <div class="tl-img">
+                            <img src="landscape.jpg" alt="Niger Delta communities covered" />
+                        </div>
                     </div>
                 </div>
                 <div class="tl-item">
@@ -1282,6 +1483,9 @@
                     <div class="tl-content">
                         <div class="tl-year">2024</div>
                         <div class="tl-text">Deployed advanced AI analytics engine, interactive live map, and admin intelligence dashboard — transforming CIEPD into a full-spectrum conflict monitoring platform.</div>
+                        <div class="tl-img">
+                            <img src="mapv.jpg" alt="AI analytics and live map dashboard" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1305,8 +1509,15 @@
     <footer>
         <div class="footer-grid">
             <div class="footer-brand">
-                <div class="brand-name">CIEPD</div>
-                <div class="brand-sub">Conflict Watch Center</div>
+                <div class="footer-logo-row">
+                    <div class="footer-logo">
+                        <img src="logo.png" alt="CIEPD Logo" />
+                    </div>
+                    <div>
+                        <div class="brand-name">CIEPD</div>
+                        <div class="brand-sub">Conflict Watch Center</div>
+                    </div>
+                </div>
                 <p>Community Initiative for Enhanced Peace and Development operates a cutting-edge Conflict Watch Center preventing violence and building sustainable peace in the Niger Delta through community intelligence and data-driven analysis.</p>
                 <div class="social-row">
                     <a href="https://www.facebook.com/profile.php?id=100009255273571" class="social-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
