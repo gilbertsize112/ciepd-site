@@ -1028,7 +1028,7 @@
                 <h4>Our Region</h4>
                 <p>We monitor the Niger Delta region covering:</p>
                 <p>Rivers · Bayelsa · Delta · Akwa Ibom · Cross River · Edo</p>
-                <a href="mailto:ciepdngo@gmail.com" class="contact-link"><i class="fas fa-envelope"></i> ciepdngo@gmail.com</a>
+                <a href="/cdn-cgi/l/email-protection#02616b6772666c656d42656f636b6e2c616d6f" class="contact-link"><i class="fas fa-envelope"></i> <span class="__cf_email__" data-cfemail="16757f73667278717956717b777f7a3875797b">[email&#160;protected]</span></a>
                 <a href="tel:+2348034559689" class="contact-link"><i class="fas fa-phone"></i> +234 803 455 9689</a>
                 <a href="https://wa.me/2348034559689" class="contact-link"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
             </div>
@@ -1044,7 +1044,7 @@
         <div class="footer-bottom">
             <span>© 2025 <strong>CIEPD Conflict Watch Center</strong>. All rights reserved.</span>
             <span>Powered by CIEPD Intelligence Network · Developed by <strong>Samuel (Sammy Tech)</strong></span>
-            <span><a href="mailto:sammytech@gmail.com">sammytech@gmail.com</a> · <a href="tel:+2348032528426">+234 803 252 8426</a></span>
+            <span><a href="/cdn-cgi/l/email-protection#0f7c6e6262767b6a6c674f68626e6663216c6062"><span class="__cf_email__" data-cfemail="34475559594d4051575c745359555d581a575b59">[email&#160;protected]</span></a> · <a href="tel:+2348032528426">+234 803 252 8426</a></span>
         </div>
     </footer>
 
@@ -1062,7 +1062,7 @@
 <div class="toast-rack" id="toastRack"></div>
 
 <!-- ── SCRIPTS ── -->
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     /* ── BASE URL ── */
     const BASE_URL =
         window.location.hostname === "localhost" ||
@@ -1193,7 +1193,7 @@
         try {
             const res  = await fetch(`${BASE_URL}/api/news?limit=4&sort=newest`);
             const data = await res.json();
-            const items = data.news || data.items || data.data || (Array.isArray(data) ? data : []);
+            const items = data.items || data.news || data.data || (Array.isArray(data) ? data : []);
 
             if (!items.length) return;
 
@@ -1223,6 +1223,7 @@
         });
     });
 
+    
     /* ── SCROLL REVEAL ── */
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
