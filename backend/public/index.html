@@ -1064,12 +1064,11 @@
 <!-- ── SCRIPTS ── -->
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     /* ── BASE URL ── */
-    const BASE_URL =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1"
-            ? "http://localhost:3000"
-            : "https://ciepdcwc.up.railway.app";
-
+ const BASE_URL =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000"
+        : "";
     /* ── SPLASH ── */
     window.addEventListener('load', () => {
         setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 2800);
