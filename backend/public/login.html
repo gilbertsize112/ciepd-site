@@ -77,37 +77,43 @@ body {
     transition:background 0.4s,color 0.4s;
 }
 
+/* ── MATRIX RAIN CANVAS ─────────────────────────────── */
+#matrix-canvas {
+    position:fixed; inset:0; z-index:1;
+    pointer-events:none; opacity:0.055;
+}
+html:not(.dark) #matrix-canvas { opacity:0.025; }
+
+/* ── SCAN LINE ──────────────────────────────────────── */
+#scan-line {
+    position:fixed; left:0; right:0; height:2px; z-index:2;
+    background:linear-gradient(90deg,transparent,rgba(0,240,255,0.4),transparent);
+    animation:scan-sweep 5s linear infinite;
+    pointer-events:none;
+    box-shadow:0 0 12px rgba(0,240,255,0.3);
+}
+html:not(.dark) #scan-line { background:linear-gradient(90deg,transparent,rgba(0,91,204,0.25),transparent); }
+@keyframes scan-sweep {
+    0%   { top:-2px; opacity:0; }
+    5%   { opacity:1; }
+    95%  { opacity:1; }
+    100% { top:100vh; opacity:0; }
+}
+
 /* ── BACKGROUND ───────────────────────────────────────────── */
 #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-
-#bg-video {
-    position:absolute; inset:0; width:100%; height:100%;
-    object-fit:cover; opacity:0.18; filter:saturate(0.4) brightness(0.35);
-}
+#bg-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.18; filter:saturate(0.4) brightness(0.35); }
 html:not(.dark) #bg-video { opacity:0.06; filter:saturate(0.2) brightness(0.8); }
-
-#bg-scanlines {
-    position:absolute; inset:0; z-index:2; pointer-events:none;
-    background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px);
-}
-#bg-grid {
-    position:absolute; inset:-200px; z-index:1;
-    background-image:linear-gradient(rgba(0,240,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,0.025) 1px,transparent 1px);
-    background-size:64px 64px;
-    animation:grid-drift 90s linear infinite;
-}
-html:not(.dark) #bg-grid {
-    background-image:linear-gradient(rgba(0,91,204,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,91,204,0.04) 1px,transparent 1px);
-}
+#bg-scanlines { position:absolute; inset:0; z-index:2; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px); }
+#bg-grid { position:absolute; inset:-200px; z-index:1; background-image:linear-gradient(rgba(0,240,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,0.025) 1px,transparent 1px); background-size:64px 64px; animation:grid-drift 90s linear infinite; }
+html:not(.dark) #bg-grid { background-image:linear-gradient(rgba(0,91,204,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,91,204,0.04) 1px,transparent 1px); }
 @keyframes grid-drift { to { transform:translate(64px,64px); } }
-
 .bg-orb { position:absolute; border-radius:50%; filter:blur(140px); pointer-events:none; z-index:0; animation:orb-drift 28s ease-in-out infinite alternate; }
 html:not(.dark) .bg-orb { opacity:0.06 !important; }
 .bg-orb.o1 { width:800px;height:800px;background:var(--cyan);   top:-320px;left:-280px; opacity:0.11;animation-duration:32s; }
 .bg-orb.o2 { width:600px;height:600px;background:var(--violet); bottom:-240px;right:-220px; opacity:0.09;animation-duration:26s;animation-delay:-14s; }
 .bg-orb.o3 { width:440px;height:440px;background:var(--emerald);top:45%;left:58%; opacity:0.07;animation-duration:20s;animation-delay:-7s; }
 @keyframes orb-drift { 0%{transform:translate(0,0) scale(1);}50%{transform:translate(60px,-80px) scale(1.08);}100%{transform:translate(-40px,50px) scale(0.96);} }
-
 #bg-vignette { position:absolute; inset:0; pointer-events:none; z-index:3; background:radial-gradient(ellipse at center,transparent 20%,rgba(4,6,10,0.70) 100%); }
 html:not(.dark) #bg-vignette { background:radial-gradient(ellipse at center,transparent 20%,rgba(180,200,240,0.45) 100%); }
 
@@ -120,44 +126,125 @@ html:not(.dark) #bg-vignette { background:radial-gradient(ellipse at center,tran
 .corner.bl { bottom:12px;left:12px; }  .corner.bl::before { bottom:0;left:0; } .corner.bl::after { bottom:0;left:0; }
 .corner.br { bottom:12px;right:12px; } .corner.br::before { bottom:0;right:0; } .corner.br::after { bottom:0;right:0; }
 
-/* ── THEME BUTTON ─────────────────────────────────────────── */
+/* ── TOP NAV BAR ────────────────────────────────────── */
+#top-nav {
+    position:fixed; top:0; left:0; right:0; z-index:300;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 18px;
+    background:rgba(4,6,10,0.70);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--b1);
+    animation:nav-drop 0.6s var(--ease) both;
+}
+html:not(.dark) #top-nav { background:rgba(238,243,255,0.80); }
+@keyframes nav-drop { from{transform:translateY(-100%);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+.nav-home-btn {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 16px;
+    background:var(--g2); border:1px solid var(--b2); border-radius:10px;
+    color:var(--tx2); font-family:var(--f-body); font-size:0.78rem; font-weight:700;
+    text-decoration:none; letter-spacing:0.02em; text-transform:uppercase;
+    transition:all 0.22s var(--ease); position:relative; overflow:hidden;
+}
+.nav-home-btn::before {
+    content:''; position:absolute; inset:0;
+    background:var(--cyan); transform:scaleX(0); transform-origin:left;
+    transition:transform 0.3s var(--ease);
+}
+.nav-home-btn:hover::before { transform:scaleX(1); }
+.nav-home-btn:hover { color:var(--tx-inv); border-color:var(--cyan); transform:translateY(-2px); box-shadow:var(--cyan-glow); }
+.nav-home-btn span, .nav-home-btn i { position:relative; z-index:1; }
+.nav-home-btn i { font-size:13px; }
+
+.nav-right { display:flex; align-items:center; gap:8px; }
+
 #themeBtn {
-    position:fixed; top:16px; right:16px; z-index:300;
-    width:42px; height:42px; border-radius:11px;
+    width:38px; height:38px; border-radius:10px;
     border:1px solid var(--b2); background:var(--g1);
-    color:var(--tx2); font-size:15px; cursor:pointer;
+    color:var(--tx2); font-size:14px; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     transition:all 0.25s var(--ease);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
 }
 #themeBtn:hover { background:var(--g3); border-color:var(--cyan-20); color:var(--cyan); transform:rotate(20deg) scale(1.1); }
+
+.nav-status-pill {
+    display:flex; align-items:center; gap:6px;
+    padding:6px 12px;
+    background:var(--emerald-dim); border:1px solid var(--emerald-border);
+    border-radius:99px; font-family:var(--f-mono); font-size:0.58rem; font-weight:700;
+    color:var(--emerald); letter-spacing:0.08em; text-transform:uppercase;
+}
+.nav-status-dot { width:5px;height:5px;background:var(--emerald);border-radius:50%;box-shadow:0 0 6px var(--emerald);animation:dot-blink 2s ease-in-out infinite; }
+@keyframes dot-blink { 0%,100%{transform:scale(1);}50%{transform:scale(0.4);opacity:0.4;} }
 
 /* ── PAGE WRAP ────────────────────────────────────────────── */
 #page-wrap {
     position:relative; z-index:10;
     width:100%; max-width:468px;
-    animation:wrap-rise 0.85s var(--spring) both;
+    margin-top:30px;
+    animation:wrap-rise 0.9s var(--spring) 0.2s both;
 }
-@keyframes wrap-rise { from{opacity:0;transform:translateY(44px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);} }
+@keyframes wrap-rise { from{opacity:0;transform:translateY(50px) scale(0.94);}to{opacity:1;transform:translateY(0) scale(1);} }
 
 /* ── IDENTITY BAR ─────────────────────────────────────────── */
 .identity-bar {
     display:flex; align-items:center; justify-content:center;
-    gap:15px; margin-bottom:26px;
+    gap:16px; margin-bottom:26px;
 }
-.id-icon {
-    width:54px; height:54px; flex-shrink:0;
-    background:linear-gradient(135deg,var(--cyan-20),var(--indigo-dim));
-    border:1px solid var(--cyan-40); border-radius:15px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:22px; color:var(--cyan);
+
+/* Logo with biometric scan ring */
+.id-logo-wrap {
+    position:relative; width:64px; height:64px; flex-shrink:0;
+}
+.id-logo-img {
+    width:64px; height:64px;
+    border-radius:16px;
+    overflow:hidden;
+    border:2px solid var(--cyan-40);
     box-shadow:var(--cyan-glow);
-    animation:icon-pulse 4s ease-in-out infinite;
+    position:relative; z-index:2;
+    animation:logo-pulse 3s ease-in-out infinite;
+    background:rgba(0,240,255,0.04);
+    display:flex; align-items:center; justify-content:center;
 }
-@keyframes icon-pulse { 0%,100%{box-shadow:var(--cyan-glow);}50%{box-shadow:var(--cyan-glow-xl);} }
+.id-logo-img img { width:100%; height:100%; object-fit:contain; display:block; }
+@keyframes logo-pulse { 0%,100%{box-shadow:var(--cyan-glow);}50%{box-shadow:var(--cyan-glow-xl);} }
+
+/* rotating scan ring */
+.scan-ring {
+    position:absolute; inset:-8px; border-radius:24px; z-index:1;
+    border:1.5px solid transparent;
+    background:linear-gradient(var(--void),var(--void)) padding-box,
+               conic-gradient(from 0deg, var(--cyan), var(--indigo), transparent 60%, var(--cyan)) border-box;
+    animation:ring-spin 3s linear infinite;
+}
+@keyframes ring-spin { to { transform:rotate(360deg); } }
+
+/* corner scan dots */
+.scan-dot {
+    position:absolute; width:5px; height:5px; border-radius:50%;
+    background:var(--cyan); box-shadow:0 0 6px var(--cyan);
+    animation:scan-dot-blink 1.8s ease-in-out infinite;
+    z-index:3;
+}
+.scan-dot.tl { top:-2px; left:-2px; animation-delay:0s; }
+.scan-dot.tr { top:-2px; right:-2px; animation-delay:0.45s; }
+.scan-dot.bl { bottom:-2px; left:-2px; animation-delay:0.9s; }
+.scan-dot.br { bottom:-2px; right:-2px; animation-delay:1.35s; }
+@keyframes scan-dot-blink { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.2;transform:scale(0.5);} }
+
 .id-name {
     font-family:var(--f-disp); font-size:1.55rem; font-weight:800;
     color:var(--tx1); letter-spacing:0.07em; text-transform:uppercase; line-height:1;
+    animation:glitch-name 8s infinite;
+}
+@keyframes glitch-name {
+    0%,94%,100% { text-shadow:none; transform:none; }
+    95% { text-shadow:-2px 0 var(--crimson), 2px 0 var(--cyan); transform:skew(-1deg); }
+    96% { text-shadow:2px 0 var(--crimson), -2px 0 var(--cyan); transform:skew(1deg); }
+    97% { text-shadow:none; transform:none; }
+    98% { text-shadow:-1px 0 var(--cyan); transform:skew(-0.5deg); }
 }
 .id-tagline {
     font-family:var(--f-mono); font-size:0.58rem; font-weight:500;
@@ -175,20 +262,57 @@ html:not(.dark) #bg-vignette { background:radial-gradient(ellipse at center,tran
 }
 html:not(.dark) .glass-card { box-shadow:0 24px 60px rgba(0,0,0,0.12),0 0 0 1px rgba(0,50,120,0.04); }
 
-/* scanline overlay */
+/* scanline overlay on card */
 .glass-card::before {
     content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:28px;
     background:repeating-linear-gradient(0deg,transparent 0px,transparent 5px,rgba(0,240,255,0.006) 5px,rgba(0,240,255,0.006) 6px);
 }
 
-/* top gradient accent */
+/* animated top accent bar */
 .card-accent {
     height:3px; position:relative; z-index:2;
     background:linear-gradient(90deg,var(--cyan),var(--indigo),var(--violet),transparent);
     opacity:0.85;
+    animation:accent-flow 4s linear infinite;
+    background-size:200% 100%;
+}
+@keyframes accent-flow {
+    0%   { background-position:0% 0; }
+    100% { background-position:200% 0; }
 }
 
 .card-body { padding:36px 40px 38px; position:relative; z-index:2; }
+
+/* ── CLEARANCE HEADER ───────────────────────────────────── */
+.clearance-header {
+    text-align:center; margin-bottom:28px;
+}
+.clearance-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:5px 14px;
+    background:var(--crimson-dim); border:1px solid var(--crimson-border);
+    border-radius:6px;
+    font-family:var(--f-mono); font-size:0.55rem; font-weight:800;
+    color:var(--crimson); letter-spacing:0.16em; text-transform:uppercase;
+    margin-bottom:10px;
+    animation:badge-flicker 6s infinite;
+}
+.clearance-badge-dot { width:5px;height:5px;background:var(--crimson);border-radius:50%;box-shadow:0 0 5px var(--crimson);animation:dot-blink 0.9s ease-in-out infinite; }
+@keyframes badge-flicker {
+    0%,89%,100% { opacity:1; }
+    90%  { opacity:0.3; }
+    91%  { opacity:1; }
+    93%  { opacity:0.4; }
+    94%  { opacity:1; }
+}
+.clearance-title {
+    font-family:var(--f-disp); font-size:1.25rem; font-weight:800;
+    color:var(--tx1); letter-spacing:0.04em; margin-bottom:4px;
+}
+.clearance-sub {
+    font-family:var(--f-mono); font-size:0.60rem; color:var(--tx3);
+    letter-spacing:0.1em; text-transform:uppercase;
+}
 
 /* ── SYSTEM STATUS PILL ───────────────────────────────────── */
 .sys-pill {
@@ -205,27 +329,6 @@ html:not(.dark) .glass-card { box-shadow:0 24px 60px rgba(0,0,0,0.12),0 0 0 1px 
     background:var(--emerald); border-radius:50%; box-shadow:0 0 8px var(--emerald);
     animation:dot-blink 2.2s ease-in-out infinite;
 }
-@keyframes dot-blink { 0%,100%{transform:scale(1);}50%{transform:scale(0.5);opacity:0.4;} }
-
-/* ── TABS ─────────────────────────────────────────────────── */
-.tabs {
-    display:flex; gap:5px; margin-bottom:26px;
-    background:var(--g1); border:1px solid var(--b1);
-    border-radius:14px; padding:5px;
-}
-.tab {
-    flex:1; display:flex; align-items:center; justify-content:center; gap:7px;
-    padding:11px 10px; border-radius:10px;
-    background:none; border:1px solid transparent;
-    color:var(--tx3); font-family:var(--f-body); font-size:0.76rem;
-    font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
-    cursor:pointer; white-space:nowrap;
-    transition:all 0.22s var(--ease);
-}
-.tab i { font-size:11px; }
-.tab:hover { background:var(--g2); color:var(--tx2); }
-.tab.active { background:var(--g3); border-color:var(--b2); color:var(--tx1); box-shadow:0 2px 12px rgba(0,0,0,0.28); }
-.tab.active i { color:var(--cyan); filter:drop-shadow(0 0 5px var(--cyan)); }
 
 /* ── MESSAGE BOX ──────────────────────────────────────────── */
 #message-box {
@@ -240,16 +343,16 @@ html:not(.dark) .glass-card { box-shadow:0 24px 60px rgba(0,0,0,0.12),0 0 0 1px 
 #message-box.msg-error   { background:var(--crimson-dim); border-color:var(--crimson-border); color:var(--crimson); }
 #msg-icon { font-size:14px; flex-shrink:0; }
 
-/* ── FORMS ────────────────────────────────────────────────── */
-form { display:none; animation:form-slide 0.32s var(--ease) both; }
-@keyframes form-slide { from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);} }
-form.active { display:block; }
-
+/* ── LOGIN FORM ───────────────────────────────────────────── */
 .input-group { margin-bottom:18px; }
 .input-group label {
     display:block; margin-bottom:7px;
     font-family:var(--f-mono); font-size:0.60rem; font-weight:700;
     color:var(--tx3); text-transform:uppercase; letter-spacing:0.12em;
+    display:flex; align-items:center; gap:6px;
+}
+.input-group label .lbl-line {
+    flex:1; height:1px; background:var(--b1); border-radius:1px;
 }
 .input-wrapper { position:relative; display:flex; align-items:center; }
 .input-wrapper .ico {
@@ -260,7 +363,7 @@ form.active { display:block; }
 .input-wrapper input {
     width:100%; padding:13px 44px 13px 44px;
     background:var(--input-bg); border:1px solid var(--b2); border-radius:12px;
-    font-family:var(--f-body); font-size:0.90rem; /* 16px on mobile */
+    font-family:var(--f-body); font-size:0.90rem;
     color:var(--tx1); outline:none;
     transition:all 0.22s var(--ease); -webkit-appearance:none;
 }
@@ -279,44 +382,51 @@ form.active { display:block; }
 }
 .pw-eye:hover { color:var(--tx2); }
 
-/* ── SUBMIT BUTTONS ───────────────────────────────────────── */
+/* input focus typing effect border */
+.input-wrapper input:focus {
+    background:var(--input-focus-bg); border-color:var(--cyan);
+    box-shadow:0 0 0 3px var(--cyan-10);
+    animation:input-pulse 2s ease-in-out infinite;
+}
+@keyframes input-pulse {
+    0%,100% { box-shadow:0 0 0 3px var(--cyan-10); }
+    50%     { box-shadow:0 0 0 5px rgba(0,240,255,0.06); }
+}
+
+/* ── SUBMIT BUTTON ───────────────────────────────────────── */
 .btn-submit {
-    width:100%; margin-top:22px;
-    display:flex; align-items:center; justify-content:center; gap:9px;
-    padding:15px 20px; border:none; border-radius:12px;
-    font-family:var(--f-body); font-size:0.84rem;
-    font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    width:100%; margin-top:24px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    padding:16px 20px; border:none; border-radius:12px;
+    font-family:var(--f-disp); font-size:0.9rem;
+    font-weight:800; text-transform:uppercase; letter-spacing:0.10em;
     cursor:pointer; transition:all 0.25s var(--ease);
     position:relative; overflow:hidden;
-}
-.btn-submit::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.09); opacity:0; transition:opacity 0.2s; }
-.btn-submit:hover::after { opacity:1; }
-.btn-submit:hover  { transform:translateY(-3px); }
-.btn-submit:active { transform:translateY(-1px); }
-.btn-submit:disabled { opacity:0.38; pointer-events:none; }
-
-/* login — cyan */
-#login .btn-submit {
     background:linear-gradient(135deg,var(--cyan),#00c8d8); color:var(--tx-inv);
     box-shadow:0 4px 20px var(--cyan-20);
 }
-#login .btn-submit:hover { box-shadow:0 8px 32px var(--cyan-40); }
-html:not(.dark) #login .btn-submit { color:#fff; }
-
-/* signup — indigo */
-#signup .btn-submit {
-    background:linear-gradient(135deg,var(--indigo),#818cf8); color:#fff;
-    box-shadow:0 4px 20px var(--indigo-dim);
+html:not(.dark) .btn-submit { color:#fff; }
+.btn-submit::before {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+    transform:translateX(-100%);
+    transition:transform 0.5s var(--ease);
 }
-#signup .btn-submit:hover { box-shadow:0 8px 32px rgba(99,102,241,0.45); }
+.btn-submit:hover::before { transform:translateX(100%); }
+.btn-submit::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.09); opacity:0; transition:opacity 0.2s; }
+.btn-submit:hover::after { opacity:1; }
+.btn-submit:hover { transform:translateY(-3px); box-shadow:0 8px 32px var(--cyan-40); }
+.btn-submit:active { transform:translateY(-1px); }
+.btn-submit:disabled { opacity:0.38; pointer-events:none; }
 
-/* reset — amber */
-#reset .btn-submit {
-    background:linear-gradient(135deg,var(--amber),#ffcc60); color:var(--tx-inv);
-    box-shadow:0 4px 20px var(--amber-dim);
+/* ── FORGOT / HELP ROW ──────────────────────────────────── */
+.help-row {
+    display:flex; align-items:center; justify-content:center;
+    margin-top:16px; gap:6px;
+    font-family:var(--f-mono); font-size:0.58rem; color:var(--tx3);
+    letter-spacing:0.06em;
 }
-#reset .btn-submit:hover { box-shadow:0 8px 32px rgba(255,176,32,0.42); }
-html:not(.dark) #reset .btn-submit { color:#fff; }
+.help-row i { color:var(--amber); font-size:10px; }
 
 /* ── CARD FOOTER ──────────────────────────────────────────── */
 .card-footer {
@@ -331,7 +441,6 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
     color:var(--tx3); text-transform:uppercase; letter-spacing:0.07em;
 }
 .ft-item i { font-size:11px; color:var(--cyan); }
-
 .emergency-chip {
     display:flex; align-items:center; gap:7px;
     padding:7px 14px;
@@ -349,18 +458,61 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
 .fa-spin { animation:spin 0.75s linear infinite; display:inline-block; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
+/* ── BOOT SEQUENCE OVERLAY ──────────────────────────────── */
+#boot-overlay {
+    position:fixed; inset:0; z-index:9999;
+    background:var(--void);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:14px;
+    transition:opacity 0.8s var(--ease), visibility 0.8s;
+}
+#boot-overlay.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+.boot-logo {
+    width:72px; height:72px; border-radius:18px;
+    overflow:hidden; border:2px solid var(--cyan-40);
+    box-shadow:var(--cyan-glow);
+    animation:logo-pulse 2s ease-in-out infinite;
+}
+.boot-logo img { width:100%;height:100%;object-fit:contain; }
+.boot-text {
+    font-family:var(--f-mono); font-size:0.65rem; color:var(--cyan);
+    letter-spacing:0.2em; text-transform:uppercase;
+    animation:boot-type 0.1s steps(1) infinite;
+}
+@keyframes boot-type { 50%{opacity:0.4;} }
+.boot-lines {
+    display:flex; flex-direction:column; gap:4px;
+    font-family:var(--f-mono); font-size:0.56rem; color:var(--tx3);
+    letter-spacing:0.06em; text-align:left; width:260px;
+}
+.boot-line { opacity:0; animation:boot-line-in 0.3s var(--ease) forwards; }
+.boot-line.ok::before { content:'[OK] '; color:var(--emerald); }
+.boot-line.warn::before { content:'[··] '; color:var(--amber); }
+.boot-bar-wrap {
+    width:260px; height:2px; background:var(--b2); border-radius:1px;
+    overflow:hidden;
+}
+.boot-bar-fill {
+    height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--indigo));
+    border-radius:1px; animation:boot-fill 2s var(--ease) forwards;
+    box-shadow:0 0 8px var(--cyan);
+}
+@keyframes boot-fill { 0%{width:0} 70%{width:85%} 100%{width:100%} }
+@keyframes boot-line-in { from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:translateX(0);} }
+
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width:520px) {
     .card-body   { padding:28px 22px 30px; }
     .card-footer { padding:16px 22px 18px; flex-direction:column; align-items:flex-start; gap:8px; }
     .id-name     { font-size:1.3rem; }
-    .id-icon     { width:46px; height:46px; font-size:18px; }
-    .identity-bar{ gap:11px; margin-bottom:20px; }
-    .input-wrapper input { font-size:16px; } /* prevent iOS zoom */
-}
-@media (max-width:380px) {
-    .tab { font-size:0.68rem; padding:9px 5px; gap:4px; }
-    .tab i { display:none; }
+    .id-logo-img { width:52px; height:52px; }
+    .id-logo-wrap { width:52px; height:52px; }
+    .scan-ring { inset:-6px; border-radius:20px; }
+    .identity-bar{ gap:12px; margin-bottom:20px; }
+    .input-wrapper input { font-size:16px; }
+    #top-nav { padding:10px 14px; }
+    .nav-status-pill { display:none; }
 }
 
 ::-webkit-scrollbar { width:5px; }
@@ -371,7 +523,25 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
 
 <body>
 
-<!-- ─── BACKGROUND ──────────────────────────────────── -->
+<!-- ── BOOT SEQUENCE OVERLAY ─────────────────────────── -->
+<div id="boot-overlay">
+    <div class="boot-logo">
+        <img src="logo.png" alt="CIEPD" />
+    </div>
+    <div class="boot-text">CIEPD // INITIALIZING…</div>
+    <div class="boot-lines" id="bootLines"></div>
+    <div class="boot-bar-wrap">
+        <div class="boot-bar-fill"></div>
+    </div>
+</div>
+
+<!-- ── MATRIX RAIN ───────────────────────────────────── -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- ── SCAN LINE ─────────────────────────────────────── -->
+<div id="scan-line"></div>
+
+<!-- ── BACKGROUND ───────────────────────────────────── -->
 <div id="bg-canvas">
     <video autoplay muted loop playsinline id="bg-video">
         <source src="videos/vid.mp4" type="video/mp4">
@@ -389,18 +559,37 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
 <div class="corner bl"></div>
 <div class="corner br"></div>
 
-<!-- THEME TOGGLE -->
-<button id="themeBtn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
-    <i class="fas fa-sun"></i>
-</button>
+<!-- ── TOP NAV ───────────────────────────────────────── -->
+<nav id="top-nav">
+    <a href="index.html" class="nav-home-btn">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <div class="nav-right">
+        <div class="nav-status-pill">
+            <span class="nav-status-dot"></span>
+            System Online
+        </div>
+        <button id="themeBtn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+</nav>
 
-<!-- ─── MAIN CARD ─────────────────────────────────── -->
+<!-- ── MAIN CARD ─────────────────────────────────────── -->
 <div id="page-wrap">
 
     <!-- IDENTITY -->
     <div class="identity-bar">
-        <div class="id-icon">
-            <i class="fas fa-satellite-dish"></i>
+        <div class="id-logo-wrap">
+            <div class="scan-ring"></div>
+            <div class="scan-dot tl"></div>
+            <div class="scan-dot tr"></div>
+            <div class="scan-dot bl"></div>
+            <div class="scan-dot br"></div>
+            <div class="id-logo-img">
+                <img src="logo.png" alt="CIEPD Logo" />
+            </div>
         </div>
         <div>
             <div class="id-name">CIEPD</div>
@@ -413,23 +602,20 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
 
         <div class="card-body">
 
+            <!-- CLEARANCE HEADER -->
+            <div class="clearance-header">
+                <div class="clearance-badge">
+                    <span class="clearance-badge-dot"></span>
+                    Restricted Access
+                </div>
+                <div class="clearance-title">Administrator Portal</div>
+                <div class="clearance-sub">Authorised Personnel Only · Niger Delta CWC</div>
+            </div>
+
             <!-- STATUS PILL -->
             <div class="sys-pill">
                 <span class="sys-dot"></span>
                 System Online &nbsp;·&nbsp; 24/7 Monitoring Active
-            </div>
-
-            <!-- TABS -->
-            <div class="tabs">
-                <div class="tab active" data-tab-id="login" onclick="showTab('login',this)">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </div>
-                <div class="tab" data-tab-id="signup" onclick="showTab('signup',this)">
-                    <i class="fas fa-user-plus"></i> Register
-                </div>
-                <div class="tab" data-tab-id="reset" onclick="showTab('reset',this)">
-                    <i class="fas fa-key"></i> Reset
-                </div>
             </div>
 
             <!-- MESSAGE BOX -->
@@ -439,19 +625,25 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
             </div>
 
             <!-- LOGIN FORM -->
-            <form id="login" class="active">
+            <form id="login-form">
                 <div class="input-group">
-                    <label for="loginEmail">Administrator Email</label>
+                    <label for="loginEmail">
+                        Administrator Email
+                        <span class="lbl-line"></span>
+                    </label>
                     <div class="input-wrapper">
                         <i class="ico fas fa-envelope"></i>
                         <input type="email" id="loginEmail" placeholder="admin@ciepd.org" autocomplete="email" required/>
                     </div>
                 </div>
                 <div class="input-group">
-                    <label for="loginPassword">Secure Password</label>
+                    <label for="loginPassword">
+                        Secure Passphrase
+                        <span class="lbl-line"></span>
+                    </label>
                     <div class="input-wrapper">
                         <i class="ico fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="••••••••••" autocomplete="current-password" required/>
+                        <input type="password" id="loginPassword" placeholder="••••••••••••" autocomplete="current-password" required/>
                         <span class="pw-eye" onclick="togglePw('loginPassword',this)" title="Show/hide">
                             <i class="fas fa-eye"></i>
                         </span>
@@ -462,60 +654,10 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
                 </button>
             </form>
 
-            <!-- SIGNUP FORM -->
-            <form id="signup">
-                <div class="input-group">
-                    <label for="signupName">Full Name</label>
-                    <div class="input-wrapper">
-                        <i class="ico fas fa-user"></i>
-                        <input type="text" id="signupName" placeholder="Enter your full name" autocomplete="name" required/>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="signupEmail">Work Email</label>
-                    <div class="input-wrapper">
-                        <i class="ico fas fa-envelope"></i>
-                        <input type="email" id="signupEmail" placeholder="email@ciepd.org" autocomplete="email" required/>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="signupPassword">New Password</label>
-                    <div class="input-wrapper">
-                        <i class="ico fas fa-key"></i>
-                        <input type="password" id="signupPassword" placeholder="Min. 8 characters" autocomplete="new-password" required/>
-                        <span class="pw-eye" onclick="togglePw('signupPassword',this)" title="Show/hide">
-                            <i class="fas fa-eye"></i>
-                        </span>
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit" id="signup-btn">
-                    <i class="fas fa-user-plus"></i> Create Account
-                </button>
-            </form>
-
-            <!-- RESET FORM -->
-            <form id="reset">
-                <div class="input-group">
-                    <label for="resetEmail">Registered Email</label>
-                    <div class="input-wrapper">
-                        <i class="ico fas fa-envelope"></i>
-                        <input type="email" id="resetEmail" placeholder="Enter registered email" autocomplete="email" required/>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="resetNewPassword">New Password</label>
-                    <div class="input-wrapper">
-                        <i class="ico fas fa-unlock"></i>
-                        <input type="password" id="resetNewPassword" placeholder="Set new password" autocomplete="new-password" required/>
-                        <span class="pw-eye" onclick="togglePw('resetNewPassword',this)" title="Show/hide">
-                            <i class="fas fa-eye"></i>
-                        </span>
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit" id="reset-btn">
-                    <i class="fas fa-redo-alt"></i> Recover Password
-                </button>
-            </form>
+            <div class="help-row">
+                <i class="fas fa-info-circle"></i>
+                Contact your system administrator for access issues
+            </div>
 
         </div><!-- /card-body -->
 
@@ -533,7 +675,72 @@ html:not(.dark) #reset .btn-submit { color:#fff; }
 
 
 <script>
-/* ── THEME ──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════
+   BOOT SEQUENCE
+═══════════════════════════════════════════════ */
+const bootMessages = [
+    { cls:'ok',   text:'CIEPD Core Systems… Online' },
+    { cls:'ok',   text:'Intelligence Database… Connected' },
+    { cls:'ok',   text:'Encryption Layer… Active' },
+    { cls:'warn', text:'Verifying Credentials… Standby' },
+    { cls:'ok',   text:'Command Interface… Ready' },
+];
+(function runBoot() {
+    const container = document.getElementById('bootLines');
+    let i = 0;
+    function nextLine() {
+        if (i >= bootMessages.length) {
+            setTimeout(() => document.getElementById('boot-overlay').classList.add('hidden'), 400);
+            return;
+        }
+        const el = document.createElement('div');
+        el.className = 'boot-line ' + bootMessages[i].cls;
+        el.style.animationDelay = '0s';
+        el.textContent = bootMessages[i].text;
+        container.appendChild(el);
+        i++;
+        setTimeout(nextLine, 300);
+    }
+    setTimeout(nextLine, 200);
+})();
+
+/* ═══════════════════════════════════════════════
+   MATRIX RAIN
+═══════════════════════════════════════════════ */
+(function initMatrix() {
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, cols, drops;
+    const chars  = '01アイウエオカキクケコサシスセソNIGERDELTACIEPD';
+
+    function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        cols = Math.floor(W / 16);
+        drops = new Array(cols).fill(1);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function draw() {
+        const isDark = document.documentElement.classList.contains('dark');
+        ctx.fillStyle = isDark ? 'rgba(4,6,10,0.06)' : 'rgba(232,238,248,0.06)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = isDark ? 'rgba(0,240,255,0.75)' : 'rgba(0,91,204,0.5)';
+        ctx.font = '13px JetBrains Mono, monospace';
+        for (let i = 0; i < cols; i++) {
+            const ch = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(ch, i * 16, drops[i] * 16);
+            if (drops[i] * 16 > H && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(draw, 55);
+})();
+
+/* ═══════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════ */
 function toggleTheme() {
     document.documentElement.classList.toggle('dark');
     localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
@@ -545,16 +752,9 @@ function updateThemeIcon() {
 }
 updateThemeIcon();
 
-/* ── TABS ───────────────────────────────────────────────── */
-function showTab(tabId, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('form').forEach(f => f.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById(tabId).classList.add('active');
-    hideMessage();
-}
-
-/* ── PASSWORD TOGGLE ────────────────────────────────────── */
+/* ═══════════════════════════════════════════════
+   PASSWORD TOGGLE
+═══════════════════════════════════════════════ */
 function togglePw(inputId, btn) {
     const input = document.getElementById(inputId);
     const icon  = btn.querySelector('i');
@@ -567,7 +767,9 @@ function togglePw(inputId, btn) {
     }
 }
 
-/* ── MESSAGES ───────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════
+   MESSAGES
+═══════════════════════════════════════════════ */
 function showMessage(text, type = 'error') {
     const box  = document.getElementById('message-box');
     const txt  = document.getElementById('msg-text');
@@ -580,99 +782,71 @@ function hideMessage() {
     document.getElementById('message-box').className = '';
 }
 
-/* ── BUTTON LOADING ─────────────────────────────────────── */
-function toggleButtonLoading(btnId, isLoading, defaultText, iconClass) {
-    const btn    = document.getElementById(btnId);
+/* ═══════════════════════════════════════════════
+   BUTTON LOADING
+═══════════════════════════════════════════════ */
+function setLoading(isLoading) {
+    const btn = document.getElementById('login-btn');
     btn.disabled = isLoading;
     btn.innerHTML = isLoading
-        ? `<i class="fas fa-circle-notch fa-spin"></i> Processing…`
-        : `<i class="${iconClass}"></i> ${defaultText}`;
+        ? `<i class="fas fa-circle-notch fa-spin"></i> Authenticating…`
+        : `<i class="fas fa-sign-in-alt"></i> Access Intelligence Portal`;
 }
 
-/* ── BASE URL ───────────────────────────────────────────── */
-/* Pointing directly to Vercel production domain */
+/* ═══════════════════════════════════════════════
+   BASE URL
+═══════════════════════════════════════════════ */
 const BASE_URL =
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3000'
-        : 'https://ciepdcwc.vercel.app';
+        : 'https://ciepdcwc.up.railway.app';
 
-/* ── FORM SUBMIT HANDLERS ───────────────────────────────── */
-['login', 'signup', 'reset'].forEach(formId => {
-    const formEl = document.getElementById(formId);
-    if (!formEl) return;
+/* ═══════════════════════════════════════════════
+   LOGIN SUBMIT
+═══════════════════════════════════════════════ */
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMessage();
 
-    formEl.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        hideMessage();
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
 
-        let btnId, btnText, btnIcon, endpoint;
-        const payload = {};
+    if (!email || !password) {
+        showMessage('Please enter your email and password.');
+        return;
+    }
 
-        if (formId === 'login') {
-            btnId    = 'login-btn';
-            btnText  = 'Access Intelligence Portal';
-            btnIcon  = 'fas fa-sign-in-alt';
-            endpoint = '/api/login';
-            payload.email    = document.getElementById('loginEmail').value.trim();
-            payload.password = document.getElementById('loginPassword').value.trim();
+    setLoading(true);
 
-        } else if (formId === 'signup') {
-            btnId    = 'signup-btn';
-            btnText  = 'Create Account';
-            btnIcon  = 'fas fa-user-plus';
-            endpoint = '/api/signup';
-            payload.name     = document.getElementById('signupName').value.trim();
-            payload.email    = document.getElementById('signupEmail').value.trim();
-            payload.password = document.getElementById('signupPassword').value.trim();
+    try {
+        const res = await fetch(`${BASE_URL}/api/login`, {
+            method:      'POST',
+            headers:     { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body:        JSON.stringify({ email, password }),
+        });
 
-        } else {
-            btnId    = 'reset-btn';
-            btnText  = 'Recover Password';
-            btnIcon  = 'fas fa-redo-alt';
-            endpoint = '/api/reset-password';
-            payload.email       = document.getElementById('resetEmail').value.trim();
-            payload.newPassword = document.getElementById('resetNewPassword').value.trim();
-        }
+        const data = await res.json();
 
-        toggleButtonLoading(btnId, true, btnText, btnIcon);
-
-        try {
-            // Pointing to Vercel via BASE_URL
-            const res = await fetch(`${BASE_URL}${endpoint}`, {
-                method:      'POST',
-                headers:     { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body:        JSON.stringify(payload),
-            });
-
-            const data = await res.json();
-
-            if (res.ok && (data.success || formId !== 'login')) {
-                if (formId === 'login') {
-                    // Successful login — save role then redirect
-                    if (data.user && data.user.role) {
-                        localStorage.setItem('userRole', data.user.role);
-                    }
-                    showMessage('Authentication successful. Redirecting…', 'success');
-                    setTimeout(() => {
-                        window.location.href = data.redirect || 'admin.html';
-                    }, 900);
-                } else {
-                    showMessage(data.message || '✅ Action successful! You can now log in.', 'success');
-                    showTab('login', document.querySelector('[data-tab-id="login"]'));
-                }
-            } else {
-                showMessage(data.error || data.message || '❌ Operation failed. Please check your details.');
+        if (res.ok && data.success) {
+            if (data.user && data.user.role) {
+                localStorage.setItem('userRole', data.user.role);
             }
-
-        } catch (err) {
-            console.error('Fetch Error:', err);
-            showMessage('⚠️ Server connection failed. Ensure backend is active on Vercel.');
-        } finally {
-            toggleButtonLoading(btnId, false, btnText, btnIcon);
+            showMessage('Authentication successful. Redirecting…', 'success');
+            setTimeout(() => {
+                window.location.href = data.redirect || 'admin.html';
+            }, 900);
+        } else {
+            showMessage(data.error || data.message || 'Authentication failed. Check your credentials.');
         }
-    });
+
+    } catch (err) {
+        console.error('Fetch Error:', err);
+        showMessage('⚠️ Server connection failed. Please try again.');
+    } finally {
+        setLoading(false);
+    }
 });
 </script>
 

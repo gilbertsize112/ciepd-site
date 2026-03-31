@@ -1489,9 +1489,7 @@
     }
     buildTicker();
 
-    /* ══════════════════════════════════
-       PARTNERS ROW
-    ══════════════════════════════════ */
+  
     const partners = [
         { icon:'fa-university', name:'NDDC' },
         { icon:'fa-globe-africa', name:'UNDP Nigeria' },
@@ -1511,9 +1509,6 @@
     }
     buildPartners();
 
-    /* ══════════════════════════════════
-       TYPEWRITER EFFECT
-    ══════════════════════════════════ */
     const twWords = ['Prevention.', 'Intelligence.', 'Community.', 'Prevention.'];
     let twIdx = 0, twChar = 0, twDeleting = false;
     const twEl = document.getElementById('hero-typewriter');
@@ -1530,9 +1525,7 @@
     }
     setTimeout(typewriter, 1200);
 
-    /* ══════════════════════════════════
-       ANIMATED STAT COUNTERS
-    ══════════════════════════════════ */
+  
     function animateCount(el, target, suffix = '+') {
         let start = 0;
         const duration = 1800;
@@ -1557,12 +1550,12 @@
 
     document.querySelectorAll('[data-target]').forEach(el => statsObserver.observe(el));
 
-    /* ── SPLASH ── */
+  
     window.addEventListener('load', () => {
         setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 2800);
     });
 
-    /* ── DARK MODE ── */
+  
     function toggleDarkMode() {
         document.documentElement.classList.toggle('dark');
         const isDark = document.documentElement.classList.contains('dark');
